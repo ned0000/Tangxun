@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<servMgmtSetting>
+  <version>1.0</version>
+  <serviceSetting>
+    <service>
+      <name>dabgad</name>
+      <startupType>automatic</startupType>
+      <role>internal</role>
+      <cmdPath>dabgad</cmdPath>
+      <restartDelay>10</restartDelay>
+      <cmdParam></cmdParam>
+    </service>
+  </serviceSetting>
+</servMgmtSetting>

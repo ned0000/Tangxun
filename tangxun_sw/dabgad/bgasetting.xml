@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eventLoggerSetting>
+  <version>1.0</version>
+  <logLocations>
+    <log>file</log>
+  </logLocations>
+  <setting WWN="">
+    <timeOfDownload>17:00:00</timeOfDownload>
+  </setting>
+</eventLoggerSetting>
