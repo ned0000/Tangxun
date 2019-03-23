@@ -21,10 +21,11 @@
 #include "stringparse.h"
 #include "files.h"
 #include "xmalloc.h"
-#include "clieng.h"
 #include "persistency.h"
 
 /* --- private data/data structure section --------------------------------- */
+
+#define MAX_STOCK_IN_POOL     (30)
 
 typedef struct
 {
@@ -38,55 +39,9 @@ env_var_t ls_evEnvVar = {
     0,
     MAX_STOCK_IN_POOL};
 
-static clieng_caption_t ls_ccEnvVarVerbose[] =
-{
-    {ENV_VAR_DATA_PATH, CLIENG_CAP_FULL_LINE},
-    {ENV_VAR_DAYS_STOCK_POOL, CLIENG_CAP_HALF_LINE}, {ENV_VAR_MAX_STOCK_IN_POOL, CLIENG_CAP_HALF_LINE},
-};
-
 static persistency_t * ls_pEnvPersist = NULL;
 
 /* --- private routine section---------------------------------------------- */
-
-static void _printEnvVarVerbose(env_var_t * var)
-{
-    clieng_caption_t * pcc = &ls_ccEnvVarVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
-
-    /* DataPath */
-    cliengPrintOneFullLine(pcc, var->ev_strDataPath); 
-    pcc += 1;
-
-    /* DaysForStockInPool */
-    ol_sprintf(strLeft, "%d", var->ev_nDaysForStockInPool);
-    ol_sprintf(strRight, "%d", var->ev_nMaxStockInPool);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight); 
-    pcc += 2;
-
-    cliengOutputLine("");
-}
-
-static u32 _printEnvVar(env_var_t * pev, olchar_t * name)
-{
-    u32 u32Ret = OLERR_NO_ERROR;
-
-    if (strcasecmp(name, ENV_VAR_DATA_PATH) == 0)
-    {
-        cliengOutputLine("%s: %s\n", ENV_VAR_DATA_PATH, pev->ev_strDataPath);
-    }
-    else if (strcasecmp(name, ENV_VAR_DAYS_STOCK_POOL) == 0)
-    {
-        cliengOutputLine("%s: %d\n", ENV_VAR_DAYS_STOCK_POOL, pev->ev_nDaysForStockInPool);
-    }
-    else if (strcasecmp(name, ENV_VAR_MAX_STOCK_IN_POOL) == 0)
-    {
-        cliengOutputLine("%s: %d\n", ENV_VAR_MAX_STOCK_IN_POOL, pev->ev_nMaxStockInPool);
-    }
-    else
-        u32Ret = OLERR_NOT_FOUND;
-
-    return u32Ret;
-}
 
 static u32 _clearEnvVar(env_var_t * pev, olchar_t * name)
 {
@@ -188,7 +143,7 @@ static u32 _initEnvVar(persistency_t * pPersist)
 
 /* --- public routine section ---------------------------------------------- */
 
-char * getEnvVar(olchar_t * name)
+olchar_t * getEnvVar(olchar_t * name)
 {
     if (strcasecmp(name, ENV_VAR_DATA_PATH) == 0)
     {
@@ -196,6 +151,16 @@ char * getEnvVar(olchar_t * name)
     }
 
     return NULL;
+}
+
+boolean_t isNullEnvVarDataPath(void)
+{
+    boolean_t bRet = FALSE;
+
+    if (ls_evEnvVar.ev_strDataPath[0] == '\0')
+        bRet = TRUE;
+
+    return bRet;
 }
 
 olint_t getEnvVarDaysStockPool(void)
@@ -206,20 +171,6 @@ olint_t getEnvVarDaysStockPool(void)
 olint_t getEnvVarMaxStockInPool(void)
 {
     return ls_evEnvVar.ev_nMaxStockInPool;
-}
-
-void printEnvVarVerbose(void)
-{
-    _printEnvVarVerbose(&ls_evEnvVar);
-}
-
-u32 printEnvVar(olchar_t * name)
-{
-    u32 u32Ret = OLERR_NO_ERROR;
-
-    u32Ret = _printEnvVar(&ls_evEnvVar, name);
-
-    return u32Ret;
 }
 
 u32 setEnvVar(olchar_t * data)

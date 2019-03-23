@@ -25,9 +25,15 @@
 
 /* --- private data/data structure section --------------------------------- */
 
+static clieng_caption_t ls_ccEnvVarVerbose[] =
+{
+    {ENV_VAR_DATA_PATH, CLIENG_CAP_FULL_LINE},
+    {ENV_VAR_DAYS_STOCK_POOL, CLIENG_CAP_HALF_LINE}, {ENV_VAR_MAX_STOCK_IN_POOL, CLIENG_CAP_HALF_LINE},
+};
 
 
 /* --- private routine section---------------------------------------------- */
+
 static u32 _envHelp(da_master_t * pdm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -44,7 +50,51 @@ env [-l var] [-s var] [-c var]");
     return u32Ret;
 }
 
+static void _printEnvVarVerbose(void)
+{
+    clieng_caption_t * pcc = &ls_ccEnvVarVerbose[0];
+    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+
+    /* DataPath */
+    cliengPrintOneFullLine(pcc, getEnvVar(ENV_VAR_DATA_PATH)); 
+    pcc += 1;
+
+    /* DaysForStockInPool */
+    ol_sprintf(strLeft, "%d", getEnvVarDaysStockPool());
+    ol_sprintf(strRight, "%d", getEnvVarMaxStockInPool());
+    cliengPrintTwoHalfLine(pcc, strLeft, strRight); 
+    pcc += 2;
+
+    cliengOutputLine("");
+}
+
+static u32 _printEnvVar(olchar_t * name)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+
+    if (strcasecmp(name, ENV_VAR_DATA_PATH) == 0)
+    {
+        cliengOutputLine(
+            "%s: %s\n", ENV_VAR_DATA_PATH, getEnvVar(ENV_VAR_DATA_PATH));
+    }
+    else if (strcasecmp(name, ENV_VAR_DAYS_STOCK_POOL) == 0)
+    {
+        cliengOutputLine(
+            "%s: %d\n", ENV_VAR_DAYS_STOCK_POOL, getEnvVarDaysStockPool());
+    }
+    else if (strcasecmp(name, ENV_VAR_MAX_STOCK_IN_POOL) == 0)
+    {
+        cliengOutputLine(
+            "%s: %d\n", ENV_VAR_MAX_STOCK_IN_POOL, getEnvVarMaxStockInPool());
+    }
+    else
+        u32Ret = OLERR_NOT_FOUND;
+
+    return u32Ret;
+}
+
 /* --- public routine section ---------------------------------------------- */
+
 u32 processEnv(void * pMaster, void * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -55,7 +105,7 @@ u32 processEnv(void * pMaster, void * pParam)
         u32Ret = _envHelp(pdm);
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST_ALL)
     {
-        printEnvVarVerbose();
+        _printEnvVarVerbose();
     }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_SET)
     {
@@ -63,7 +113,7 @@ u32 processEnv(void * pMaster, void * pParam)
     }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST)
     {
-        u32Ret = printEnvVar(pcep->cep_pstrData);
+        u32Ret = _printEnvVar(pcep->cep_pstrData);
     }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_CLEAR)
     {

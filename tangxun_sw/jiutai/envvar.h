@@ -19,20 +19,21 @@
 
 /* --- constant definitions ------------------------------------------------ */
 
-#define ENV_VAR_DATA_PATH  "DataPath"
-#define ENV_VAR_DAYS_STOCK_POOL "DaysForStockInPool"
-#define ENV_VAR_MAX_STOCK_IN_POOL "MaxStockInPool"
+#define ENV_VAR_DATA_PATH           "DataPath"
+#define ENV_VAR_DAYS_STOCK_POOL     "DaysForStockInPool"
+#define ENV_VAR_MAX_STOCK_IN_POOL   "MaxStockInPool"
 
 /* --- data structures ----------------------------------------------------- */
-#define MAX_STOCK_IN_POOL  30
+
 
 /* --- functional routines ------------------------------------------------- */
+
 char * getEnvVar(olchar_t * name);
 olint_t getEnvVarDaysStockPool(void);
 olint_t getEnvVarMaxStockInPool(void);
 
-void printEnvVarVerbose(void);
-u32 printEnvVar(olchar_t * name);
+boolean_t isNullEnvVarDataPath(void);
+
 u32 setEnvVar(olchar_t * data);
 u32 clearEnvVar(olchar_t * name);
 
