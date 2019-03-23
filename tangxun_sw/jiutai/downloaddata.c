@@ -26,7 +26,6 @@
 #include "xtime.h"
 #include "process.h"
 #include "stocklist.h"
-#include "clieng.h"
 
 /* --- private data/data structure section --------------------------------- */
 static olchar_t * ls_pstrDataServer = "market.finance.sina.com.cn";
@@ -35,20 +34,6 @@ static olchar_t * ls_pstrDataFileNetease = "Summary.csv";
 static olchar_t * ls_pstrStartData = "19980101";
 
 #define DATE_STRING_FORMAT "%4d%02d%02d"
-
-static clieng_caption_t ls_ccQuoEntryVerbose[] =
-{
-    {"Stock", CLIENG_CAP_HALF_LINE}, {"CurPrice", CLIENG_CAP_HALF_LINE},
-    {"Date", CLIENG_CAP_HALF_LINE}, {"Time", CLIENG_CAP_HALF_LINE},
-    {"OpeningPrice", CLIENG_CAP_HALF_LINE}, {"LastClosingPrice", CLIENG_CAP_HALF_LINE},
-    {"HighPrice", CLIENG_CAP_HALF_LINE}, {"LowPrice", CLIENG_CAP_HALF_LINE},
-    {"Volume", CLIENG_CAP_HALF_LINE}, {"Amount", CLIENG_CAP_HALF_LINE},
-    {"Buy1", CLIENG_CAP_HALF_LINE}, {"Sold5", CLIENG_CAP_HALF_LINE},
-    {"Buy2", CLIENG_CAP_HALF_LINE}, {"Sold5", CLIENG_CAP_HALF_LINE},
-    {"Buy3", CLIENG_CAP_HALF_LINE}, {"Sold5", CLIENG_CAP_HALF_LINE},
-    {"Buy4", CLIENG_CAP_HALF_LINE}, {"Sold5", CLIENG_CAP_HALF_LINE},
-    {"Buy5", CLIENG_CAP_HALF_LINE}, {"Sold5", CLIENG_CAP_HALF_LINE},
-};
 
 /* --- private routine section---------------------------------------------- */
 static u32 _recvOneXls(
@@ -187,12 +172,18 @@ static u32 _saveOneXls(
                 {
                     if (nContentLength <= 100) /*can't be so little data*/
                     {
-                        cliengOutputLine("Invalid data for %s, stock %s", fname, stock);
                         u32Ret = OLERR_INVALID_DATA;
+                        logErrMsg(
+                            u32Ret, "Invalid data for %s, stock %s",
+                            fname, stock);
                     }
                 }
                 else
-                    cliengOutputLine("Invalid HTTP header for %s, stock %s", fname, stock);
+                {
+                    logErrMsg(
+                        u32Ret, "Invalid HTTP header for %s, stock %s",
+                        fname, stock);
+                }
             }
             else
                 u32Ret = OLERR_INVALID_DATA;
@@ -201,7 +192,7 @@ static u32 _saveOneXls(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        cliengOutputLine("Save trade detail %s for stock %s", fname, stock);
+        logDebugMsg("Save trade detail %s for stock %s", fname, stock);
         ol_sprintf(
             filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
@@ -222,7 +213,7 @@ static u32 _saveOneXls(
             {
                 /*remove data file so we can try again later*/
                 removeFile(filepath);
-                cliengOutputLine("Remove data file %s", fname);
+                logErrMsg(u32Ret, "Remove data file %s", fname);
             }
         }
     }
@@ -230,7 +221,6 @@ static u32 _saveOneXls(
     if (u32Ret != OLERR_NO_ERROR)
     {
         logErrMsg(u32Ret, "Failed to save %s for stock %s", fname, stock);
-        cliengOutputLine("Failed to save %s for stock %s", fname, stock);
         u32Ret = OLERR_NO_ERROR;
     }
 
@@ -694,12 +684,18 @@ static u32 _saveOneCsv(
                 {
                     if (nContentLength <= 10) /*can't be so little data*/
                     {
-                        cliengOutputLine("Invalid data for %s, stock %s", fname, stock);
                         u32Ret = OLERR_INVALID_DATA;
+                        logErrMsg(
+                            u32Ret, "Invalid data for %s, stock %s",
+                            fname, stock);
                     }
                 }
                 else
-                    cliengOutputLine("Invalid HTTP header for %s, stock %s", fname, stock);
+                {
+                    logErrMsg(
+                        u32Ret, "Invalid HTTP header for %s, stock %s",
+                        fname, stock);
+                }
             }
             else
                 u32Ret = OLERR_INVALID_DATA;
@@ -708,7 +704,7 @@ static u32 _saveOneCsv(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        cliengOutputLine("Save trade summary for stock %s", stock);
+        logDebugMsg("Save trade summary for stock %s", stock);
         ol_sprintf(
             filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
@@ -734,7 +730,7 @@ static u32 _saveOneCsv(
                 {
                     /*remove data file so we can try again later*/
                     removeFile(filepath);
-                    cliengOutputLine("Remove trade summary file");
+                    logErrMsg(u32Ret, "Remove trade summary file");
                 }
             }
         }
@@ -882,9 +878,6 @@ static u32 _downloadOneCsv(
         if (u32Ret != OLERR_NO_ERROR)
         {
             logErrMsg(u32Ret, "Failed to save trade summary for stock %s", stock);
-            cliengOutputLine(
-                "Failed to save trade summary for stock %s, %s",
-                stock, getErrorDescription(u32Ret));
             u32Ret = OLERR_NO_ERROR;
         }
     }
@@ -964,7 +957,6 @@ static u32 _checkDlDataParam(download_data_param_t * param)
     if ((param->ddp_pstrDataDir == NULL) ||
         (param->ddp_pstrDataDir[0] == '\0'))
     {
-        cliengOutputLine("Data directory is not specified");
         return OLERR_INVALID_PARAM;
     }
 
@@ -972,7 +964,6 @@ static u32 _checkDlDataParam(download_data_param_t * param)
     {
         if ((param->ddp_pstrStartDate == NULL) || (param->ddp_pstrEndDate == NULL))
         {
-            cliengOutputLine("Date is not specified");
             return OLERR_INVALID_PARAM;
         }
 
@@ -1059,75 +1050,6 @@ u32 downloadStockInfoIndex(download_data_param_t * param)
     u32Ret = _downloadNeteaseIndexCSV(param);
 
     return u32Ret;
-}
-
-void printQuoEntryVerbose(quo_entry_t * entry)
-{
-    clieng_caption_t * pcc = &ls_ccQuoEntryVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
-
-    cliengPrintDivider();
-
-    ol_sprintf(strLeft, "%s", entry->qe_strCode);
-    ol_sprintf(strRight, "%.2f", entry->qe_dbCurPrice);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%s", entry->qe_strDate);
-    ol_sprintf(strRight, "%s", entry->qe_strTime);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f", entry->qe_dbOpeningPrice);
-    ol_sprintf(strRight, "%.2f", entry->qe_dbLastClosingPrice);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f", entry->qe_dbHighPrice);
-    ol_sprintf(strRight, "%.2f", entry->qe_dbLowPrice);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%lld", entry->qe_u64Volume);
-    ol_sprintf(strRight, "%lld", entry->qe_u64Amount);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f %lld",
-            entry->qe_qdpBuy[0].qdp_dbPrice, entry->qe_qdpBuy[0].qdp_u64Volume);
-    ol_sprintf(strRight, "%.2f %lld",
-            entry->qe_qdpSold[0].qdp_dbPrice, entry->qe_qdpSold[0].qdp_u64Volume);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f %lld",
-            entry->qe_qdpBuy[0].qdp_dbPrice, entry->qe_qdpBuy[1].qdp_u64Volume);
-    ol_sprintf(strRight, "%.2f %lld",
-            entry->qe_qdpSold[0].qdp_dbPrice, entry->qe_qdpSold[1].qdp_u64Volume);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f %lld",
-            entry->qe_qdpBuy[0].qdp_dbPrice, entry->qe_qdpBuy[2].qdp_u64Volume);
-    ol_sprintf(strRight, "%.2f %lld",
-            entry->qe_qdpSold[0].qdp_dbPrice, entry->qe_qdpSold[2].qdp_u64Volume);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f %lld",
-            entry->qe_qdpBuy[0].qdp_dbPrice, entry->qe_qdpBuy[3].qdp_u64Volume);
-    ol_sprintf(strRight, "%.2f %lld",
-            entry->qe_qdpSold[0].qdp_dbPrice, entry->qe_qdpSold[3].qdp_u64Volume);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    ol_sprintf(strLeft, "%.2f %lld",
-            entry->qe_qdpBuy[0].qdp_dbPrice, entry->qe_qdpBuy[4].qdp_u64Volume);
-    ol_sprintf(strRight, "%.2f %lld",
-            entry->qe_qdpSold[0].qdp_dbPrice, entry->qe_qdpSold[4].qdp_u64Volume);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
 }
 
 /*---------------------------------------------------------------------------*/
