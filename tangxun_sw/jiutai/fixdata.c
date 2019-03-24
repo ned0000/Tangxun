@@ -20,22 +20,17 @@
 #include "errcode.h"
 #include "files.h"
 #include "stringparse.h"
-#include "clieng.h"
 #include "xmalloc.h"
 
 /* --- private data/data structure section --------------------------------- */
-typedef struct
-{
-    olint_t fs_nDeleteLine;
 
-} fix_stat_t;
-
-#define SAVE_LINE  0
-#define DELETE_LINE  1
+#define SAVE_LINE      (0)
+#define DELETE_LINE    (1)
 
 /* --- private routine section---------------------------------------------- */
-static u32 _saveOneLine(fix_param_t * pfp, olchar_t * line,
-    olsize_t llen, olchar_t * time, file_t fdt, fix_stat_t * fixstat)
+static u32 _saveOneLine(
+    fix_param_t * pfp, olchar_t * line,
+    olsize_t llen, olchar_t * time, file_t fdt, fix_result_t * pResult)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_t * result;
@@ -55,7 +50,9 @@ static u32 _saveOneLine(fix_param_t * pfp, olchar_t * line,
             {
                 /*time of the trade*/
                 if (field->prf_sData < 8)
+                {
                     u32Ret = OLERR_INVALID_DATA;
+                }
                 else
                 {
                     strtime = field->prf_pstrData;
@@ -95,15 +92,14 @@ static u32 _saveOneLine(fix_param_t * pfp, olchar_t * line,
         if (action == SAVE_LINE)
             writen(fdt, line, llen);
         else if (action == DELETE_LINE)
-            fixstat->fs_nDeleteLine ++;
-
+            pResult->fr_nDeletedLine ++;
     }
 
     return u32Ret;
 }
 
-static u32 _verifyFirstLine(fix_param_t * pfp, olchar_t * line, olsize_t size,
-    olchar_t * time)
+static u32 _verifyFirstLine(
+    fix_param_t * pfp, olchar_t * line, olsize_t size, olchar_t * time)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -117,7 +113,8 @@ static u32 _verifyFirstLine(fix_param_t * pfp, olchar_t * line, olsize_t size,
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 fixDataFile(olchar_t * file, fix_param_t * pfp)
+
+u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     file_t fd;
@@ -126,12 +123,10 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp)
     olsize_t llen;
     olchar_t filename[MAX_PATH_LEN];
     olchar_t strTime[16]; /*the time when the last transaction occurs*/
-    olchar_t * tempdatafile = "tempdatafile";
-    fix_stat_t fixstat;
 
-    memset(&fixstat, 0, sizeof(fixstat));
+    ol_memset(pResult, 0, sizeof(*pResult));
     getDirectoryName(line, sizeof(line), file);
-    ol_snprintf(filename, MAX_PATH_LEN, "%s%c%s", line, PATH_SEPARATOR, tempdatafile);
+    ol_snprintf(filename, MAX_PATH_LEN, "%s.fix", file);
 
     u32Ret = openFile(file, O_RDONLY, &fd);
     if (u32Ret != OLERR_NO_ERROR)
@@ -160,7 +155,7 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp)
         u32Ret = _verifyFirstLine(pfp, line, llen, strTime);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, &fixstat);
+        u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, pResult);
 
     while (u32Ret == OLERR_NO_ERROR)
     {
@@ -168,7 +163,7 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp)
         u32Ret = readLine(fd, line, &llen);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, &fixstat);
+            u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, pResult);
         }
     } 
 
@@ -180,27 +175,17 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (fixstat.fs_nDeleteLine != 0)
-            cliengOutputLine(
-                "Delete %d lines from data file", fixstat.fs_nDeleteLine);
-
         if (pfp->fp_bOverwrite)
         {
             removeFile(file);
             renameFile(filename, file);
-            cliengOutputLine(
-                "Fix data file %s, overwrite it", file);
+            logInfoMsg("Fix data file %s, overwrite it", file);
         }
         else
         {
-            cliengOutputLine(
+            logInfoMsg(
                 "Fix data file %s, save data to %s", file, filename);
         }
-    }
-    else
-    {
-        cliengOutputLine(
-            "Cannot fix data file %s, correct the error by hand", file);
     }
 
     return u32Ret;

@@ -31,12 +31,19 @@ static u32 _fixHelp(da_master_t * pdm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    cliengOutputLine("fix");
-    cliengOutputLine(
-        "fix [-f file] [-o] [-v]");
-    cliengOutputLine("  -f: fix data from file.");
-    cliengOutputLine("  -o: overwrite the original file.");
-    cliengOutputLine("  -v: verbose.");
+    cliengOutputLine("Fix data");
+    cliengOutputLine("\
+fix [-f file] [-o] [-v]");
+    cliengOutputRawLine("\
+  -f: fix data from file. The fixed data will be writtten to the new file if");
+    cliengOutputLine("\
+      overwrite option is not specified. \".fix\" is appended to the file name");
+    cliengOutputLine("\
+      as the name of the new file.");
+    cliengOutputLine("\
+  -o: overwrite the original file.");
+    cliengOutputLine("\
+  -v: verbose.");
 
     return u32Ret;
 }
@@ -48,6 +55,7 @@ u32 processFix(void * pMaster, void * pParam)
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
     fix_param_t fixp;
+    fix_result_t fixresult;
 
     if (pcfp->cfp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _fixHelp(pdm);
@@ -55,7 +63,20 @@ u32 processFix(void * pMaster, void * pParam)
     {
         memset(&fixp, 0, sizeof(fixp));
         fixp.fp_bOverwrite = pcfp->cfp_bOverwrite;
-        u32Ret = fixDataFile(pcfp->cfp_pstrData, &fixp);
+
+        u32Ret = fixDataFile(pcfp->cfp_pstrData, &fixp, &fixresult);
+        if (u32Ret == OLERR_NO_ERROR)
+        {
+            if (fixresult.fr_nDeletedLine != 0)
+                cliengOutputLine(
+                    "Delete %d lines from data file", fixresult.fr_nDeletedLine);
+        }
+        else
+        {
+            cliengOutputLine(
+                "Cannot fix data file %s, correct the error by hand",
+                pcfp->cfp_pstrData);
+        }
     }
     else
         u32Ret = OLERR_MISSING_PARAM;

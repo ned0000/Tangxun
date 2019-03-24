@@ -21,6 +21,7 @@
 
 
 /* --- data structures ----------------------------------------------------- */
+
 typedef struct
 {
     boolean_t fp_bOverwrite;
@@ -28,8 +29,14 @@ typedef struct
     olint_t fp_nReserved[7];
 } fix_param_t;
 
+typedef struct
+{
+    olint_t fr_nDeletedLine;
+
+} fix_result_t;
+
 /* --- functional routines ------------------------------------------------- */
-u32 fixDataFile(olchar_t * file, fix_param_t * pfp);
+u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult);
 
 #endif /*TANGXUN_JIUTAI_FIXDATA_H*/
 
