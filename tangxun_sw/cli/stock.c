@@ -40,7 +40,29 @@ static clieng_caption_t ls_ccStockInfoAdditionalVerbose[] =
     {"CorrelationWithIndex", CLIENG_CAP_HALF_LINE}, {"CorrelationWithSmeIndex", CLIENG_CAP_HALF_LINE},
 };
 
+static clieng_caption_t ls_ccIndustryInfoBrief[] =
+{
+    {"Id", 4},
+    {"Desc", 30},
+    {"NumOfStock", 11},
+};
+
+static clieng_caption_t ls_ccIndustryInfoVerbose[] =
+{
+    {"Id", CLIENG_CAP_FULL_LINE},
+    {"Desc", CLIENG_CAP_FULL_LINE},
+    {"NumOfStock", CLIENG_CAP_FULL_LINE},
+    {"Stock", CLIENG_CAP_FULL_LINE},
+};
+
+static clieng_caption_t ls_ccStockInfoVerbose[] =
+{
+    {"Name", CLIENG_CAP_FULL_LINE},
+    {"GeneralCapital", CLIENG_CAP_HALF_LINE}, {"TradableShare", CLIENG_CAP_HALF_LINE},
+};
+
 /* --- private routine section---------------------------------------------- */
+
 static u32 _stockHelp(da_master_t * pdm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -74,6 +96,32 @@ static void _printStockInfoAdditionalVerbose(stock_info_t * info)
     cliengOutputLine("");
 }
 
+static void _printStockInfoVerbose(stock_info_t * info)
+{
+    clieng_caption_t * pcc = &ls_ccStockInfoVerbose[0];
+    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+
+    cliengPrintDivider();
+
+    /*Name*/
+    ol_sprintf(strLeft, "%s", info->si_strCode);
+    cliengPrintOneFullLine(pcc, strLeft);
+    pcc += 1;
+
+    /*GeneralCapital*/
+    ol_sprintf(strLeft, "%lld", info->si_u64GeneralCapital);
+    ol_sprintf(strRight, "%lld", info->si_u64TradableShare);
+    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    pcc += 2;
+
+    /*Industry*/
+    ol_sprintf(strLeft, "%s", getStringIndustry(info->si_nIndustry));
+    cliengPrintOneFullLine(pcc, strLeft);
+    pcc += 1;
+
+    cliengOutputLine("");
+}
+
 static u32 _printStockVerbose(cli_stock_param_t * pcsp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -82,21 +130,111 @@ static u32 _printStockVerbose(cli_stock_param_t * pcsp)
     u32Ret = getStockInfo(pcsp->csp_pstrStock, &info);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        printStockInfoVerbose(info);
+        _printStockInfoVerbose(info);
         _printStockInfoAdditionalVerbose(info);
     }
 
     return u32Ret;
 }
 
+static void _printOneIndustryInfoBrief(stock_indu_info_t * info)
+{
+    clieng_caption_t * pcc = &ls_ccIndustryInfoBrief[0];
+    olchar_t strInfo[MAX_OUTPUT_LINE_LEN], strField[MAX_OUTPUT_LINE_LEN];
+
+    strInfo[0] = '\0';
+
+    /* Id */
+    ol_sprintf(strField, "%d", info->sii_nId);
+    cliengAppendBriefColumn(pcc, strInfo, strField);
+    pcc++;
+
+    /* desc */
+    cliengAppendBriefColumn(pcc, strInfo, info->sii_pstrDesc);
+    pcc++;
+
+    /* NumOfStock */
+    ol_sprintf(strField, "%d", info->sii_nStock);
+    cliengAppendBriefColumn(pcc, strInfo, strField);
+    pcc++;
+
+    cliengOutputLine(strInfo);
+}
+
+static void _printOneIndustryInfoVerbose(stock_indu_info_t * info)
+{
+    clieng_caption_t * pcc = &ls_ccIndustryInfoVerbose[0];
+    olchar_t strLeft[MAX_OUTPUT_LINE_LEN]; //, strRight[MAX_OUTPUT_LINE_LEN];
+    olint_t n, j, r, len;
+    olchar_t line[80];
+
+    cliengPrintDivider();
+
+    /*Id*/
+    ol_sprintf(strLeft, "%d", info->sii_nId);
+    cliengPrintOneFullLine(pcc, strLeft);
+    pcc += 1;
+
+    /*Desc*/
+    cliengPrintOneFullLine(pcc, info->sii_pstrDesc);
+    pcc += 1;
+
+    /*NumOfStock*/
+    ol_sprintf(strLeft, "%d", info->sii_nStock);
+    cliengPrintOneFullLine(pcc, strLeft);
+    pcc += 1;
+
+    /*Stocks*/
+    ol_sprintf(strLeft, "%s", " ");
+    cliengPrintOneFullLine(pcc, strLeft);
+    pcc += 1;
+
+    len = ol_strlen(info->sii_pstrStocks);
+    n = (len + 72 - 1) / 72;
+    for (j = 0; j < n; j ++)
+    {
+        r = len - j * 72;
+        if (r > 72)
+            r = 72;
+
+        memset(line, 0, sizeof(line));
+        ol_strncpy(line, info->sii_pstrStocks + 72 * j, r);
+        cliengOutputLine("%s", line);
+    }
+
+    cliengOutputLine("");
+}
+
 static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
+    stock_indu_info_t * info;
+    olint_t total = 0;
 
-    if (pcsp->csp_bVerbose)
-        printIndustryInfoVerbose();
-    else
-        printIndustryInfoBrief();
+    if (! pcsp->csp_bVerbose)
+    {
+        cliengPrintDivider();
+        cliengPrintHeader(
+            ls_ccIndustryInfoBrief,
+            sizeof(ls_ccIndustryInfoBrief) / sizeof(clieng_caption_t));
+    }
+
+    info = getFirstIndustryInfo();
+    while (info != NULL)
+    {
+        if (pcsp->csp_bVerbose)
+            _printOneIndustryInfoVerbose(info);
+        else
+            _printOneIndustryInfoBrief(info);
+
+        total += info->sii_nStock;
+
+        info = getNextIndustryInfo(info);
+    }
+
+    cliengOutputLine("");
+    cliengOutputLine("Total %d stocks\n", total);
+
 
     return u32Ret;
 }
@@ -112,7 +250,7 @@ u32 processStock(void * pMaster, void * pParam)
         u32Ret = _stockHelp(pdm);
     else if (pcsp->csp_u8Action == CLI_ACTION_LIST_INDUSTRY)
         u32Ret = _printIndustryInfo(pcsp);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (isNullEnvVarDataPath())
     {
         cliengOutputLine("Data path is not set.");
         u32Ret = OLERR_NOT_READY;

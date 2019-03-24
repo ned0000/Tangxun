@@ -163,18 +163,16 @@ stock_info_t * getFirstStockInfo(void);
 stock_info_t * getNextStockInfo(stock_info_t * info);
 olint_t getNumOfStock(void);
 
-void printIndustryInfoVerbose(void);
-void printIndustryInfoBrief(void);
 u32 getIndustryInfo(olint_t id, stock_indu_info_t ** info);
 stock_indu_info_t * getFirstIndustryInfo(void);
 stock_indu_info_t * getNextIndustryInfo(stock_indu_info_t * info);
 olint_t getNumOfIndustry(void);
+olchar_t * getStringIndustry(olint_t nIndustry);
 
 void printStockInfoVerbose(stock_info_t * info);
 u32 getStockInfo(olchar_t * name, stock_info_t ** info);
 olint_t getStockShareThres(stock_info_t * stockinfo);
 boolean_t isSmallMediumStock(stock_info_t * stockinfo);
-
 
 /*Stock Index Information*/
 stock_info_t * getFirstStockInfoIndex(void);
