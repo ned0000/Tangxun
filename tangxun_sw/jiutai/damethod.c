@@ -20,17 +20,17 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
-#include "clieng.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
+#include "jf_clieng.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
 #include "stocklist.h"
 #include "indicator.h"
 #include "statarbitrage.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 #include "envvar.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -42,7 +42,7 @@
 oldouble_t getCorrelationWithIndex(stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strStocks[32];
     sa_stock_info_t * sastock = NULL;
     olint_t nDaySummary = 60;
@@ -57,7 +57,7 @@ oldouble_t getCorrelationWithIndex(stock_info_t * info)
     u32Ret = newSaStockInfo(
 		getEnvVar(ENV_VAR_DATA_PATH), strStocks,
         &sastock, nDaySummary * 2);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         dbret = getSaStockInfoCorrelation(sastock, nDaySummary);
     }
@@ -71,7 +71,7 @@ oldouble_t getCorrelationWithIndex(stock_info_t * info)
 oldouble_t getCorrelationWithSmeIndex(stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strStocks[32];
     sa_stock_info_t * sastock = NULL;
     olint_t nDaySummary = 60;
@@ -83,7 +83,7 @@ oldouble_t getCorrelationWithSmeIndex(stock_info_t * info)
     u32Ret = newSaStockInfo(
 		getEnvVar(ENV_VAR_DATA_PATH), strStocks,
         &sastock, nDaySummary * 2);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         dbret = getSaStockInfoCorrelation(sastock, nDaySummary);
     }

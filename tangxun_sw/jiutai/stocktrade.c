@@ -14,12 +14,14 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "stocktrade.h"
-#include "xtime.h"
-#include "stringparse.h"
+#include "jf_time.h"
+#include "jf_date.h"
+#include "jf_string.h"
+
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -31,7 +33,7 @@ boolean_t isTradePoolStockOpBuy(trade_pool_stock_t * ptps)
 {
     boolean_t bRet = FALSE;
 
-    if (strcmp(ptps->tps_strOp, TRADE_OP_STR_BUY) == 0)
+    if (ol_strcmp(ptps->tps_strOp, TRADE_OP_STR_BUY) == 0)
         bRet = TRUE;
 
     return bRet;
@@ -46,7 +48,7 @@ boolean_t isTradePoolStockOpSell(trade_pool_stock_t * ptps)
 {
     boolean_t bRet = FALSE;
 
-    if (strcmp(ptps->tps_strOp, TRADE_OP_STR_SELL) == 0)
+    if (ol_strcmp(ptps->tps_strOp, TRADE_OP_STR_SELL) == 0)
         bRet = TRUE;
 
     return bRet;
@@ -61,7 +63,7 @@ boolean_t isTradePoolStockOpNone(trade_pool_stock_t * ptps)
 {
     boolean_t bRet = FALSE;
 
-    if (strcmp(ptps->tps_strOp, TRADE_OP_STR_NONE) == 0)
+    if (ol_strcmp(ptps->tps_strOp, TRADE_OP_STR_NONE) == 0)
         bRet = TRUE;
 
     return bRet;
@@ -125,27 +127,27 @@ void setTradeTradingRecord(
 
 u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;
     olint_t days, dw;
 
-    getDate2FromString(pstrCurr, &year, &month, &day);
-    days = convertDateToDaysFrom1970(year, month, day);
-    dw = getDayOfWeekFromDate(year, month, day);
+    jf_date_getDate2FromString(pstrCurr, &year, &month, &day);
+    days = jf_date_convertDateToDaysFrom1970(year, month, day);
+    dw = jf_date_getDayOfWeekFromDate(year, month, day);
     if (dw == 5)
     {
-        convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_date_convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
     else if (dw == 6)
     {
-        convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_date_convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
     else
     {
-        convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_date_convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
 
     return u32Ret;
@@ -155,7 +157,7 @@ boolean_t isTradeTradingRecordOpBuy(trade_trading_record_t * pttr)
 {
     boolean_t bRet = FALSE;
 
-    if (strcmp(pttr->ttr_strOp, TRADE_OP_STR_BUY) == 0)
+    if (ol_strcmp(pttr->ttr_strOp, TRADE_OP_STR_BUY) == 0)
         bRet = TRUE;
 
     return bRet;
@@ -165,7 +167,7 @@ boolean_t isTradeTradingRecordOpSell(trade_trading_record_t * pttr)
 {
     boolean_t bRet = FALSE;
 
-    if (strcmp(pttr->ttr_strOp, TRADE_OP_STR_SELL) == 0)
+    if (ol_strcmp(pttr->ttr_strOp, TRADE_OP_STR_SELL) == 0)
         bRet = TRUE;
 
     return bRet;
@@ -195,7 +197,7 @@ u32 filterPoolStockByOp(
     trade_pool_stock_t * ptps, olint_t count, u8 u8Op,
     trade_pool_stock_t ** ppFilterStock, olint_t * pnFilterCount)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index;
     trade_pool_stock_t * pStock = ptps;
     olint_t filtercount = 0;

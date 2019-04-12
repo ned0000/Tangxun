@@ -20,15 +20,16 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
+#include "jf_mem.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_time.h"
+#include "jf_jiukun.h"
+
 #include "stocklist.h"
-#include "xmalloc.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xtime.h"
-#include "jiukun.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -122,7 +123,7 @@ static olint_t ls_nNumOfStockInfoIndex =
 /* --- private routine section---------------------------------------------- */
 static u32 _findStock(stock_list_t * psl, olchar_t * name, stock_info_t ** info)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     olint_t begin, end, index, ret;
     olint_t i;
 
@@ -139,7 +140,7 @@ static u32 _findStock(stock_list_t * psl, olchar_t * name, stock_info_t ** info)
         if (ret == 0)
         {
             *info = &psl->sl_psiStock[index];
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
         else
@@ -155,7 +156,7 @@ static u32 _findStock(stock_list_t * psl, olchar_t * name, stock_info_t ** info)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         for (i = 0; i < ls_nNumOfStockInfoIndex; i ++)
         {
@@ -163,7 +164,7 @@ static u32 _findStock(stock_list_t * psl, olchar_t * name, stock_info_t ** info)
                         ol_strlen(ls_siStockInfoIndex[i].si_strCode)) == 0)
             {
                 *info = &ls_siStockInfoIndex[i];
-                u32Ret = OLERR_NO_ERROR;
+                u32Ret = JF_ERR_NO_ERROR;
                 break;
             }
         }
@@ -177,27 +178,27 @@ static olchar_t * _getStringIndustry(olint_t nIndustry)
     if ((nIndustry > 0) && (nIndustry <= ls_u32NumberOfInduInfo))
         return ls_siiInduInfo[nIndustry - 1].sii_pstrDesc;
 
-    return (olchar_t *)getStringNotApplicable();
+    return (olchar_t *)jf_string_getStringNotApplicable();
 }
 
 static u32 _getStockIndustry(
-    parse_result_field_t * field, stock_info_t * stockinfo)
+    jf_string_parse_result_field_t * field, stock_info_t * stockinfo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_indu_info_t * desc;
     olint_t i, j;
 
-    if (field->prf_sData < 4)
-        return OLERR_INVALID_DATA;
+    if (field->jsprf_sData < 4)
+        return JF_ERR_INVALID_DATA;
 
     for (i = 0; i < ls_u32NumberOfInduInfo; i ++)
     {
         desc = &ls_siiInduInfo[i];
-        if (desc->sii_nChineseDesc == field->prf_sData)
+        if (desc->sii_nChineseDesc == field->jsprf_sData)
         {
             for (j = 0; j < desc->sii_nChineseDesc; j ++)
             {
-                if (desc->sii_strChinese[j] != field->prf_pstrData[j])
+                if (desc->sii_strChinese[j] != field->jsprf_pstrData[j])
                     break;
             }
 
@@ -212,8 +213,8 @@ static u32 _getStockIndustry(
 
     if (stockinfo->si_nIndustry == 0)
     {
-        u32Ret = OLERR_INVALID_DATA;
-        logErrMsg(
+        u32Ret = JF_ERR_INVALID_DATA;
+        jf_logger_logErrMsg(
             u32Ret, "Unknown industry for stock %s", stockinfo->si_strCode);
     }
 
@@ -223,63 +224,63 @@ static u32 _getStockIndustry(
 static u32 _fillStockInfo(
     olchar_t * line, olsize_t sline, stock_info_t * stockinfo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * result = NULL;
-    parse_result_field_t * field;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_string_parse_result_t * result = NULL;
+    jf_string_parse_result_field_t * field;
 
     memset(stockinfo, 0, sizeof(stock_info_t));
 
-    u32Ret = parseString(&result, line, 0, sline, "\t", 1);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_string_parse(&result, line, 0, sline, "\t", 1);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (result->pr_u32NumOfResult != 4)
-            u32Ret = OLERR_INVALID_DATA;
+        if (result->jspr_u32NumOfResult != 4)
+            u32Ret = JF_ERR_INVALID_DATA;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        field = result->pr_pprfFirst;
-        if (field->prf_sData < 8)
-            u32Ret = OLERR_INVALID_DATA;
+        field = result->jspr_pjsprfFirst;
+        if (field->jsprf_sData < 8)
+            u32Ret = JF_ERR_INVALID_DATA;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_strncpy(stockinfo->si_strCode, field->prf_pstrData, 8);
-        lowerString(stockinfo->si_strCode);
+        ol_strncpy(stockinfo->si_strCode, field->jsprf_pstrData, 8);
+        jf_string_lower(stockinfo->si_strCode);
 
-        field = field->prf_pprfNext;
+        field = field->jsprf_pjsprfNext;
         u32Ret = _getStockIndustry(field, stockinfo);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        field = field->prf_pprfNext;
-        if (field->prf_pstrData[0] != '-')
-            u32Ret = getU64FromString(
-                field->prf_pstrData, field->prf_sData,
+        field = field->jsprf_pjsprfNext;
+        if (field->jsprf_pstrData[0] != '-')
+            u32Ret = jf_string_getU64FromString(
+                field->jsprf_pstrData, field->jsprf_sData,
                 &stockinfo->si_u64GeneralCapital);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        field = field->prf_pprfNext;
-        if (field->prf_pstrData[0] != '-')
-            u32Ret = getU64FromString(
-                field->prf_pstrData, field->prf_sData - 1, /*remove the '\n'*/
+        field = field->jsprf_pjsprfNext;
+        if (field->jsprf_pstrData[0] != '-')
+            u32Ret = jf_string_getU64FromString(
+                field->jsprf_pstrData, field->jsprf_sData - 1, /*remove the '\n'*/
                 &stockinfo->si_u64TradableShare);
     }
 
     if (result != NULL)
-        destroyParseResult(&result);
+        jf_string_destroyParseResult(&result);
 
     return u32Ret;
 }
 
 static u32 _readStockList(olchar_t * pstrStockListFile, stock_list_t * stocklist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    file_t fd;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_file_t fd;
     olchar_t line[512];
     olsize_t sline;
     stock_info_t * stockinfo;
@@ -287,40 +288,39 @@ static u32 _readStockList(olchar_t * pstrStockListFile, stock_list_t * stocklist
 
     stockinfo = stocklist->sl_psiStock;
 
-    u32Ret = openFile(pstrStockListFile, O_RDONLY, &fd);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_file_open(pstrStockListFile, O_RDONLY, &fd);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         do
         {
             sline = sizeof(line);
-            u32Ret = readLine(fd, line, &sline);
-            if (u32Ret == OLERR_NO_ERROR)
+            u32Ret = jf_file_readLine(fd, line, &sline);
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _fillStockInfo(line, sline, stockinfo);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 stocklist->sl_nNumOfStock ++;
                 if (stocklist->sl_nNumOfStock >= stocklist->sl_nMaxStock)
-                    u32Ret = OLERR_BUFFER_TOO_SMALL;
+                    u32Ret = JF_ERR_BUFFER_TOO_SMALL;
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 stockinfo ++;
                 lineno ++;
             }
-        } while (u32Ret == OLERR_NO_ERROR);
+        } while (u32Ret == JF_ERR_NO_ERROR);
 
-        if (u32Ret == OLERR_END_OF_FILE)
-            u32Ret = OLERR_NO_ERROR;
-        closeFile(&fd);
+        if (u32Ret == JF_ERR_END_OF_FILE)
+            u32Ret = JF_ERR_NO_ERROR;
+        jf_file_close(&fd);
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-		logErrMsg(
-			u32Ret, "Found ERROR at line %d, %s",
-            lineno, getErrorDescription(u32Ret));
+		jf_logger_logErrMsg(
+			u32Ret, "Found ERROR at line %d, %s", lineno, jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;
@@ -328,21 +328,21 @@ static u32 _readStockList(olchar_t * pstrStockListFile, stock_list_t * stocklist
 
 static u32 _classifyStock(stock_list_t * psl)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_indu_info_t * info;
     olint_t i;
     olsize_t sbuf;
     stock_info_t * stockinfo;
 
     for (i = 0;
-         (i < ls_u32NumberOfInduInfo) && (u32Ret == OLERR_NO_ERROR);
+         (i < ls_u32NumberOfInduInfo) && (u32Ret == JF_ERR_NO_ERROR);
          i ++)
     {
         info = &ls_siiInduInfo[i];
         sbuf = info->sii_nStock * 9 + 1;
 
-        u32Ret = xmalloc((void **)&info->sii_pstrStocks, sbuf);
-        if (u32Ret == OLERR_NO_ERROR)
+        u32Ret = jf_mem_alloc((void **)&info->sii_pstrStocks, sbuf);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             info->sii_pstrStocks[0] = '\0';
         }
@@ -364,7 +364,7 @@ static u32 _classifyStock(stock_list_t * psl)
 /* --- public routine section ---------------------------------------------- */
 u32 initStockList(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size;
     stock_list_t * psl = &ls_slStockList;
 
@@ -372,19 +372,19 @@ u32 initStockList(void)
 
     psl->sl_nMaxStock = MAX_STOCKS;
     size = sizeof(stock_info_t) * psl->sl_nMaxStock;
-    u32Ret = xmalloc((void **)&psl->sl_psiStock, size);
+    u32Ret = jf_mem_alloc((void **)&psl->sl_psiStock, size);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _readStockList(STOCK_LIST_FILE, psl);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _classifyStock(psl);
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
 	{
-		logErrMsg(
+		jf_logger_logErrMsg(
 			u32Ret, "Failed to initiate stock list. %s",
-            getErrorDescription(u32Ret));
+            jf_err_getDescription(u32Ret));
         finiStockList();
 	}
 
@@ -393,14 +393,14 @@ u32 initStockList(void)
 
 u32 finiStockList(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_list_t * psl = &ls_slStockList;
     stock_indu_info_t * info;
     olint_t i;
 
     if (psl->sl_psiStock != NULL)
     {
-        xfree((void **)&psl->sl_psiStock);
+        jf_mem_free((void **)&psl->sl_psiStock);
     }
 
     for (i = 0; i < ls_u32NumberOfInduInfo; i ++)
@@ -408,7 +408,7 @@ u32 finiStockList(void)
         info = &ls_siiInduInfo[i];
 
         if (info->sii_pstrStocks != NULL)
-            xfree((void **)&info->sii_pstrStocks);
+            jf_mem_free((void **)&info->sii_pstrStocks);
     }
 
     return u32Ret;
@@ -419,10 +419,10 @@ u32 getIndustryInfo(olint_t id, stock_indu_info_t ** info)
     if ((id > 0) && (id <= ls_u32NumberOfInduInfo))
     {
         *info = &ls_siiInduInfo[id - 1];
-        return OLERR_NO_ERROR;
+        return JF_ERR_NO_ERROR;
     }
 
-    return OLERR_NOT_FOUND;
+    return JF_ERR_NOT_FOUND;
 }
 
 stock_indu_info_t * getFirstIndustryInfo(void)
@@ -489,7 +489,7 @@ stock_info_t * getStockInfoIndex(olchar_t * name)
 
     for (i = 0; i < ls_nNumOfStockInfoIndex; i ++)
     {
-        if (strncmp(ls_siStockInfoIndex[i].si_strCode, name, 8) == 0)
+        if (ol_strncmp(ls_siStockInfoIndex[i].si_strCode, name, 8) == 0)
             return &ls_siStockInfoIndex[i];
     }
 
@@ -504,7 +504,7 @@ boolean_t isStockInfoIndex(olchar_t * code)
 
     for (i = 0; i < ls_nNumOfStockInfoIndex; i ++)
     {
-        if (strncmp(code, psi->si_strCode, ol_strlen(psi->si_strCode)) == 0)
+        if (ol_strncmp(code, psi->si_strCode, ol_strlen(psi->si_strCode)) == 0)
             return TRUE;
 
         psi ++;
@@ -517,7 +517,7 @@ u32 getStockInfo(olchar_t * name, stock_info_t ** info)
 {
     *info = NULL;
     if (name == NULL)
-        return OLERR_INVALID_PARAM;
+        return JF_ERR_INVALID_PARAM;
 
     return _findStock(&ls_slStockList, name, info);
 }
@@ -550,7 +550,7 @@ boolean_t isSmallMediumStock(stock_info_t * stockinfo)
 
 boolean_t isShStockExchange(olchar_t * stock)
 {
-   if (strncmp(stock, "sh", 2) == 0)
+   if (ol_strncmp(stock, "sh", 2) == 0)
        return TRUE;
 
    return FALSE;

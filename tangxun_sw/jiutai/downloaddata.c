@@ -14,17 +14,21 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
+#include "jf_ipaddr.h"
+#include "jf_file.h"
+#include "jf_dir.h"
+#include "jf_jiukun.h"
+#include "jf_network.h"
+#include "jf_httpparser.h"
+#include "jf_string.h"
+#include "jf_time.h"
+#include "jf_date.h"
+#include "jf_process.h"
+
 #include "downloaddata.h"
-#include "files.h"
-#include "jiukun.h"
-#include "network.h"
-#include "httpparser.h"
-#include "stringparse.h"
-#include "xtime.h"
-#include "process.h"
 #include "stocklist.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -37,10 +41,10 @@ static olchar_t * ls_pstrStartData = "19980101";
 
 /* --- private routine section---------------------------------------------- */
 static u32 _recvOneXls(
-    socket_t * sock, olchar_t * stock, olchar_t * date,
+    jf_network_socket_t * sock, olchar_t * stock, olchar_t * date,
     olchar_t * recvdata, olsize_t * srecv, download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[2048];
     olsize_t len, sends;
 
@@ -58,16 +62,16 @@ static u32 _recvOneXls(
         "\r\n", date, stock, ls_pstrDataServer);
 
     sends = len;
-    u32Ret = sSend(sock, buffer, &sends);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_network_send(sock, buffer, &sends);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = sRecvn(sock, recvdata, srecv);
-        if (u32Ret == OLERR_SOCKET_PEER_CLOSED)
-            u32Ret = OLERR_NO_ERROR;
+        u32Ret = jf_network_recvn(sock, recvdata, srecv);
+        if (u32Ret == JF_ERR_SOCKET_PEER_CLOSED)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
-        logErrMsg(u32Ret, "recv error");
+    if (u32Ret != JF_ERR_NO_ERROR)
+        jf_logger_logErrMsg(u32Ret, "recv error");
 
     return u32Ret;
 }
@@ -81,21 +85,21 @@ static u32 _recvOneXls(
  *
  *  chunk-size is a hexadecimal string
  */
-static u32 _writeChunkedData(file_t fd, olchar_t * pBody, olsize_t sBody)
+static u32 _writeChunkedData(jf_file_t fd, olchar_t * pBody, olsize_t sBody)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pChunk;
     olsize_t schunk, sfile = 0;
 
     do
     {
-        u32Ret = locateSubString(pBody, "\r\n", &pChunk);
-        if (u32Ret == OLERR_NO_ERROR)
+        u32Ret = jf_string_locateSubString(pBody, "\r\n", &pChunk);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
+            u32Ret = jf_string_getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (schunk == 0)
                 break;
@@ -103,12 +107,12 @@ static u32 _writeChunkedData(file_t fd, olchar_t * pBody, olsize_t sBody)
             pChunk += 2;
             pBody = pChunk + schunk + 2;
             sfile += schunk;
-            u32Ret = writen(fd, pChunk, schunk);
+            u32Ret = jf_file_writen(fd, pChunk, schunk);
         }
-    } while (u32Ret == OLERR_NO_ERROR);
+    } while (u32Ret == JF_ERR_NO_ERROR);
 
     if (sfile < 100)
-        u32Ret = OLERR_INVALID_DATA;
+        u32Ret = JF_ERR_INVALID_DATA;
 
     return u32Ret;
 }
@@ -117,115 +121,115 @@ static u32 _saveOneXls(
     olchar_t * stock, olchar_t * fname,
     olchar_t * recvdata, olsize_t srecv, download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * pph = NULL;
-    olchar_t filepath[MAX_PATH_LEN];
-    file_t fd = INVALID_FILE_VALUE;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_httpparser_packet_header_t * pjhph = NULL;
+    olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     olchar_t * pstrEncoding = "Transfer-Encoding";
     olchar_t * pstrContentLength = "Content-Length";
-    packet_header_field_t * pphf;
+    jf_httpparser_packet_header_field_t * pjhphf;
     boolean_t bChunked = FALSE;
     olchar_t * pBody;
     olsize_t sheader, sbody;
     olint_t nContentLength = 0;
 
-    logInfoMsg("recv %d", srecv);
+    jf_logger_logInfoMsg("recv %d", srecv);
 
-    u32Ret = locateSubString(recvdata, "\r\n\r\n", &pBody);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_string_locateSubString(recvdata, "\r\n\r\n", &pBody);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         sheader = pBody - recvdata;
         sbody = srecv - sheader - 4;
         pBody += 4;
         if ((sheader <= 0) || (sbody <= 0))
-            u32Ret = OLERR_INVALID_DATA;
+            u32Ret = JF_ERR_INVALID_DATA;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        logDataMsgWithAscii(
+        jf_logger_logDataMsgWithAscii(
             (u8 *)recvdata, sheader, "HTTP Header");
-        u32Ret = parsePacketHeader(&pph, recvdata, 0, sheader);
+        u32Ret = jf_httpparser_parsePacketHeader(&pjhph, recvdata, 0, sheader);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (pph->ph_nStatusCode != 200)
-            u32Ret = OLERR_HTTP_STATUS_NOT_OK;
+        if (pjhph->jhph_nStatusCode != 200)
+            u32Ret = JF_ERR_HTTP_STATUS_NOT_OK;
         else
         {
-            if (getHeaderLine(
-                    pph, pstrEncoding, ol_strlen(pstrEncoding), &pphf) ==
-                OLERR_NO_ERROR)
+            if (jf_httpparser_getHeaderLine(
+                    pjhph, pstrEncoding, ol_strlen(pstrEncoding), &pjhphf) ==
+                JF_ERR_NO_ERROR)
             {
-                if (strcmp(pphf->phf_pstrData, "chunked") == 0)
+                if (ol_strcmp(pjhphf->jhphf_pstrData, "chunked") == 0)
                     bChunked = TRUE;
             }
-            else if (getHeaderLine(
-                         pph, pstrContentLength,
-                         ol_strlen(pstrContentLength), &pphf) ==
-                     OLERR_NO_ERROR)
+            else if (jf_httpparser_getHeaderLine(
+                         pjhph, pstrContentLength,
+                         ol_strlen(pstrContentLength), &pjhphf) ==
+                     JF_ERR_NO_ERROR)
             {
-                u32Ret = getS32FromString(
-                    pphf->phf_pstrData, pphf->phf_sData, &nContentLength);
-                if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = jf_string_getS32FromString(
+                    pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, &nContentLength);
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     if (nContentLength <= 100) /*can't be so little data*/
                     {
-                        u32Ret = OLERR_INVALID_DATA;
-                        logErrMsg(
+                        u32Ret = JF_ERR_INVALID_DATA;
+                        jf_logger_logErrMsg(
                             u32Ret, "Invalid data for %s, stock %s",
                             fname, stock);
                     }
                 }
                 else
                 {
-                    logErrMsg(
+                    jf_logger_logErrMsg(
                         u32Ret, "Invalid HTTP header for %s, stock %s",
                         fname, stock);
                 }
             }
             else
-                u32Ret = OLERR_INVALID_DATA;
+                u32Ret = JF_ERR_INVALID_DATA;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        logDebugMsg("Save trade detail %s for stock %s", fname, stock);
+        jf_logger_logDebugMsg("Save trade detail %s for stock %s", fname, stock);
         ol_sprintf(
             filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
 
-        u32Ret = openFile2(
+        u32Ret = jf_file_openWithMode(
             filepath, O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (bChunked)
                 u32Ret = _writeChunkedData(fd, pBody, sbody);
             else
-                u32Ret = writen(fd, pBody, sbody);
+                u32Ret = jf_file_writen(fd, pBody, sbody);
 
-            closeFile(&fd);
+            jf_file_close(&fd);
 
-            if (u32Ret != OLERR_NO_ERROR)
+            if (u32Ret != JF_ERR_NO_ERROR)
             {
                 /*remove data file so we can try again later*/
-                removeFile(filepath);
-                logErrMsg(u32Ret, "Remove data file %s", fname);
+                jf_file_remove(filepath);
+                jf_logger_logErrMsg(u32Ret, "Remove data file %s", fname);
             }
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        logErrMsg(u32Ret, "Failed to save %s for stock %s", fname, stock);
-        u32Ret = OLERR_NO_ERROR;
+        jf_logger_logErrMsg(u32Ret, "Failed to save %s for stock %s", fname, stock);
+        u32Ret = JF_ERR_NO_ERROR;
     }
 
-    if (pph != NULL)
-        destroyPacketHeader(&pph);
+    if (pjhph != NULL)
+        jf_httpparser_destroyPacketHeader(&pjhph);
 
     return u32Ret;
 }
@@ -233,22 +237,22 @@ static u32 _saveOneXls(
 /*create the directory if it's not existing*/
 static u32 _createStockDir(olchar_t * stock, download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t dirname[MAX_PATH_LEN];
-    dir_t * pDir;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t dirname[JF_LIMIT_MAX_PATH_LEN];
+    jf_dir_t * pDir;
 
     ol_sprintf(
         dirname, "%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock);
 
-    u32Ret = openDir(dirname, &pDir);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_dir_open(dirname, &pDir);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*already there*/
-        closeDir(&pDir);
+        jf_dir_close(&pDir);
     }
     else
     {
-        u32Ret = createDir(dirname, DEFAULT_CREATE_DIR_MODE);
+        u32Ret = jf_dir_create(dirname, JF_DIR_DEFAULT_CREATE_MODE);
     }
 
     return u32Ret;
@@ -258,8 +262,8 @@ static boolean_t _skipDataDownload(
     olchar_t * stock, olchar_t * strfile, download_data_param_t * param)
 {
     boolean_t bRet = FALSE;
-    olchar_t filepath[MAX_PATH_LEN];
-    file_stat_t filestat;
+    olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
+    jf_file_stat_t filestat;
 
     if (param->ddp_bOverwrite)
         return bRet;
@@ -268,40 +272,40 @@ static boolean_t _skipDataDownload(
         filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
         PATH_SEPARATOR, strfile);
 
-    if (getFileStat(filepath, &filestat) == OLERR_NO_ERROR)
+    if (jf_file_getStat(filepath, &filestat) == JF_ERR_NO_ERROR)
         bRet = TRUE;
 
     return bRet;
 }
 
 static u32 _downloadOneXls(
-    ip_addr_t * serveraddr, olchar_t * stock, olchar_t * buf, olsize_t sbuf,
+    jf_ipaddr_t * serveraddr, olchar_t * stock, olchar_t * buf, olsize_t sbuf,
     download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t ipaddr;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ipaddr_t ipaddr;
     u16 u16Port;
     olint_t i, retry_count = 3;
-    socket_t * sock = NULL;
+    jf_network_socket_t * sock = NULL;
     olsize_t srecv;
     olchar_t strDate[64], strFile[64], strServer[64];
     olint_t syear, smonth, sday, eyear, emonth, eday;
     olint_t sdays, edays;
     olint_t dw;
 
-    getStringIpAddr(strServer, serveraddr);
-    getDate2FromString(param->ddp_pstrStartDate, &syear, &smonth, &sday);
-    getDate2FromString(param->ddp_pstrEndDate, &eyear, &emonth, &eday);
+    jf_ipaddr_getStringIpAddr(strServer, serveraddr);
+    jf_date_getDate2FromString(param->ddp_pstrStartDate, &syear, &smonth, &sday);
+    jf_date_getDate2FromString(param->ddp_pstrEndDate, &eyear, &emonth, &eday);
 
-    sdays = convertDateToDaysFrom1970(syear, smonth, sday);
-    edays = convertDateToDaysFrom1970(eyear, emonth, eday);
+    sdays = jf_date_convertDateToDaysFrom1970(syear, smonth, sday);
+    edays = jf_date_convertDateToDaysFrom1970(eyear, emonth, eday);
 
     while (sdays <= edays)
     {
-        convertDaysFrom1970ToDate(sdays, &syear, &smonth, &sday);
-        getStringDate2(strDate, syear, smonth, sday);
+        jf_date_convertDaysFrom1970ToDate(sdays, &syear, &smonth, &sday);
+        jf_date_getStringDate2(strDate, syear, smonth, sday);
         ol_sprintf(strFile, "%s.xls", strDate);
-        dw = getDayOfWeekFromDate(syear, smonth, sday);
+        dw = jf_date_getDayOfWeekFromDate(syear, smonth, sday);
         if ((dw == 0) || (dw == 6))
         {
             /*Sunday and Saturday are not trading days */
@@ -309,7 +313,7 @@ static u32 _downloadOneXls(
             continue;
         }
 
-        if ((u32Ret == OLERR_NO_ERROR) &&
+        if ((u32Ret == JF_ERR_NO_ERROR) &&
             _skipDataDownload(stock, strFile, param))
         {
             /*the data file is already there and 'overwrite' option is not set*/
@@ -317,51 +321,50 @@ static u32 _downloadOneXls(
             continue;
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            setIpV4AddrToInaddrAny(&ipaddr);
+            jf_ipaddr_setIpV4AddrToInaddrAny(&ipaddr);
             u16Port = 0;
-            u32Ret = createStreamSocket(&ipaddr, &u16Port, &sock);
+            u32Ret = jf_network_createStreamSocket(&ipaddr, &u16Port, &sock);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*sometimes, it fails to connect to server. So try more times*/
             i = 0;
             while (i < retry_count)
             {
-                u32Ret = sConnectWithTimeout(sock, serveraddr, 80, 5);
-                if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = jf_network_connectWithTimeout(sock, serveraddr, 80, 5);
+                if (u32Ret == JF_ERR_NO_ERROR)
                     break;
                 i ++;
                 sleep(5);
             }
         }
-        if (u32Ret == OLERR_NO_ERROR)
-            logInfoMsg("Server %s connected", strServer);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            jf_logger_logInfoMsg("Server %s connected", strServer);
         else
-            logErrMsg(
-                u32Ret, "Failed to connect to server %s, retry %d times",
-                strServer, i);
+            jf_logger_logErrMsg(
+                u32Ret, "Failed to connect to server %s, retry %d times", strServer, i);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             srecv = sbuf;
             u32Ret = _recvOneXls(
                 sock, stock, strDate, buf, &srecv, param);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _saveOneXls(
                 stock, strFile, buf, srecv, param);
         }
 
         if (sock != NULL)
-            destroySocket(&sock);
+            jf_network_destroySocket(&sock);
 
         sdays ++;
-        msleep(500); /*sleep 0.5 second or the server hate you, maybe*/
+        jf_time_msleep(500); /*sleep 0.5 second or the server hate you, maybe*/
     }
 
     return u32Ret;
@@ -369,30 +372,30 @@ static u32 _downloadOneXls(
 
 static u32 _downloadSinaXls(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t serveraddr;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ipaddr_t serveraddr;
     olchar_t * recvdata = NULL;
     olsize_t srecv = 256 * 1024;
     struct hostent * servp;
     stock_info_t * stockinfo;
 
-    u32Ret = getHostByName(ls_pstrDataServer, &servp);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_network_getHostByName(ls_pstrDataServer, &servp);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
-//        getIpAddrFromString("58.63.237.237", IP_ADDR_TYPE_V4, &serveraddr);
-        allocMemory((void **)&recvdata, srecv, 0);
+        jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
+//        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (param->ddp_pstrStock == NULL)
         {
             stockinfo = getFirstStockInfo();
-            while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+            while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
                 u32Ret = _createStockDir(stockinfo->si_strCode, param);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                     u32Ret = _downloadOneXls(
                         &serveraddr, stockinfo->si_strCode, recvdata, srecv, param);
 
@@ -403,32 +406,32 @@ static u32 _downloadSinaXls(download_data_param_t * param)
         else
         {
             u32Ret = getStockInfo(param->ddp_pstrStock, &stockinfo);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _createStockDir(param->ddp_pstrStock, param);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneXls(
                     &serveraddr, param->ddp_pstrStock, recvdata, srecv, param);
         }
     }
 
     if (recvdata != NULL)
-        freeMemory((void **)&recvdata);
+        jf_jiukun_freeMemory((void **)&recvdata);
 
     return u32Ret;
 }
 
 static u32 _recvOneCsv(
-    socket_t * sock, olchar_t * stock, olchar_t * startdate, olchar_t * enddate,
+    jf_network_socket_t * sock, olchar_t * stock, olchar_t * startdate, olchar_t * enddate,
     olchar_t * recvdata, olsize_t * srecv, download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[2048];
     olsize_t len, sends;
     olchar_t code[16];
     olchar_t * pstrFields;
 
-    if (strncmp(stock, "sh", 2) == 0)
+    if (ol_strncmp(stock, "sh", 2) == 0)
         ol_strcpy(code, "0");
     else
         ol_strcpy(code, "1");
@@ -456,36 +459,36 @@ static u32 _recvOneCsv(
         "\r\n", code, startdate, enddate, pstrFields, ls_pstrDataServerNetease);
 
     sends = len;
-    u32Ret = sSend(sock, buffer, &sends);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_network_send(sock, buffer, &sends);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = sRecvnWithTimeout(sock, recvdata, srecv, 10);
-        if (u32Ret == OLERR_SOCKET_PEER_CLOSED)
-            u32Ret = OLERR_NO_ERROR;
+        u32Ret = jf_network_recvnWithTimeout(sock, recvdata, srecv, 10);
+        if (u32Ret == JF_ERR_SOCKET_PEER_CLOSED)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
-        logErrMsg(u32Ret, "recv error");
+    if (u32Ret != JF_ERR_NO_ERROR)
+        jf_logger_logErrMsg(u32Ret, "recv error");
 
     return u32Ret;
 }
 
-static u32 _writeChunkedCsvData(file_t fd, olchar_t * pBody, olsize_t sBody)
+static u32 _writeChunkedCsvData(jf_file_t fd, olchar_t * pBody, olsize_t sBody)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pChunk, * pEnd;
     olsize_t schunk, sfile = 0;
     boolean_t bTitleSkipped = FALSE;
 
     do
     {
-        u32Ret = locateSubString(pBody, "\r\n", &pChunk);
-        if (u32Ret == OLERR_NO_ERROR)
+        u32Ret = jf_string_locateSubString(pBody, "\r\n", &pChunk);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
+            u32Ret = jf_string_getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (schunk == 0)
                 break;
@@ -512,16 +515,16 @@ static u32 _writeChunkedCsvData(file_t fd, olchar_t * pBody, olsize_t sBody)
             }
 
             if (schunk > 0)
-                u32Ret = writen(fd, pChunk, schunk);
+                u32Ret = jf_file_writen(fd, pChunk, schunk);
         }
-    } while (u32Ret == OLERR_NO_ERROR);
+    } while (u32Ret == JF_ERR_NO_ERROR);
 
     return u32Ret;
 }
 
-static u32 _writeCsvData(file_t fd, olchar_t * pBody, olsize_t sBody)
+static u32 _writeCsvData(jf_file_t fd, olchar_t * pBody, olsize_t sBody)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pEnd;
 
     pEnd = pBody + sBody;
@@ -539,7 +542,7 @@ static u32 _writeCsvData(file_t fd, olchar_t * pBody, olsize_t sBody)
     {
         sBody = pEnd - pBody;
 
-        u32Ret = writen(fd, pBody, sBody);
+        u32Ret = jf_file_writen(fd, pBody, sBody);
     }
 
     return u32Ret;
@@ -547,20 +550,20 @@ static u32 _writeCsvData(file_t fd, olchar_t * pBody, olsize_t sBody)
 
 static olsize_t _cvsChunkedDataReady(olchar_t * pBody, olsize_t sBody)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pChunk, * pEnd;
     olsize_t schunk, sfile = 0;
     boolean_t bTitleSkipped = FALSE;
 
     do
     {
-        u32Ret = locateSubString(pBody, "\r\n", &pChunk);
-        if (u32Ret == OLERR_NO_ERROR)
+        u32Ret = jf_string_locateSubString(pBody, "\r\n", &pChunk);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
+            u32Ret = jf_string_getS32FromHexString(pBody, pChunk - pBody, (s32 *)&schunk);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (schunk == 0)
                 break;
@@ -589,7 +592,7 @@ static olsize_t _cvsChunkedDataReady(olchar_t * pBody, olsize_t sBody)
             if (sfile > 0)
                 break;
         }
-    } while (u32Ret == OLERR_NO_ERROR);
+    } while (u32Ret == JF_ERR_NO_ERROR);
 
     return sfile;
 }
@@ -629,115 +632,115 @@ static u32 _saveOneCsv(
     olchar_t * stock, olchar_t * fname, olchar_t * origcsv, olsize_t sorig,
     olchar_t * recvdata, olsize_t srecv, download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * pph = NULL;
-    olchar_t filepath[MAX_PATH_LEN];
-    file_t fd = INVALID_FILE_VALUE;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_httpparser_packet_header_t * pjhph = NULL;
+    olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     olchar_t * pstrEncoding = "Transfer-Encoding";
     olchar_t * pstrContentLength = "Content-Length";
-    packet_header_field_t * pphf;
+    jf_httpparser_packet_header_field_t * pjhphf;
     boolean_t bChunked = FALSE;
     olchar_t * pBody;
     olsize_t sheader, sbody;
     olint_t nContentLength = 0;
 
-    logInfoMsg("recv %d", srecv);
+    jf_logger_logInfoMsg("recv %d", srecv);
 
-    u32Ret = locateSubString(recvdata, "\r\n\r\n", &pBody);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_string_locateSubString(recvdata, "\r\n\r\n", &pBody);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         sheader = pBody - recvdata;
         sbody = srecv - sheader - 4;
         pBody += 4;
         if ((sheader <= 0) || (sbody <= 0))
-            u32Ret = OLERR_INVALID_DATA;
+            u32Ret = JF_ERR_INVALID_DATA;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        logDataMsgWithAscii(
+        jf_logger_logDataMsgWithAscii(
             (u8 *)recvdata, sheader, "HTTP Header");
-        u32Ret = parsePacketHeader(&pph, recvdata, 0, sheader);
+        u32Ret = jf_httpparser_parsePacketHeader(&pjhph, recvdata, 0, sheader);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (pph->ph_nStatusCode != 200)
-            u32Ret = OLERR_HTTP_STATUS_NOT_OK;
+        if (pjhph->jhph_nStatusCode != 200)
+            u32Ret = JF_ERR_HTTP_STATUS_NOT_OK;
         else
         {
-            if (getHeaderLine(
-                    pph, pstrEncoding, ol_strlen(pstrEncoding), &pphf) ==
-                OLERR_NO_ERROR)
+            if (jf_httpparser_getHeaderLine(
+                    pjhph, pstrEncoding, ol_strlen(pstrEncoding), &pjhphf) ==
+                JF_ERR_NO_ERROR)
             {
-                if (strcmp(pphf->phf_pstrData, "chunked") == 0)
+                if (ol_strcmp(pjhphf->jhphf_pstrData, "chunked") == 0)
                     bChunked = TRUE;
             }
-            else if (getHeaderLine(
-                         pph, pstrContentLength,
-                         ol_strlen(pstrContentLength), &pphf) ==
-                     OLERR_NO_ERROR)
+            else if (jf_httpparser_getHeaderLine(
+                         pjhph, pstrContentLength,
+                         ol_strlen(pstrContentLength), &pjhphf) ==
+                     JF_ERR_NO_ERROR)
             {
-                u32Ret = getS32FromString(
-                    pphf->phf_pstrData, pphf->phf_sData, &nContentLength);
-                if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = jf_string_getS32FromString(
+                    pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, &nContentLength);
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     if (nContentLength <= 10) /*can't be so little data*/
                     {
-                        u32Ret = OLERR_INVALID_DATA;
-                        logErrMsg(
+                        u32Ret = JF_ERR_INVALID_DATA;
+                        jf_logger_logErrMsg(
                             u32Ret, "Invalid data for %s, stock %s",
                             fname, stock);
                     }
                 }
                 else
                 {
-                    logErrMsg(
+                    jf_logger_logErrMsg(
                         u32Ret, "Invalid HTTP header for %s, stock %s",
                         fname, stock);
                 }
             }
             else
-                u32Ret = OLERR_INVALID_DATA;
+                u32Ret = JF_ERR_INVALID_DATA;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        logDebugMsg("Save trade summary for stock %s", stock);
+        jf_logger_logDebugMsg("Save trade summary for stock %s", stock);
         ol_sprintf(
             filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
 
         if (_cvsDataReady(bChunked, nContentLength, pBody, sbody) > 0)
         {
-            u32Ret = openFile2(
+            u32Ret = jf_file_openWithMode(
                 filepath, O_WRONLY | O_CREAT | O_TRUNC,
-                DEFAULT_CREATE_FILE_MODE, &fd);
-            if (u32Ret == OLERR_NO_ERROR)
+                JF_FILE_DEFAULT_CREATE_MODE, &fd);
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 if (bChunked)
                     u32Ret = _writeChunkedCsvData(fd, pBody, sbody);
                 else
                     u32Ret = _writeCsvData(fd, pBody, sbody);
 
-                if ((u32Ret == OLERR_NO_ERROR) && (sorig > 0))
-                    u32Ret = writen(fd, origcsv, sorig);
+                if ((u32Ret == JF_ERR_NO_ERROR) && (sorig > 0))
+                    u32Ret = jf_file_writen(fd, origcsv, sorig);
 
-                closeFile(&fd);
+                jf_file_close(&fd);
 
-                if (u32Ret != OLERR_NO_ERROR)
+                if (u32Ret != JF_ERR_NO_ERROR)
                 {
                     /*remove data file so we can try again later*/
-                    removeFile(filepath);
-                    logErrMsg(u32Ret, "Remove trade summary file");
+                    jf_file_remove(filepath);
+                    jf_logger_logErrMsg(u32Ret, "Remove trade summary file");
                 }
             }
         }
     }
 
-    if (pph != NULL)
-        destroyPacketHeader(&pph);
+    if (pjhph != NULL)
+        jf_httpparser_destroyPacketHeader(&pjhph);
 
     return u32Ret;
 }
@@ -747,15 +750,15 @@ static u32 _getStartEndDate(
     olsize_t * rorig, olchar_t * startdate, olchar_t * enddate, boolean_t * pbUptodate,
     download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t filepath[MAX_PATH_LEN];
-    file_t fd;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
+    jf_file_t fd;
     olint_t year, mon, day, days;
     olchar_t date[16];
     olchar_t * stock = stockinfo->si_strCode;
 
     ol_strcpy(startdate, ls_pstrStartData);
-    getDateToday(&year, &mon, &day);
+    jf_date_getDateToday(&year, &mon, &day);
     ol_sprintf(enddate, DATE_STRING_FORMAT, year, mon, day);
 
     if (param->ddp_bOverwrite)
@@ -775,27 +778,27 @@ static u32 _getStartEndDate(
         filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
         PATH_SEPARATOR, strFile);
 
-    u32Ret = openFile(filepath, O_RDONLY, &fd);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_file_open(filepath, O_RDONLY, &fd);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = readn(fd, origcsv, rorig);
-        if ((u32Ret == OLERR_NO_ERROR) && (*rorig > 10))
+        u32Ret = jf_file_readn(fd, origcsv, rorig);
+        if ((u32Ret == JF_ERR_NO_ERROR) && (*rorig > 10))
         {
             ol_strncpy(date, origcsv, 10);
             date[10] = '\0';
-            getDate2FromString(date, &year, &mon, &day);
-            days = convertDateToDaysFrom1970(year, mon, day);
+            jf_date_getDate2FromString(date, &year, &mon, &day);
+            days = jf_date_convertDateToDaysFrom1970(year, mon, day);
             days ++;
-            convertDaysFrom1970ToDate(days, &year, &mon, &day);
+            jf_date_convertDaysFrom1970ToDate(days, &year, &mon, &day);
             ol_sprintf(startdate, DATE_STRING_FORMAT, year, mon, day);
         }
 
-        closeFile(&fd);
+        jf_file_close(&fd);
     }
     else
         *rorig = 0;
 
-    if (strcmp(startdate, enddate) > 0)
+    if (ol_strcmp(startdate, enddate) > 0)
         *pbUptodate = TRUE;
 /*
     else
@@ -811,13 +814,13 @@ static u32 _getStartEndDate(
 }
 
 static u32 _downloadOneCsv(
-    ip_addr_t * serveraddr, stock_info_t * stockinfo, olchar_t * strFile,
+    jf_ipaddr_t * serveraddr, stock_info_t * stockinfo, olchar_t * strFile,
     olchar_t * origcsv, olsize_t sorig, olchar_t * buf, olsize_t sbuf,
     download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, retry_count = 3;
-    socket_t * sock = NULL;
+    jf_network_socket_t * sock = NULL;
     olsize_t srecv;
     olchar_t strServer[64];
     olchar_t startdate[16], enddate[16];
@@ -825,7 +828,7 @@ static u32 _downloadOneCsv(
     boolean_t bUptodate = FALSE;
     olchar_t * stock = stockinfo->si_strCode;
 
-    getStringIpAddr(strServer, serveraddr);
+    jf_ipaddr_getStringIpAddr(strServer, serveraddr);
 
     rorig = sorig;
     _getStartEndDate(
@@ -838,60 +841,60 @@ static u32 _downloadOneCsv(
         return u32Ret;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = createSocket(AF_INET, SOCK_STREAM, 0, &sock);
+        u32Ret = jf_network_createSocket(AF_INET, SOCK_STREAM, 0, &sock);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*sometimes, it fails to connect to server. So try more times*/
         i = 0;
         while (i < retry_count)
         {
-            u32Ret = sConnectWithTimeout(sock, serveraddr, 80, 5);
-            if (u32Ret == OLERR_NO_ERROR)
+            u32Ret = jf_network_connectWithTimeout(sock, serveraddr, 80, 5);
+            if (u32Ret == JF_ERR_NO_ERROR)
                 break;
             i ++;
             sleep(5);
         }
     }
-    if (u32Ret == OLERR_NO_ERROR)
-        logInfoMsg("Server %s connected", strServer);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        jf_logger_logInfoMsg("Server %s connected", strServer);
     else
-        logErrMsg(
+        jf_logger_logErrMsg(
             u32Ret, "Failed to connect to server %s, retry %d times",
             strServer, i);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(buf, 0, sbuf);
         srecv = sbuf;
         u32Ret = _recvOneCsv(
             sock, stock, startdate, enddate, buf, &srecv, param);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _saveOneCsv(
                 stock, strFile, origcsv, rorig, buf, srecv, param);
         }
 
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
         {
-            logErrMsg(u32Ret, "Failed to save trade summary for stock %s", stock);
-            u32Ret = OLERR_NO_ERROR;
+            jf_logger_logErrMsg(u32Ret, "Failed to save trade summary for stock %s", stock);
+            u32Ret = JF_ERR_NO_ERROR;
         }
     }
 
     if (sock != NULL)
-        destroySocket(&sock);
+        jf_network_destroySocket(&sock);
 
     return u32Ret;
 }
 
 static u32 _downloadNeteaseCSV(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t serveraddr;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ipaddr_t serveraddr;
     olchar_t * recvdata = NULL;
     olsize_t srecv = 1024 * 1024;
     olchar_t * origcsv = NULL;
@@ -899,30 +902,30 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
     struct hostent * servp;
     stock_info_t * stockinfo;
 
-    u32Ret = getHostByName(ls_pstrDataServerNetease, &servp);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_network_getHostByName(ls_pstrDataServerNetease, &servp);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
-//        getIpAddrFromString("58.63.237.237", IP_ADDR_TYPE_V4, &serveraddr);
-        allocMemory((void **)&origcsv, sorig, 0);
-        allocMemory((void **)&recvdata, srecv, 0);
+        jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
+//        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
+        jf_jiukun_allocMemory((void **)&origcsv, sorig, 0);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (param->ddp_pstrStock == NULL)
         {
             stockinfo = getFirstStockInfo();
-            while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+            while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
                 u32Ret = _createStockDir(stockinfo->si_strCode, param);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                     u32Ret = _downloadOneCsv(
                         &serveraddr, stockinfo,
                         ls_pstrDataFileNetease, origcsv, sorig,
                         recvdata, srecv, param);
 
-                msleep(500);
+                jf_time_msleep(500);
 
                 stockinfo = getNextStockInfo(stockinfo);
             }
@@ -930,10 +933,10 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
         else
         {
             u32Ret = getStockInfo(param->ddp_pstrStock, &stockinfo);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _createStockDir(param->ddp_pstrStock, param);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneCsv(
                     &serveraddr, stockinfo,
                     ls_pstrDataFileNetease, origcsv, sorig,
@@ -942,35 +945,34 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
     }
 
     if (recvdata != NULL)
-        freeMemory((void **)&recvdata);
+        jf_jiukun_freeMemory((void **)&recvdata);
     if (origcsv != NULL)
-        freeMemory((void **)&origcsv);
+        jf_jiukun_freeMemory((void **)&origcsv);
 
     return u32Ret;
 }
 
 static u32 _checkDlDataParam(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;
 
     if ((param->ddp_pstrDataDir == NULL) ||
         (param->ddp_pstrDataDir[0] == '\0'))
     {
-        return OLERR_INVALID_PARAM;
+        return JF_ERR_INVALID_PARAM;
     }
 
     if (param->ddp_bTradeDetail)
     {
         if ((param->ddp_pstrStartDate == NULL) || (param->ddp_pstrEndDate == NULL))
         {
-            return OLERR_INVALID_PARAM;
+            return JF_ERR_INVALID_PARAM;
         }
 
-        u32Ret = getDate2FromString(param->ddp_pstrStartDate, &year, &month, &day);
-        if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = getDate2FromString(
-                param->ddp_pstrEndDate, &year, &month, &day);
+        u32Ret = jf_date_getDate2FromString(param->ddp_pstrStartDate, &year, &month, &day);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_date_getDate2FromString(param->ddp_pstrEndDate, &year, &month, &day);
     }
 
     return u32Ret;
@@ -978,8 +980,8 @@ static u32 _checkDlDataParam(download_data_param_t * param)
 
 static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t serveraddr;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ipaddr_t serveraddr;
     olchar_t * recvdata = NULL;
     olsize_t srecv = 1024 * 1024;
     olchar_t * origcsv = NULL;
@@ -987,37 +989,37 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
     struct hostent * servp;
     stock_info_t * stockinfo;
 
-    u32Ret = getHostByName(ls_pstrDataServerNetease, &servp);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_network_getHostByName(ls_pstrDataServerNetease, &servp);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
-//        getIpAddrFromString("58.63.237.237", IP_ADDR_TYPE_V4, &serveraddr);
-        allocMemory((void **)&origcsv, sorig, 0);
-        allocMemory((void **)&recvdata, srecv, 0);
+        jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
+//        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
+        jf_jiukun_allocMemory((void **)&origcsv, sorig, 0);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockinfo = getFirstStockInfoIndex();
-        while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+        while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
         {
             u32Ret = _createStockDir(stockinfo->si_strCode, param);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneCsv(
                     &serveraddr, stockinfo,
                     ls_pstrDataFileNetease, origcsv, sorig,
                     recvdata, srecv, param);
 
-            msleep(500);
+            jf_time_msleep(500);
 
             stockinfo = getNextStockInfoIndex(stockinfo);
         }
     }
 
     if (recvdata != NULL)
-        freeMemory((void **)&recvdata);
+        jf_jiukun_freeMemory((void **)&recvdata);
     if (origcsv != NULL)
-        freeMemory((void **)&origcsv);
+        jf_jiukun_freeMemory((void **)&origcsv);
 
     return u32Ret;
 }
@@ -1025,18 +1027,18 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
 /* --- public routine section ---------------------------------------------- */
 u32 downloadData(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _checkDlDataParam(param);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (param->ddp_bTradeSummary)
             u32Ret = _downloadNeteaseCSV(param);
         else if (param->ddp_bTradeDetail)
             u32Ret = _downloadSinaXls(param);
         else
-            u32Ret = OLERR_INVALID_PARAM;
+            u32Ret = JF_ERR_INVALID_PARAM;
     }
 
 
@@ -1045,7 +1047,7 @@ u32 downloadData(download_data_param_t * param)
 
 u32 downloadStockInfoIndex(download_data_param_t * param)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _downloadNeteaseIndexCSV(param);
 

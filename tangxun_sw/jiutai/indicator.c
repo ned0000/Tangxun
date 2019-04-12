@@ -20,72 +20,72 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "clieng.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_clieng.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
 #include "indicator.h"
 #include "datastat.h"
-#include "clieng.h"
+#include "jf_clieng.h"
 #include "stocklist.h"
-#include "matrix.h"
-#include "jiukun.h"
+#include "jf_matrix.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section --------------------------------- */
 
-static clieng_caption_t ls_ccDmiParamVerbose[] =
+static jf_clieng_caption_t ls_jccDmiParamVerbose[] =
 {
-    {"Days", CLIENG_CAP_HALF_LINE}, {"AdxMaDays", CLIENG_CAP_HALF_LINE},
-    {"AdxrTrend", CLIENG_CAP_FULL_LINE},
+    {"Days", JF_CLIENG_CAP_HALF_LINE}, {"AdxMaDays", JF_CLIENG_CAP_HALF_LINE},
+    {"AdxrTrend", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static clieng_caption_t ls_ccMacdParamVerbose[] =
+static jf_clieng_caption_t ls_jccMacdParamVerbose[] =
 {
-    {"ShortDays", CLIENG_CAP_HALF_LINE}, {"LongDays", CLIENG_CAP_HALF_LINE},
-    {"MDays", CLIENG_CAP_FULL_LINE},
+    {"ShortDays", JF_CLIENG_CAP_HALF_LINE}, {"LongDays", JF_CLIENG_CAP_HALF_LINE},
+    {"MDays", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static clieng_caption_t ls_ccMtmParamVerbose[] =
+static jf_clieng_caption_t ls_jccMtmParamVerbose[] =
 {
-    {"Days", CLIENG_CAP_HALF_LINE}, {"MaDays", CLIENG_CAP_HALF_LINE},
+    {"Days", JF_CLIENG_CAP_HALF_LINE}, {"MaDays", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static clieng_caption_t ls_ccRsiParamVerbose[] =
+static jf_clieng_caption_t ls_jccRsiParamVerbose[] =
 {
-    {"1Days", CLIENG_CAP_HALF_LINE}, {"2Days", CLIENG_CAP_HALF_LINE},
-    {"3Days", CLIENG_CAP_FULL_LINE},
-    {"MaxOpening1", CLIENG_CAP_HALF_LINE}, {"MinCloseout1", CLIENG_CAP_HALF_LINE},
+    {"1Days", JF_CLIENG_CAP_HALF_LINE}, {"2Days", JF_CLIENG_CAP_HALF_LINE},
+    {"3Days", JF_CLIENG_CAP_FULL_LINE},
+    {"MaxOpening1", JF_CLIENG_CAP_HALF_LINE}, {"MinCloseout1", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static clieng_caption_t ls_ccKdjParamVerbose[] =
+static jf_clieng_caption_t ls_jccKdjParamVerbose[] =
 {
-    {"NDays", CLIENG_CAP_HALF_LINE}, {"M1Days", CLIENG_CAP_HALF_LINE},
-    {"M2Days", CLIENG_CAP_FULL_LINE},
-    {"MaxOpeningD", CLIENG_CAP_HALF_LINE}, {"MinCloseoutJ", CLIENG_CAP_HALF_LINE},
+    {"NDays", JF_CLIENG_CAP_HALF_LINE}, {"M1Days", JF_CLIENG_CAP_HALF_LINE},
+    {"M2Days", JF_CLIENG_CAP_FULL_LINE},
+    {"MaxOpeningD", JF_CLIENG_CAP_HALF_LINE}, {"MinCloseoutJ", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static clieng_caption_t ls_ccAsiParamVerbose[] =
+static jf_clieng_caption_t ls_jccAsiParamVerbose[] =
 {
-    {"MaDays", CLIENG_CAP_FULL_LINE},
+    {"MaDays", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static clieng_caption_t ls_ccAtrParamVerbose[] =
+static jf_clieng_caption_t ls_jccAtrParamVerbose[] =
 {
-    {"Days", CLIENG_CAP_HALF_LINE}, {"MaDays", CLIENG_CAP_HALF_LINE},
+    {"Days", JF_CLIENG_CAP_HALF_LINE}, {"MaDays", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static clieng_caption_t ls_ccObvParamVerbose[] =
+static jf_clieng_caption_t ls_jccObvParamVerbose[] =
 {
-    {"Days", CLIENG_CAP_FULL_LINE},
+    {"Days", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static clieng_caption_t ls_ccDaIndicatorDescVerbose[] =
+static jf_clieng_caption_t ls_jccDaIndicatorDescVerbose[] =
 {
-    {"Id", CLIENG_CAP_HALF_LINE}, {"Name", CLIENG_CAP_HALF_LINE},
-    {"Desc", CLIENG_CAP_FULL_LINE},
-    {"NumOfStock", CLIENG_CAP_FULL_LINE},
+    {"Id", JF_CLIENG_CAP_HALF_LINE}, {"Name", JF_CLIENG_CAP_HALF_LINE},
+    {"Desc", JF_CLIENG_CAP_FULL_LINE},
+    {"NumOfStock", JF_CLIENG_CAP_FULL_LINE},
 };
 
 static olchar_t * ls_pstrIndicator[] =
@@ -106,27 +106,27 @@ static olchar_t * ls_pstrIndicator[] =
 
 static u32 _freeDaDaySummaryIndicator(da_day_summary_t *summary, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
 
     for (i = 0; i < num; i ++)
     {
         if (summary->dds_pddDmi != NULL)
-            freeMemory((void **)&summary->dds_pddDmi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pddDmi);
         if (summary->dds_pdmMacd != NULL)
-            freeMemory((void **)&summary->dds_pdmMacd);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdmMacd);
         if (summary->dds_pdmMtm != NULL)
-            freeMemory((void **)&summary->dds_pdmMtm);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdmMtm);
         if (summary->dds_pdrRsi != NULL)
-            freeMemory((void **)&summary->dds_pdrRsi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdrRsi);
         if (summary->dds_pdkKdj != NULL)
-            freeMemory((void **)&summary->dds_pdkKdj);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdkKdj);
         if (summary->dds_pdaAsi != NULL)
-            freeMemory((void **)&summary->dds_pdaAsi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdaAsi);
         if (summary->dds_pdaAtr != NULL)
-            freeMemory((void **)&summary->dds_pdaAtr);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdaAtr);
         if (summary->dds_pdoObv != NULL)
-            freeMemory((void **)&summary->dds_pdoObv);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdoObv);
 
         summary ++;
     }
@@ -279,9 +279,9 @@ static void _newAdxr(
     if (end->dds_pdaAdxr != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdaAdxr, sizeof(da_adxr_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     adxr = end->dds_pdaAdxr;
     dbt = dbp = dbn = 0;
@@ -418,7 +418,7 @@ static void _getAdxrTrend(da_day_summary_t * first, olint_t num)
 
     estiratio = _getAdxrTrendRatio(first, num);
 
-    allocMemory((void **)&sort, sizeof(da_day_summary_t *) * num, 0);
+    jf_jiukun_allocMemory((void **)&sort, sizeof(da_day_summary_t *) * num, 0);
     for (i = 0; i <= num; i ++)
     {
         sort[i] = &first[i];
@@ -429,19 +429,19 @@ static void _getAdxrTrend(da_day_summary_t * first, olint_t num)
     m = (100 - estiratio) * num / 100;
     end->dds_pdaAdxr->da_dbAdxrTrend = sort[m - 1]->dds_pdaAdxr->da_dbAdxr;
 
-    freeMemory((void **)&sort);
+    jf_jiukun_freeMemory((void **)&sort);
 }
 
 static u32 _caluAdxr(
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t m, start;
     da_day_summary_t * first, * end;
     olint_t nAdxrDays, nAdxrMaDays;
 
     if (num < TOTAL_OPTIMIZE_INDI_DAY_SUMMARY)
-        return OLERR_INVALID_INPUT;
+        return JF_ERR_INVALID_INPUT;
 
     nAdxrDays = 14;
     nAdxrMaDays = 6;
@@ -462,12 +462,12 @@ static u32 _caluAdxr(
 static u32 _isMatchingIndi(
     struct da_indicator_desc * indi, da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_adxr_t * daadxr;
 
     u32Ret = _caluAdxr(buffer, num);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
     end = buffer + num - 1;
@@ -476,13 +476,13 @@ static u32 _isMatchingIndi(
     {
         if ((indi->did_nType != INDI_TYPE_TREND) ||
             (daadxr->da_dbAdxr <= daadxr->da_dbAdxrTrend))
-            return OLERR_NOT_MATCH;
+            return JF_ERR_NOT_MATCH;
     }
     else if (daadxr->da_nKcp == KCP_ANTI_TREND)
     {
         if ((indi->did_nType != INDI_TYPE_ANTI_TREND) ||
             (daadxr->da_dbAdxr > daadxr->da_dbAdxrTrend))
-            return OLERR_NOT_MATCH;
+            return JF_ERR_NOT_MATCH;
     }
 
     return u32Ret;
@@ -492,7 +492,7 @@ static u32 _optIndicatorSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * param,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, start;
     da_conc_t daconc;
 
@@ -505,11 +505,11 @@ static u32 _optIndicatorSystem(
         start = 10;
 
     for (i = start;
-         (i <= num) && (u32Ret == OLERR_NO_ERROR); i ++)
+         (i <= num) && (u32Ret == JF_ERR_NO_ERROR); i ++)
     {
         u32Ret = indi->did_fnSystem(
             indi, param, buffer, i, &daconc);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (daconc.dc_nAction == CONC_ACTION_BULL_OPENING)
             {
@@ -520,8 +520,8 @@ static u32 _optIndicatorSystem(
                 addToDaConcSum(conc, &daconc);
             }
         }
-        else if (u32Ret == OLERR_NOT_READY)
-            u32Ret = OLERR_NO_ERROR;
+        else if (u32Ret == JF_ERR_NOT_READY)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
     return u32Ret;
@@ -540,9 +540,9 @@ static void _newDmi(
     if (end->dds_pddDmi != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pddDmi, sizeof(da_dmi_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     dmi = end->dds_pddDmi;
     dbt = dbp = dbn = 0;
@@ -586,7 +586,7 @@ static u32 _dmiSystemOpening(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_dmi_param_t * param = &pdip->dip_ddpDmi;
     da_day_summary_t * end;
     da_dmi_t * dmi, * dmip;
@@ -598,7 +598,7 @@ static u32 _dmiSystemOpening(
     for (i = num - (param->ddp_nDmiAdxMaDays + 1) * 2; i <= num; i ++)
         _newDmi(buffer, i, param);
 
-    if (_isMatchingIndi(indi, buffer, num) != OLERR_NO_ERROR)
+    if (_isMatchingIndi(indi, buffer, num) != JF_ERR_NO_ERROR)
         return u32Ret;
 
     dmi = end->dds_pddDmi;
@@ -622,7 +622,7 @@ static u32 _dmiSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_dmi_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_dmi_t * dmi, * dmip, * dmio;
 
@@ -655,7 +655,7 @@ static u32 _dmiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_dmi_param_t * param = &pdip->dip_ddpDmi;
     olint_t mday;
     olint_t nMinDmiDaySummary;
@@ -676,7 +676,7 @@ static u32 _dmiSystem(
     nMinDmiDaySummary = (mday + 1) * 3;
 
     if (num < nMinDmiDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _dmiSystemOpening(indi, pdip, buffer, num, conc);
@@ -690,7 +690,7 @@ static u32 _optimizeDmiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j;
 //    oldouble_t db;
     da_indicator_param_t myparam;
@@ -713,7 +713,7 @@ static u32 _optimizeDmiSystem(
                 myparam.dip_ddpDmi.ddp_nDmiAdxMaDays = j;
                 myparam.dip_ddpDmi.ddp_dbAdxrTrend = 0;
                 u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     if (compareDaConcSum(&myconc, conc) > 0)
                     {
@@ -723,7 +723,7 @@ static u32 _optimizeDmiSystem(
                 }
                 _freeDaDaySummaryIndicator(buffer, num);
 
-                if (u32Ret != OLERR_NO_ERROR)
+                if (u32Ret != JF_ERR_NO_ERROR)
                     goto out;
             }
 out:
@@ -735,20 +735,20 @@ static void _printDaDmiParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_dmi_param_t * param = &pdip->dip_ddpDmi;
-    clieng_caption_t * pcc = &ls_ccDmiParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccDmiParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Days*/
     ol_sprintf(strLeft, "%d", param->ddp_nDmiDays);
     ol_sprintf(strRight, "%d", param->ddp_nDmiAdxMaDays);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*AdxrTrend*/
     ol_sprintf(strLeft, "%.1f", param->ddp_dbAdxrTrend);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
@@ -792,7 +792,7 @@ static void _dmiPrintDaySummary(
                 dmi->dd_dbPdi, dmi->dd_dbMdi, dmi->dd_dbAdx);
         }
 
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 }
@@ -830,9 +830,9 @@ static void _newMacd(
     if (end->dds_pdmMacd != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdmMacd, sizeof(da_macd_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     shortk = 2.0 / (param->dmp_nMacdShortDays + 1);
     longk = 2.0 / (param->dmp_nMacdLongDays + 1);
@@ -876,7 +876,7 @@ static u32 _macdSystemOpening(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_macd_param_t * param = &pdip->dip_dmpMacd;
     da_day_summary_t * end;
     da_macd_t * macd, * macdp;
@@ -888,7 +888,7 @@ static u32 _macdSystemOpening(
     for (i = 2; i <= num; i ++)
         _newMacd(buffer, i, param);
 
-    if (_isMatchingIndi(indi, buffer, num) != OLERR_NO_ERROR)
+    if (_isMatchingIndi(indi, buffer, num) != JF_ERR_NO_ERROR)
         return u32Ret;
 
     macd = end->dds_pdmMacd;
@@ -912,7 +912,7 @@ static u32 _macdSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_macd_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_macd_t * macd;
 //    da_macd_t * macdp;
@@ -944,7 +944,7 @@ static u32 _macdSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_macd_param_t * param = &pdip->dip_dmpMacd;
     olint_t nMinMacdDaySummary;
 
@@ -965,7 +965,7 @@ static u32 _macdSystem(
         nMinMacdDaySummary = param->dmp_nMacdMDays;
 
     if (num < nMinMacdDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _macdSystemOpening(indi, pdip, buffer, num, conc);
@@ -979,7 +979,7 @@ static u32 _optimizeMacdSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, k;
     da_indicator_param_t myparam;
     da_conc_sum_t myconc;
@@ -1001,7 +1001,7 @@ static u32 _optimizeMacdSystem(
                 myparam.dip_dmpMacd.dmp_nMacdLongDays = j;
                 myparam.dip_dmpMacd.dmp_nMacdMDays = k;
                 u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     if (compareDaConcSum(&myconc, conc) > 0)
                     {
@@ -1011,7 +1011,7 @@ static u32 _optimizeMacdSystem(
                 }
                 _freeDaDaySummaryIndicator(buffer, num);
 
-                if (u32Ret != OLERR_NO_ERROR)
+                if (u32Ret != JF_ERR_NO_ERROR)
                     goto out;
             }
 out:
@@ -1022,20 +1022,20 @@ static void _printDaMacdParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_macd_param_t * param = &pdip->dip_dmpMacd;
-    clieng_caption_t * pcc = &ls_ccMacdParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccMacdParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Days*/
     ol_sprintf(strLeft, "%d", param->dmp_nMacdShortDays);
     ol_sprintf(strRight, "%d", param->dmp_nMacdLongDays);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*MDays*/
     ol_sprintf(strLeft, "%d", param->dmp_nMacdMDays);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
@@ -1076,7 +1076,7 @@ static void _macdPrintDaySummary(
                 cur->dds_pdaAdxr->da_dbAdxr, cur->dds_pdaAdxr->da_dbAdxrTrend,
                 macd->dm_dbDiff, macd->dm_dbDea, macd->dm_dbMacd);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 }
@@ -1115,9 +1115,9 @@ static void _newMtm(
     if (end->dds_pdmMtm != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdmMtm, sizeof(da_mtm_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     period = end - param->dmp_nMtmDays;
     mtm = end->dds_pdmMtm;
@@ -1140,7 +1140,7 @@ static u32 _mtmSystemOpening(
     da_day_summary_t * buffer, olint_t num, da_mtm_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_mtm_t * mtm, * mtmp;
     olint_t i;
@@ -1169,7 +1169,7 @@ static u32 _mtmSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_mtm_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_mtm_t * mtm;
 
@@ -1198,7 +1198,7 @@ static u32 _mtmSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_mtm_param_t * param = &pdip->dip_dmpMtm;
     olint_t nMinMtmDaySummary;
 
@@ -1214,7 +1214,7 @@ static u32 _mtmSystem(
     nMinMtmDaySummary = (nMinMtmDaySummary + 1) * 2;
 
     if (num < nMinMtmDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _mtmSystemOpening(buffer, num, param, conc);
@@ -1228,7 +1228,7 @@ static u32 _optimizeMtmSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j;
     da_indicator_param_t myparam;
     da_conc_sum_t myconc;
@@ -1249,7 +1249,7 @@ static u32 _optimizeMtmSystem(
             myparam.dip_dmpMtm.dmp_nMtmDays = i;
             myparam.dip_dmpMtm.dmp_nMtmMaDays = j;
             u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 if (compareDaConcSum(&myconc, conc) > 0)
                 {
@@ -1259,7 +1259,7 @@ static u32 _optimizeMtmSystem(
             }
             _freeDaDaySummaryIndicator(buffer, num);
 
-            if (u32Ret != OLERR_NO_ERROR)
+            if (u32Ret != JF_ERR_NO_ERROR)
                 goto out;
         }
 out:
@@ -1270,15 +1270,15 @@ static void _printDaMtmParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_mtm_param_t * param = &pdip->dip_dmpMtm;
-    clieng_caption_t * pcc = &ls_ccMtmParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccMtmParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Days*/
     ol_sprintf(strLeft, "%d", param->dmp_nMtmDays);
     ol_sprintf(strRight, "%d", param->dmp_nMtmMaDays);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 }
 
@@ -1310,7 +1310,7 @@ static void _mtmPrintDaySummary(
                 cur->dds_dbHighPrice, cur->dds_dbLowPrice, cur->dds_dbClosingPrice,
                 mtm->dm_dbMtm, mtm->dm_dbMaMtm);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 }
@@ -1347,9 +1347,9 @@ static void _newRsi(
     if (end->dds_pdrRsi != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdrRsi, sizeof(da_rsi_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     k1 = 1.0 / param->drp_nRsi1Days;
     k2 = 1.0 / param->drp_nRsi2Days;
@@ -1400,7 +1400,7 @@ static u32 _rsiSystemOpening(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_rsi_param_t * param = &pdip->dip_drpRsi;
     da_day_summary_t * end;
     da_rsi_t * rsi, * rsip;
@@ -1412,7 +1412,7 @@ static u32 _rsiSystemOpening(
     for (i = 2; i <= num; i ++)
         _newRsi(buffer, i, param);
 
-    if (_isMatchingIndi(indi, buffer, num) != OLERR_NO_ERROR)
+    if (_isMatchingIndi(indi, buffer, num) != JF_ERR_NO_ERROR)
         return u32Ret;
 
     rsi = end->dds_pdrRsi;
@@ -1435,7 +1435,7 @@ static u32 _rsiSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_rsi_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_rsi_t * rsi;
 
@@ -1465,7 +1465,7 @@ static u32 _rsiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_rsi_param_t * param = &pdip->dip_drpRsi;
     olint_t nMinRsiDaySummary;
 
@@ -1482,7 +1482,7 @@ static u32 _rsiSystem(
     nMinRsiDaySummary = (param->drp_nRsi3Days + 1) * 2;
 
     if (num < nMinRsiDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _rsiSystemOpening(indi, pdip, buffer, num, conc);
@@ -1496,7 +1496,7 @@ static u32 _optimizeRsiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, k;
     da_indicator_param_t myparam;
     da_conc_sum_t myconc;
@@ -1527,7 +1527,7 @@ static u32 _optimizeRsiSystem(
                         myparam.dip_drpRsi.drp_dbMaxOpening1 = db1;
                         myparam.dip_drpRsi.drp_dbMinCloseout1 = db2;
                         u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-                        if (u32Ret == OLERR_NO_ERROR)
+                        if (u32Ret == JF_ERR_NO_ERROR)
                         {
                             if (compareDaConcSum(&myconc, conc) > 0)
                             {
@@ -1537,7 +1537,7 @@ static u32 _optimizeRsiSystem(
                         }
                         _freeDaDaySummaryIndicator(buffer, num);
 
-                        if (u32Ret != OLERR_NO_ERROR)
+                        if (u32Ret != JF_ERR_NO_ERROR)
                             goto out;
                     }
 out:
@@ -1548,26 +1548,26 @@ static void _printDaRsiParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_rsi_param_t * param = &pdip->dip_drpRsi;
-    clieng_caption_t * pcc = &ls_ccRsiParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccRsiParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*1Days*/
     ol_sprintf(strLeft, "%d", param->drp_nRsi1Days);
     ol_sprintf(strRight, "%d", param->drp_nRsi2Days);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*1Days*/
     ol_sprintf(strLeft, "%d", param->drp_nRsi3Days);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*MaxOpening1*/
     ol_sprintf(strLeft, "%.1f", param->drp_dbMaxOpening1);
     ol_sprintf(strRight, "%.1f", param->drp_dbMinCloseout1);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
 }
@@ -1611,7 +1611,7 @@ static void _rsiPrintDaySummary(
                 cur->dds_pdaAdxr->da_dbAdxr, cur->dds_pdaAdxr->da_dbAdxrTrend,
                 rsi->dr_dbRsi1, rsi->dr_dbRsi2, rsi->dr_dbRsi3);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 }
@@ -1673,9 +1673,9 @@ static void _newKdj(
     if (end->dds_pdkKdj != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdkKdj, sizeof(da_kdj_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     k1 = 1.0 / param->dkp_nKdjM1Days;
     k2 = 1.0 / param->dkp_nKdjM2Days;
@@ -1726,7 +1726,7 @@ static u32 _kdjSystemOpening(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_kdj_param_t * param = &pdip->dip_dkpKdj;
     da_day_summary_t * end;
     da_kdj_t * kdj, * kdjp;
@@ -1738,7 +1738,7 @@ static u32 _kdjSystemOpening(
     for (i = num - param->dkp_nKdjNDays * 2; i <= num; i ++)
         _newKdj(buffer, i, param);
 
-    if (_isMatchingIndi(indi, buffer, num) != OLERR_NO_ERROR)
+    if (_isMatchingIndi(indi, buffer, num) != JF_ERR_NO_ERROR)
         return u32Ret;
 
     kdj = end->dds_pdkKdj;
@@ -1761,7 +1761,7 @@ static u32 _kdjSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_kdj_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_kdj_t * kdj;
 
@@ -1792,7 +1792,7 @@ static u32 _kdjSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_kdj_param_t * param = &pdip->dip_dkpKdj;
     olint_t nMinKdjDaySummary;
 
@@ -1809,7 +1809,7 @@ static u32 _kdjSystem(
     nMinKdjDaySummary = (param->dkp_nKdjNDays + 1) * 3;
 
     if (num < nMinKdjDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _kdjSystemOpening(indi, pdip, buffer, num, conc);
@@ -1823,7 +1823,7 @@ static u32 _optimizeKdjSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, k;
     oldouble_t db1, db2;
     da_indicator_param_t myparam;
@@ -1854,7 +1854,7 @@ static u32 _optimizeKdjSystem(
                         myparam.dip_dkpKdj.dkp_dbMaxOpeningD = db1;
                         myparam.dip_dkpKdj.dkp_dbMinCloseoutJ = db2;
                         u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-                        if (u32Ret == OLERR_NO_ERROR)
+                        if (u32Ret == JF_ERR_NO_ERROR)
                         {
                             if (compareDaConcSum(&myconc, conc) > 0)
                             {
@@ -1864,7 +1864,7 @@ static u32 _optimizeKdjSystem(
                         }
                         _freeDaDaySummaryIndicator(buffer, num);
 
-                        if (u32Ret != OLERR_NO_ERROR)
+                        if (u32Ret != JF_ERR_NO_ERROR)
                             goto out;
                     }
 out:
@@ -1875,26 +1875,26 @@ static void _printDaKdjParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_kdj_param_t * param = &pdip->dip_dkpKdj;
-    clieng_caption_t * pcc = &ls_ccKdjParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccKdjParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*NDays*/
     ol_sprintf(strLeft, "%d", param->dkp_nKdjNDays);
     ol_sprintf(strRight, "%d", param->dkp_nKdjM1Days);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*M2Days*/
     ol_sprintf(strLeft, "%d", param->dkp_nKdjM2Days);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*MaxOpeningD*/
     ol_sprintf(strLeft, "%.1f", param->dkp_dbMaxOpeningD);
     ol_sprintf(strRight, "%.1f", param->dkp_dbMinCloseoutJ);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 }
 
@@ -1937,7 +1937,7 @@ static void _kdjPrintDaySummary(
                 cur->dds_pdaAdxr->da_dbAdxr, cur->dds_pdaAdxr->da_dbAdxrTrend,
                 kdj->dk_dbK, kdj->dk_dbD, kdj->dk_dbJ);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 
@@ -2007,9 +2007,9 @@ static void _newAsi(
     if (end->dds_pdaAsi != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdaAsi, sizeof(da_asi_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     asi = end->dds_pdaAsi;
     prev = end - 1;
@@ -2040,7 +2040,7 @@ static u32 _asiSystemOpening(
     da_day_summary_t * buffer, olint_t num, da_asi_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
 //    da_asi_t * asi;
 //    da_asi_t * asip;
@@ -2070,7 +2070,7 @@ static u32 _asiSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_asi_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
 //    da_asi_t * asi;
 
@@ -2100,7 +2100,7 @@ static u32 _asiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_asi_param_t * param = &pdip->dip_dapAsi;
     olint_t nMinAsiDaySummary;
 
@@ -2109,7 +2109,7 @@ static u32 _asiSystem(
     nMinAsiDaySummary = (param->dap_nAsiMaDays + 1) * 3;
 
     if (num < nMinAsiDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _asiSystemOpening(buffer, num, param, conc);
@@ -2123,7 +2123,7 @@ static u32 _optimizeAsiSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     memset(pdip, 0, sizeof(da_indicator_param_t));
     memset(conc, 0, sizeof(da_conc_sum_t));
@@ -2135,14 +2135,14 @@ static void _printDaAsiParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_asi_param_t * param = &pdip->dip_dapAsi;
-    clieng_caption_t * pcc = &ls_ccAsiParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN]; //, strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccAsiParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*MaDays*/
     ol_sprintf(strLeft, "%d", param->dap_nAsiMaDays);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
@@ -2174,7 +2174,7 @@ static void _asiPrintDaySummary(
                 cur->dds_dbHighPrice, cur->dds_dbLowPrice, cur->dds_dbClosingPrice,
                 asi->da_dbSi, asi->da_dbAsi, asi->da_dbMaAsi);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 
@@ -2211,9 +2211,9 @@ static void _newAtr(
     if (end->dds_pdaAtr != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdaAtr, sizeof(da_atr_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     atr = end->dds_pdaAtr;
 //    prev = end - 1;
@@ -2241,7 +2241,7 @@ static u32 _atrSystemOpening(
     da_day_summary_t * buffer, olint_t num, da_atr_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_atr_t * atr, * atrp;
     olint_t i;
@@ -2270,7 +2270,7 @@ static u32 _atrSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_atr_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
     da_atr_t * atr; //, * atrp;
 
@@ -2300,7 +2300,7 @@ static u32 _atrSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_atr_param_t * param = &pdip->dip_dapAtr;
     olint_t nMinAtrDaySummary;
 
@@ -2312,7 +2312,7 @@ static u32 _atrSystem(
     nMinAtrDaySummary = (nMinAtrDaySummary + 1) * 3;
 
     if (num < nMinAtrDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _atrSystemOpening(buffer, num, param, conc);
@@ -2326,7 +2326,7 @@ static u32 _optimizeAtrSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j;
     da_indicator_param_t myparam;
     da_conc_sum_t myconc;
@@ -2347,7 +2347,7 @@ static u32 _optimizeAtrSystem(
             myparam.dip_dapAtr.dap_nAtrDays = i;
             myparam.dip_dapAtr.dap_nAtrMaDays = j;
             u32Ret = _optIndicatorSystem(indi, &myparam, buffer, num, &myconc);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 if (compareDaConcSum(&myconc, conc) > 0)
                 {
@@ -2357,7 +2357,7 @@ static u32 _optimizeAtrSystem(
             }
             _freeDaDaySummaryIndicator(buffer, num);
 
-            if (u32Ret != OLERR_NO_ERROR)
+            if (u32Ret != JF_ERR_NO_ERROR)
                 goto out;
         }
 out:
@@ -2368,15 +2368,15 @@ static void _printDaAtrParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_atr_param_t * param = &pdip->dip_dapAtr;
-    clieng_caption_t * pcc = &ls_ccAtrParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccAtrParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Days*/
     ol_sprintf(strLeft, "%d", param->dap_nAtrDays);
     ol_sprintf(strRight, "%d", param->dap_nAtrMaDays);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 }
 
@@ -2408,7 +2408,7 @@ static void _atrPrintDaySummary(
                 cur->dds_dbHighPrice, cur->dds_dbLowPrice, cur->dds_dbClosingPrice,
                 atr->da_dbAtr, atr->da_dbMaAtr);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 
@@ -2444,9 +2444,9 @@ static void _newObv(
     if (end->dds_pdoObv != NULL)
         return;
 
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&end->dds_pdoObv, sizeof(da_obv_t),
-        FLAG_MASK(MAF_ZERO));
+        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
 
     obv = end->dds_pdoObv;
     prev = end - 1;
@@ -2474,7 +2474,7 @@ static u32 _obvSystemOpening(
     da_day_summary_t * buffer, olint_t num, da_obv_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
 //    da_obv_t * obv, * obvp;
     olint_t i;
@@ -2501,7 +2501,7 @@ static u32 _obvSystemCloseout(
     da_day_summary_t * buffer, olint_t num, da_obv_param_t * param,
     da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end;
 //    da_obv_t * obv;
 
@@ -2530,7 +2530,7 @@ static u32 _obvSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_obv_param_t * param = &pdip->dip_dopObv;
     olint_t nMinObvDaySummary;
 
@@ -2539,7 +2539,7 @@ static u32 _obvSystem(
     nMinObvDaySummary = param->dop_nObvDays + 1;
 
     if (num < nMinObvDaySummary)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     if (conc->dc_nPosition == CONC_POSITION_SHORT)
         u32Ret = _obvSystemOpening(buffer, num, param, conc);
@@ -2553,7 +2553,7 @@ static u32 _optimizeObvSystem(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     memset(pdip, 0, sizeof(da_indicator_param_t));
     memset(conc, 0, sizeof(da_conc_sum_t));
@@ -2565,14 +2565,14 @@ static void _printDaObvParamVerbose(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip)
 {
     da_obv_param_t * param = &pdip->dip_dopObv;
-    clieng_caption_t * pcc = &ls_ccObvParamVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN]; //, strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccObvParamVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Days*/
     ol_sprintf(strLeft, "%d", param->dop_nObvDays);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
@@ -2604,7 +2604,7 @@ static void _obvPrintDaySummary(
                 cur->dds_dbHighPrice, cur->dds_dbLowPrice, cur->dds_dbClosingPrice,
                 cur->dds_u64All, obv->do_dbObv);
         }
-        cliengOutputLine("%s", buf);
+        jf_clieng_outputLine("%s", buf);
         cur ++;
     }
 
@@ -2642,23 +2642,23 @@ static olchar_t * _getStringIndiType(olint_t type)
 
 static void _printIndicatorDescVerbose(struct da_indicator_desc * indi)
 {
-    clieng_caption_t * pcc = &ls_ccDaIndicatorDescVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN]; //, strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_jccDaIndicatorDescVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Id*/
     ol_sprintf(strLeft, "%d", indi->did_nId);
-    cliengPrintTwoHalfLine(pcc, strLeft, indi->did_pstrName);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, indi->did_pstrName);
     pcc += 2;
 
     /*Desc*/
-    cliengPrintOneFullLine(pcc, indi->did_pstrDesc);
+    jf_clieng_printOneFullLine(pcc, indi->did_pstrDesc);
     pcc += 1;
 
     /*type*/
     ol_sprintf(strLeft, "%s", _getStringIndiType(indi->did_nType));
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
@@ -2725,29 +2725,29 @@ da_indicator_desc_t * getDaIndicatorDescByName(olchar_t * name)
 
 u32 freeDaDaySummaryIndicator(da_day_summary_t *summary, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
 
     for (i = 0; i < num; i ++)
     {
         if (summary->dds_pdaAdxr != NULL)
-            freeMemory((void **)&summary->dds_pdaAdxr);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdaAdxr);
         if (summary->dds_pddDmi != NULL)
-            freeMemory((void **)&summary->dds_pddDmi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pddDmi);
         if (summary->dds_pdmMacd != NULL)
-            freeMemory((void **)&summary->dds_pdmMacd);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdmMacd);
         if (summary->dds_pdmMtm != NULL)
-            freeMemory((void **)&summary->dds_pdmMtm);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdmMtm);
         if (summary->dds_pdrRsi != NULL)
-            freeMemory((void **)&summary->dds_pdrRsi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdrRsi);
         if (summary->dds_pdkKdj != NULL)
-            freeMemory((void **)&summary->dds_pdkKdj);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdkKdj);
         if (summary->dds_pdaAsi != NULL)
-            freeMemory((void **)&summary->dds_pdaAsi);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdaAsi);
         if (summary->dds_pdaAtr != NULL)
-            freeMemory((void **)&summary->dds_pdaAtr);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdaAtr);
         if (summary->dds_pdoObv != NULL)
-            freeMemory((void **)&summary->dds_pdoObv);
+            jf_jiukun_freeMemory((void **)&summary->dds_pdoObv);
 
         summary ++;
     }
@@ -2759,7 +2759,7 @@ u32 getOptimizedIndicator(
     da_day_summary_t * buffer, olint_t num, get_optimized_indicator_param_t * pgoip,
     olint_t * pnId, da_indicator_param_t * pdip, da_conc_sum_t * conc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_param_t myparam;
     da_conc_sum_t myconc;
     olint_t id, i;
@@ -2767,7 +2767,7 @@ u32 getOptimizedIndicator(
     olchar_t buf[512];
 
     if (num < TOTAL_OPTIMIZE_INDI_DAY_SUMMARY + OPTIMIZE_INDI_DAY_SUMMARY)
-        return OLERR_NOT_READY;
+        return JF_ERR_NOT_READY;
 
     for (i = num - OPTIMIZE_INDI_DAY_SUMMARY + 1; i <= num; i ++)
         _caluAdxr(buffer, i);
@@ -2780,19 +2780,19 @@ u32 getOptimizedIndicator(
         indi = getDaIndicatorDesc(id);
         u32Ret = _isMatchingIndi(indi, buffer, num);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = indi->did_fnOptimize(indi, &myparam, buffer, num, &myconc);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (pgoip->goip_bVerbose)
             {
-                cliengPrintBanner(MAX_OUTPUT_LINE_LEN);
+                jf_clieng_printBanner(JF_CLIENG_MAX_OUTPUT_LINE_LEN);
                 indi->did_fnGetStringParam(indi, &myparam, buf);
-                cliengOutputLine("%s System, %s", indi->did_pstrName, buf);
+                jf_clieng_outputLine("%s System, %s", indi->did_pstrName, buf);
                 indi->did_fnPrintParamVerbose(indi, &myparam);
                 printDaConcSumVerbose(&myconc);
-                cliengOutputLine("");
+                jf_clieng_outputLine("");
             }
 
             if (compareDaConcSum(&myconc, conc) > 0)
@@ -2805,18 +2805,18 @@ u32 getOptimizedIndicator(
     }
 
     freeDaDaySummaryIndicator(buffer, num);
-    u32Ret = OLERR_NO_ERROR;
+    u32Ret = JF_ERR_NO_ERROR;
 
     if ((conc->dcs_dbOverallYield <= 0) ||
         (conc->dcs_dbProfitTimeRatio < pgoip->goip_dbMinProfitTimeRatio))
-        u32Ret = OLERR_NOT_FOUND;
+        u32Ret = JF_ERR_NOT_FOUND;
 
     return u32Ret;
 }
 
 u32 getIndicatorAdxrTrend(da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _caluAdxr(buffer, num);
 
