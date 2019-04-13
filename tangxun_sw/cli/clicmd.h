@@ -15,9 +15,9 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "clieng.h"
-#include "bases.h"
+#include "jf_basic.h"
+#include "jf_clieng.h"
+#include "jf_listhead.h"
 #include "main.h"
 
 /* --- constant definitions ------------------------------------------------ */

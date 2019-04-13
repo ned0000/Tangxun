@@ -14,13 +14,15 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "errcode.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_clieng.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
+
 #include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -29,26 +31,26 @@
 
 static u32 _setDefaultParamExit(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
-    memset(pcep, 0, sizeof(cli_exit_param_t));
+    ol_memset(pcep, 0, sizeof(cli_exit_param_t));
 
     return u32Ret;
 }
 
 static u32 _exitHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputLine("exit: exit Jiufeng CLI");
+    jf_clieng_outputLine("exit: exit Jiufeng CLI");
 
     return u32Ret;
 }
 
 static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -56,19 +58,19 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case '?':
         case 'h':
             pcep->cep_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 
@@ -77,7 +79,7 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 
 static u32 _processExit(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_master_t * pdm = (da_master_t *)pMaster;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
@@ -85,8 +87,8 @@ static u32 _processExit(void * pMaster, void * pParam)
         u32Ret = _exitHelp(pdm);
     else
     {
-        cliengOutputLine("Exit CLI\n");
-        u32Ret = stopClieng();
+        jf_clieng_outputLine("Exit CLI\n");
+        u32Ret = jf_clieng_stop();
     }
 
     return u32Ret;
@@ -94,17 +96,17 @@ static u32 _processExit(void * pMaster, void * pParam)
 
 static u32 _setDefaultParamHelp(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 
-    memset(pchp, 0, sizeof(cli_help_param_t));
+    ol_memset(pchp, 0, sizeof(cli_help_param_t));
 
     return u32Ret;
 }
 
 static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -112,19 +114,19 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case '?':
         case 'h':
             pchp->chp_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 
@@ -133,30 +135,30 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 
 static u32 _processHelp(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 
     if (pchp->chp_u8Action == CLI_ACTION_SHOW_HELP)
     {
-        cliengOutputLine("show all available commands");
+        jf_clieng_outputLine("show all available commands");
     }
     else
     {
-        cliengOutputLine("analysis: analysis data.");
-        cliengOutputLine("backtest: backtest model.");
-        cliengOutputLine("download: download data.");
-        cliengOutputLine("env: envirionment variable.");
-        cliengOutputLine("exit: exit CLI.");
-        cliengOutputLine("find: find stocks.");
-        cliengOutputLine("fix: fix data.");
-        cliengOutputLine("help: list command.");
-        cliengOutputLine("indi: technical indicator.");
-        cliengOutputLine("model: model information.");
-        cliengOutputLine("rule: basic rules.");
-        cliengOutputLine("stat: statistic information of data.");
-        cliengOutputLine("trade: stock trading.");
-        cliengOutputLine("");
+        jf_clieng_outputLine("analysis: analysis data.");
+        jf_clieng_outputLine("backtest: backtest model.");
+        jf_clieng_outputLine("download: download data.");
+        jf_clieng_outputLine("env: envirionment variable.");
+        jf_clieng_outputLine("exit: exit CLI.");
+        jf_clieng_outputLine("find: find stocks.");
+        jf_clieng_outputLine("fix: fix data.");
+        jf_clieng_outputLine("help: list command.");
+        jf_clieng_outputLine("indi: technical indicator.");
+        jf_clieng_outputLine("model: model information.");
+        jf_clieng_outputLine("rule: basic rules.");
+        jf_clieng_outputLine("stat: statistic information of data.");
+        jf_clieng_outputLine("trade: stock trading.");
+        jf_clieng_outputLine("");
     }
 
     return u32Ret;
@@ -166,55 +168,56 @@ static u32 _processHelp(void * pMaster, void * pParam)
 
 u32 addDaCmd(da_master_t * pdm, da_cli_param_t * pdcp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengNewCmd("exit", _setDefaultParamExit, pdcp,
-        _parseExit, _processExit, NULL);
+    jf_clieng_newCmd(
+        "exit", _setDefaultParamExit,
+        _parseExit, _processExit, pdcp, NULL);
 
-    cliengNewCmd("fix", setDefaultParamFix, pdcp,
-        parseFix, processFix, NULL);
+    jf_clieng_newCmd("fix", setDefaultParamFix,
+        parseFix, processFix, pdcp, NULL);
 
-    cliengNewCmd("help", _setDefaultParamHelp, pdcp,
-        _parseHelp, _processHelp, NULL);
+    jf_clieng_newCmd("help", _setDefaultParamHelp,
+        _parseHelp, _processHelp, pdcp, NULL);
 
-    cliengNewCmd("analysis", setDefaultParamAnalysis, pdcp,
-        parseAnalysis, processAnalysis, NULL);
+    jf_clieng_newCmd("analysis", setDefaultParamAnalysis,
+        parseAnalysis, processAnalysis, pdcp, NULL);
 
-    cliengNewCmd("model", setDefaultParamModel, pdcp,
-        parseModel, processModel, NULL);
+    jf_clieng_newCmd("model", setDefaultParamModel,
+        parseModel, processModel, pdcp, NULL);
 
-    cliengNewCmd("stat", setDefaultParamStat, pdcp,
-        parseStat, processStat, NULL);
+    jf_clieng_newCmd("stat", setDefaultParamStat,
+        parseStat, processStat, pdcp, NULL);
 
-    cliengNewCmd("env", setDefaultParamEnv, pdcp,
-        parseEnv, processEnv, NULL);
+    jf_clieng_newCmd("env", setDefaultParamEnv,
+        parseEnv, processEnv, pdcp, NULL);
 
-    cliengNewCmd("download", setDefaultParamDownload, pdcp,
-        parseDownload, processDownload, NULL);
+    jf_clieng_newCmd("download", setDefaultParamDownload,
+        parseDownload, processDownload, pdcp, NULL);
 
-    cliengNewCmd("find", setDefaultParamFind, pdcp,
-        parseFind, processFind, NULL);
+    jf_clieng_newCmd("find", setDefaultParamFind,
+        parseFind, processFind, pdcp, NULL);
 
-    cliengNewCmd("stock", setDefaultParamStock, pdcp,
-        parseStock, processStock, NULL);
+    jf_clieng_newCmd("stock", setDefaultParamStock,
+        parseStock, processStock, pdcp, NULL);
 
-    cliengNewCmd("parse", setDefaultParamParse, pdcp,
-        parseParse, processParse, NULL);
+    jf_clieng_newCmd("parse", setDefaultParamParse,
+        parseParse, processParse, pdcp, NULL);
 
-    cliengNewCmd("misc", setDefaultParamMisc, pdcp,
-        parseMisc, processMisc, NULL);
+    jf_clieng_newCmd("misc", setDefaultParamMisc,
+        parseMisc, processMisc, pdcp, NULL);
 
-    cliengNewCmd("indi", setDefaultParamIndi, pdcp,
-        parseIndi, processIndi, NULL);
+    jf_clieng_newCmd("indi", setDefaultParamIndi,
+        parseIndi, processIndi, pdcp, NULL);
 
-    cliengNewCmd("rule", setDefaultParamRule, pdcp,
-        parseRule, processRule, NULL);
+    jf_clieng_newCmd("rule", setDefaultParamRule,
+        parseRule, processRule, pdcp, NULL);
 
-    cliengNewCmd("trade", setDefaultParamTrade, pdcp,
-        parseTrade, processTrade, NULL);
+    jf_clieng_newCmd("trade", setDefaultParamTrade,
+        parseTrade, processTrade, pdcp, NULL);
 
-    cliengNewCmd("backtest", setDefaultParamBacktest, pdcp,
-        parseBacktest, processBacktest, NULL);
+    jf_clieng_newCmd("backtest", setDefaultParamBacktest,
+        parseBacktest, processBacktest, pdcp, NULL);
 
     return u32Ret;
 }

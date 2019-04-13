@@ -15,18 +15,19 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "process.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_process.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_jiukun.h"
+#include "jf_time.h"
+#include "stocklist.h"
+
 #include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
 #include "parsedata.h"
 #include "indicator.h"
 #include "datastat.h"
-#include "jiukun.h"
-#include "stocklist.h"
-#include "xtime.h"
 #include "statarbitrage.h"
 #include "envvar.h"
 #include "damodel.h"
@@ -34,13 +35,13 @@
 #include "backtesting.h"
 
 /* --- private data/data structure section --------------------------------- */
-static clieng_caption_t ls_ccBacktestingResultVerbose[] =
+static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
 {
-    {"NumOfTrade", CLIENG_CAP_FULL_LINE},
-    {"NumOfTradeProfit", CLIENG_CAP_HALF_LINE}, {"NumOfTradeLoss", CLIENG_CAP_HALF_LINE},
-    {"MaxDrawdown", CLIENG_CAP_HALF_LINE}, {"RateOfReturn", CLIENG_CAP_HALF_LINE},
-    {"InitialFund", CLIENG_CAP_HALF_LINE}, {"Fund", CLIENG_CAP_HALF_LINE},
-    {"MinAsset", CLIENG_CAP_HALF_LINE}, {"MaxAsset", CLIENG_CAP_HALF_LINE},
+    {"NumOfTrade", JF_CLIENG_CAP_FULL_LINE},
+    {"NumOfTradeProfit", JF_CLIENG_CAP_HALF_LINE}, {"NumOfTradeLoss", JF_CLIENG_CAP_HALF_LINE},
+    {"MaxDrawdown", JF_CLIENG_CAP_HALF_LINE}, {"RateOfReturn", JF_CLIENG_CAP_HALF_LINE},
+    {"InitialFund", JF_CLIENG_CAP_HALF_LINE}, {"Fund", JF_CLIENG_CAP_HALF_LINE},
+    {"MinAsset", JF_CLIENG_CAP_HALF_LINE}, {"MaxAsset", JF_CLIENG_CAP_HALF_LINE},
 };
 
 
@@ -48,15 +49,15 @@ static clieng_caption_t ls_ccBacktestingResultVerbose[] =
 /* --- private routine section---------------------------------------------- */
 static u32 _backtestHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
 Backtest model.\n\
 backtest [-m model] [-s] [-h] [-v]");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -s: use stock-by-stock method.\n\
   -m: backtest specified model.");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -v: verbose.\n\
   -h: print help information.\n\
   By default, all models are backtested with day by day method.");
@@ -66,46 +67,46 @@ backtest [-m model] [-s] [-h] [-v]");
 
 static void _printBacktestingResultVerbose(backtesting_result_t * pbr)
 {
-    clieng_caption_t * pcc = &ls_ccBacktestingResultVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_ccBacktestingResultVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*NumOfTrade*/
     ol_sprintf(strLeft, "%u", pbr->br_u32NumOfTrade);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*NumOfTrade*/
     ol_sprintf(strLeft, "%u", pbr->br_u32NumOfTradeProfit);
     ol_sprintf(strRight, "%u", pbr->br_u32NumOfTradeLoss);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*MaxDrawdown*/
     ol_sprintf(strLeft, "%.2f%%", pbr->br_dbMaxDrawdown);
     ol_sprintf(strRight, "%.2f%%", pbr->br_dbRateOfReturn);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*InitialFund*/
     ol_sprintf(strLeft, "%.2f", pbr->br_dbInitialFund);
     ol_sprintf(strRight, "%.2f", pbr->br_dbFund);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*MinAsset*/
     ol_sprintf(strLeft, "%.2f", pbr->br_dbMinAsset);
     ol_sprintf(strRight, "%.2f", pbr->br_dbMaxAsset);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 }
 
 static u32 _printBacktestingResult(backtesting_result_t * pbr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     _printBacktestingResultVerbose(pbr);
 
@@ -114,15 +115,15 @@ static u32 _printBacktestingResult(backtesting_result_t * pbr)
 
 static u32 _startBacktestAll(cli_backtest_param_t * pcbp, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t strFullname[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     backtesting_param_t bp;
     backtesting_result_t br;
 
     ol_snprintf(
-        strFullname, MAX_PATH_LEN - 1, "%s",
+        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s",
         getEnvVar(ENV_VAR_DATA_PATH));
-    strFullname[MAX_PATH_LEN - 1] = '\0';
+    strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     bzero(&bp, sizeof(backtesting_param_t));
     bp.bp_bAllModel = TRUE;
@@ -136,7 +137,7 @@ static u32 _startBacktestAll(cli_backtest_param_t * pcbp, da_master_t * pdm)
 
     u32Ret = backtestingModel(&bp, &br);
 
-//    if (u32Ret == OLERR_NO_ERROR)
+//    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _printBacktestingResult(&br);
     }
@@ -146,18 +147,18 @@ static u32 _startBacktestAll(cli_backtest_param_t * pcbp, da_master_t * pdm)
 
 static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t strFullname[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     backtesting_param_t bp;
     backtesting_result_t br;
 
     if (pcbp->cbp_pstrModel == NULL)
-        return OLERR_INVALID_PARAM;
+        return JF_ERR_INVALID_PARAM;
 
     ol_snprintf(
-        strFullname, MAX_PATH_LEN - 1, "%s",
+        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s",
         getEnvVar(ENV_VAR_DATA_PATH));
-    strFullname[MAX_PATH_LEN - 1] = '\0';
+    strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     ol_bzero(&bp, sizeof(backtesting_param_t));
     bp.bp_bAllModel = FALSE;
@@ -172,7 +173,7 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
 
     u32Ret = backtestingModel(&bp, &br);
 
-//    if (u32Ret == OLERR_NO_ERROR)
+//    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _printBacktestingResult(&br);
     }
@@ -184,7 +185,7 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
 
 u32 processBacktest(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_backtest_param_t * pcbp = (cli_backtest_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
 
@@ -192,22 +193,22 @@ u32 processBacktest(void * pMaster, void * pParam)
         u32Ret = _backtestHelp(pdm);
     else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
     {
-        cliengOutputLine("Data path is not set.");
-        u32Ret = OLERR_NOT_READY;
+        jf_clieng_outputLine("Data path is not set.");
+        u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_ALL)
         u32Ret = _startBacktestAll(pcbp, pdm);
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_MODEL)
         u32Ret = _startBacktestModel(pcbp, pdm);
     else
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
 
     return u32Ret;
 }
 
 u32 setDefaultParamBacktest(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_backtest_param_t * pcbp = (cli_backtest_param_t *)pParam;
 
     memset(pcbp, 0, sizeof(cli_backtest_param_t));
@@ -219,7 +220,7 @@ u32 setDefaultParamBacktest(void * pMaster, void * pParam)
 
 u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_backtest_param_t * pcbp = (cli_backtest_param_t *)pParam;
 //    tangxun_cli_master_t * pocm = (tangxun_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -227,7 +228,7 @@ u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "sm:hv?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "sm:hv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -246,7 +247,7 @@ u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcbp->cbp_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 

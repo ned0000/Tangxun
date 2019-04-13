@@ -20,115 +20,115 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
 #include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
 #include "stocklist.h"
 #include "indicator.h"
 #include "statarbitrage.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 #include "damethod.h"
 #include "envvar.h"
 
 /* --- private data/data structure section --------------------------------- */
-static clieng_caption_t ls_ccStockInfoAdditionalVerbose[] =
+static jf_clieng_caption_t ls_ccStockInfoAdditionalVerbose[] =
 {
-    {"CorrelationWithIndex", CLIENG_CAP_HALF_LINE}, {"CorrelationWithSmeIndex", CLIENG_CAP_HALF_LINE},
+    {"CorrelationWithIndex", JF_CLIENG_CAP_HALF_LINE}, {"CorrelationWithSmeIndex", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static clieng_caption_t ls_ccIndustryInfoBrief[] =
+static jf_clieng_caption_t ls_ccIndustryInfoBrief[] =
 {
     {"Id", 4},
     {"Desc", 30},
     {"NumOfStock", 11},
 };
 
-static clieng_caption_t ls_ccIndustryInfoVerbose[] =
+static jf_clieng_caption_t ls_ccIndustryInfoVerbose[] =
 {
-    {"Id", CLIENG_CAP_FULL_LINE},
-    {"Desc", CLIENG_CAP_FULL_LINE},
-    {"NumOfStock", CLIENG_CAP_FULL_LINE},
-    {"Stock", CLIENG_CAP_FULL_LINE},
+    {"Id", JF_CLIENG_CAP_FULL_LINE},
+    {"Desc", JF_CLIENG_CAP_FULL_LINE},
+    {"NumOfStock", JF_CLIENG_CAP_FULL_LINE},
+    {"Stock", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static clieng_caption_t ls_ccStockInfoVerbose[] =
+static jf_clieng_caption_t ls_ccStockInfoVerbose[] =
 {
-    {"Name", CLIENG_CAP_FULL_LINE},
-    {"GeneralCapital", CLIENG_CAP_HALF_LINE}, {"TradableShare", CLIENG_CAP_HALF_LINE},
+    {"Name", JF_CLIENG_CAP_FULL_LINE},
+    {"GeneralCapital", JF_CLIENG_CAP_HALF_LINE}, {"TradableShare", JF_CLIENG_CAP_HALF_LINE},
 };
 
 /* --- private routine section---------------------------------------------- */
 
 static u32 _stockHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
 stock\n\
 stock [-s stock] [-i] [-v]");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -s: list the specified stock.\n\
   -i: show industry information.");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -v: verbose.");
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static void _printStockInfoAdditionalVerbose(stock_info_t * info)
 {
-    clieng_caption_t * pcc = &ls_ccStockInfoAdditionalVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_ccStockInfoAdditionalVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*CorrelationWithIndex*/
     ol_sprintf(strLeft, "%.2f", getCorrelationWithIndex(info));
     ol_sprintf(strRight, "%.2f", getCorrelationWithSmeIndex(info));
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 }
 
 static void _printStockInfoVerbose(stock_info_t * info)
 {
-    clieng_caption_t * pcc = &ls_ccStockInfoVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_ccStockInfoVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Name*/
     ol_sprintf(strLeft, "%s", info->si_strCode);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*GeneralCapital*/
     ol_sprintf(strLeft, "%lld", info->si_u64GeneralCapital);
     ol_sprintf(strRight, "%lld", info->si_u64TradableShare);
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*Industry*/
     ol_sprintf(strLeft, "%s", getStringIndustry(info->si_nIndustry));
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 }
 
 static u32 _printStockVerbose(cli_stock_param_t * pcsp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_info_t * info;
 
     u32Ret = getStockInfo(pcsp->csp_pstrStock, &info);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _printStockInfoVerbose(info);
         _printStockInfoAdditionalVerbose(info);
@@ -139,54 +139,54 @@ static u32 _printStockVerbose(cli_stock_param_t * pcsp)
 
 static void _printOneIndustryInfoBrief(stock_indu_info_t * info)
 {
-    clieng_caption_t * pcc = &ls_ccIndustryInfoBrief[0];
-    olchar_t strInfo[MAX_OUTPUT_LINE_LEN], strField[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_ccIndustryInfoBrief[0];
+    olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
 
     /* Id */
     ol_sprintf(strField, "%d", info->sii_nId);
-    cliengAppendBriefColumn(pcc, strInfo, strField);
+    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* desc */
-    cliengAppendBriefColumn(pcc, strInfo, info->sii_pstrDesc);
+    jf_clieng_appendBriefColumn(pcc, strInfo, info->sii_pstrDesc);
     pcc++;
 
     /* NumOfStock */
     ol_sprintf(strField, "%d", info->sii_nStock);
-    cliengAppendBriefColumn(pcc, strInfo, strField);
+    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
-    cliengOutputLine(strInfo);
+    jf_clieng_outputLine(strInfo);
 }
 
 static void _printOneIndustryInfoVerbose(stock_indu_info_t * info)
 {
-    clieng_caption_t * pcc = &ls_ccIndustryInfoVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN]; //, strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pcc = &ls_ccIndustryInfoVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
     olint_t n, j, r, len;
     olchar_t line[80];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /*Id*/
     ol_sprintf(strLeft, "%d", info->sii_nId);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Desc*/
-    cliengPrintOneFullLine(pcc, info->sii_pstrDesc);
+    jf_clieng_printOneFullLine(pcc, info->sii_pstrDesc);
     pcc += 1;
 
     /*NumOfStock*/
     ol_sprintf(strLeft, "%d", info->sii_nStock);
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Stocks*/
     ol_sprintf(strLeft, "%s", " ");
-    cliengPrintOneFullLine(pcc, strLeft);
+    jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     len = ol_strlen(info->sii_pstrStocks);
@@ -199,24 +199,24 @@ static void _printOneIndustryInfoVerbose(stock_indu_info_t * info)
 
         memset(line, 0, sizeof(line));
         ol_strncpy(line, info->sii_pstrStocks + 72 * j, r);
-        cliengOutputLine("%s", line);
+        jf_clieng_outputLine("%s", line);
     }
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 }
 
 static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_indu_info_t * info;
     olint_t total = 0;
 
     if (! pcsp->csp_bVerbose)
     {
-        cliengPrintDivider();
-        cliengPrintHeader(
+        jf_clieng_printDivider();
+        jf_clieng_printHeader(
             ls_ccIndustryInfoBrief,
-            sizeof(ls_ccIndustryInfoBrief) / sizeof(clieng_caption_t));
+            sizeof(ls_ccIndustryInfoBrief) / sizeof(jf_clieng_caption_t));
     }
 
     info = getFirstIndustryInfo();
@@ -232,8 +232,8 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
         info = getNextIndustryInfo(info);
     }
 
-    cliengOutputLine("");
-    cliengOutputLine("Total %d stocks\n", total);
+    jf_clieng_outputLine("");
+    jf_clieng_outputLine("Total %d stocks\n", total);
 
 
     return u32Ret;
@@ -242,7 +242,7 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
 /* --- public routine section ---------------------------------------------- */
 u32 processStock(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_stock_param_t * pcsp = (cli_stock_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
 
@@ -252,20 +252,20 @@ u32 processStock(void * pMaster, void * pParam)
         u32Ret = _printIndustryInfo(pcsp);
     else if (isNullEnvVarDataPath())
     {
-        cliengOutputLine("Data path is not set.");
-        u32Ret = OLERR_NOT_READY;
+        jf_clieng_outputLine("Data path is not set.");
+        u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcsp->csp_u8Action == CLI_ACTION_LIST_STOCK)
         u32Ret = _printStockVerbose(pcsp);
     else
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
 
     return u32Ret;
 }
 
 u32 setDefaultParamStock(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_stock_param_t * pcsp = (cli_stock_param_t *)pParam;
 
     memset(pcsp, 0, sizeof(*pcsp));
@@ -277,7 +277,7 @@ u32 setDefaultParamStock(void * pMaster, void * pParam)
 
 u32 parseStock(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_stock_param_t * pcsp = (cli_stock_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -285,7 +285,7 @@ u32 parseStock(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "s:ivh?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "s:ivh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -300,14 +300,14 @@ u32 parseStock(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcsp->csp_bVerbose = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case '?':
         case 'h':
             pcsp->csp_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 

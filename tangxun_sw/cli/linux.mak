@@ -30,10 +30,10 @@ EXTRA_CFLAGS =
 
 # For executable file build 
 EXTRA_LDFLAGS = 
-EXTRA_OBJECTS = ../jtk/inc/xmalloc.o ../jtk/inc/xtime.o
+EXTRA_OBJECTS = ../jtk/inc/jf_mem.o ../jtk/inc/jf_time.o
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -lollogger -lolfiles -lolclieng -lolstringparse -lolifmgmt \
-    -lolnetwork -lolhttpparser -loljiukun -lolmatrix -lolpersistency \
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_clieng -ljf_string -ljf_ifmgmt \
+    -ljf_network -ljf_httpparser -ljf_jiukun -ljf_matrix -ljf_persistency \
     -ltradehelper -ldarule -ldamodel -ltrade_persistency -lbacktesting \
     -lm -lsqlite3
 

@@ -14,12 +14,12 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
 #include "parsedata.h"
 #include "indicator.h"
 #include "stocklist.h"
@@ -32,23 +32,23 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _indiHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
 Indicators \n\
 indi [-l] [-e stock] [-i indicator] [-p param] [-d]\n\
        [-t stock] [-f stock] [-g stock] [-c date] [-v] \n\
   -l: list all available technical indicators.");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -e: use best technical indicator to evaluate stock.\n\
   -i: specify the indicator.\n\
   -p: specify the parameters.\n\
   -d: prolint_t indicator data");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -f: find the best technical indicator and parameterss for the stock. If the\n\
       stock is \"all\", all stocks are included.\n\
   -t: test technical indicators.");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -g: use all available indicators to evaluate stock.\n\
   -a: ADXR.\n\
   -c: the end of date, the format is \"yyyy-mm-dd\".\n\
@@ -62,17 +62,17 @@ static u32 _daySummaryIndiSystem(
     da_indicator_desc_t * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, start;
     da_conc_t daconc;
     da_conc_sum_t concsum;
 
-    cliengPrintBanner(MAX_OUTPUT_LINE_LEN);
-    cliengOutputLine("%s System", indi->did_pstrName);
+    jf_clieng_printBanner(JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+    jf_clieng_outputLine("%s System", indi->did_pstrName);
     if (pcip->cip_bVerbose)
     {
         indi->did_fnPrintParamVerbose(indi, pdip);
-        cliengPrintDivider();
+        jf_clieng_printDivider();
     }
 
     memset(&concsum, 0, sizeof(da_conc_sum_t));
@@ -82,10 +82,10 @@ static u32 _daySummaryIndiSystem(
     else
         start = 10;
     for (i = start;
-         (i <= num) && (u32Ret == OLERR_NO_ERROR); i ++)
+         (i <= num) && (u32Ret == JF_ERR_NO_ERROR); i ++)
     {
         u32Ret = indi->did_fnSystem(indi, pdip, buffer, i, &daconc);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (daconc.dc_nAction == CONC_ACTION_BULL_OPENING)
             {
@@ -110,14 +110,14 @@ static u32 _daySummaryIndiSystem(
             if (pcip->cip_bPrintData)
                 indi->did_fnPrintDaySummary(indi, buffer + i - 1, 1);
         }
-        else if (u32Ret == OLERR_NOT_READY)
-            u32Ret = OLERR_NO_ERROR;
+        else if (u32Ret == JF_ERR_NOT_READY)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         printDaConcSumVerbose(&concsum);
-        cliengOutputLine("");
+        jf_clieng_outputLine("");
     }
 
     return u32Ret;
@@ -127,11 +127,11 @@ static u32 _indiEvaluateDaySummary(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_desc_t * indi = NULL;
     da_indicator_param_t dip;
 
-    cliengOutputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
     memset(&dip, 0, sizeof(da_indicator_param_t));
 #if 0
     if (pcip->cip_pstrIndicator != NULL)
@@ -142,7 +142,7 @@ static u32 _indiEvaluateDaySummary(
 
     if (indi == NULL)
     {
-        cliengOutputLine("Cannot get suitable indicator");
+        jf_clieng_outputLine("Cannot get suitable indicator");
         return u32Ret;
     }
 
@@ -159,27 +159,27 @@ static u32 _indiEvaluateDaySummary(
 
 static u32 _indiEvaluateStock(cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
-    u32Ret = xcalloc((void **)&buffer, sizeof(da_day_summary_t) * total);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = getStockInfo(pcip->cip_pstrStock, &stockinfo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             pcip->cip_pstrStock);
 
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcip->cip_pstrEndDate != NULL)
             total = daySummaryEndDataCount(buffer, total, pcip->cip_pstrEndDate);
@@ -188,7 +188,7 @@ static u32 _indiEvaluateStock(cli_indi_param_t * pcip, da_master_t * pdm)
     }
 
     if (buffer != NULL)
-        xfree((void **)&buffer);
+        jf_mem_free((void **)&buffer);
 
     return u32Ret;
 }
@@ -198,16 +198,16 @@ static u32 _testIndicatorSystem(
     da_indicator_desc_t * indi, da_indicator_param_t * pdip,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_conc_t daconc;
 
-    cliengPrintDivider();
-    cliengOutputLine("%s System", indi->did_pstrName);
+    jf_clieng_printDivider();
+    jf_clieng_outputLine("%s System", indi->did_pstrName);
 
     memset(&daconc, 0, sizeof(daconc));
 
     u32Ret = indi->did_fnSystem(indi, pdip, buffer, num, &daconc);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         indi->did_fnPrintDaySummary(indi, buffer, num);
     }
@@ -219,23 +219,23 @@ static u32 _daySummaryIndiTest(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_desc_t * indi;
     da_indicator_param_t dip;
     olint_t id;
 
-    cliengOutputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
 
     if (pcip->cip_pstrIndicator != NULL)
     {
         indi = getDaIndicatorDescByName(pcip->cip_pstrIndicator);
         if (indi == NULL)
         {
-            cliengOutputLine("Cannot find indicator %s\n", pcip->cip_pstrIndicator);
-            u32Ret = OLERR_NOT_FOUND;
+            jf_clieng_outputLine("Cannot find indicator %s\n", pcip->cip_pstrIndicator);
+            u32Ret = JF_ERR_NOT_FOUND;
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             indi->did_fnGetParamFromString(indi, &dip, pcip->cip_pstrParam);
             _testIndicatorSystem(pcip, stockinfo, indi, &dip, buffer, num);
@@ -250,40 +250,40 @@ static u32 _daySummaryIndiTest(
             _testIndicatorSystem(pcip, stockinfo, indi, &dip, buffer, num);
         }
     }
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static u32 _indiTest(cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 100;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
-    u32Ret = xcalloc((void **)&buffer, sizeof(da_day_summary_t) * total);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = getStockInfo(pcip->cip_pstrStock, &stockinfo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             pcip->cip_pstrStock);
 
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _daySummaryIndiTest(pcip, stockinfo, buffer, total);
 
     if (buffer != NULL)
     {
         freeDaDaySummaryIndicator(buffer, total);
-        xfree((void **)&buffer);
+        jf_mem_free((void **)&buffer);
     }
 
     return u32Ret;
@@ -293,7 +293,7 @@ static u32 _daySummaryIndiFind(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_param_t dip;
     da_conc_sum_t bestconc;
     olint_t nIndicator;
@@ -302,7 +302,7 @@ static u32 _daySummaryIndiFind(
     get_optimized_indicator_param_t goip;
 //    da_day_summary_t * end = buffer + num - 1;
 
-    cliengOutputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
     memset(&bestconc, 0, sizeof(da_conc_sum_t));
     memset(&goip, 0, sizeof(get_optimized_indicator_param_t));
     goip.goip_bVerbose = pcip->cip_bVerbose;
@@ -310,20 +310,20 @@ static u32 _daySummaryIndiFind(
 
     u32Ret = getOptimizedIndicator(
         buffer, num, &goip, &nIndicator, &dip, &bestconc);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         indi = getDaIndicatorDesc(nIndicator);
         indi->did_fnGetStringParam(indi, &dip, indiparam);
 //        setStockInfoIndicator(
 //            stockinfo, nIndicator, indiparam, end->dds_strDate);
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "%s, param %s", getStringIndicatorName(nIndicator), indiparam);
     }
     else
     {
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "Cannot get optimized indicator.");
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
     }
 
     return u32Ret;
@@ -333,18 +333,18 @@ static u32 _indiOneStockFind(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t * num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t dirpath[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     olint_t total;
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
         stockinfo->si_strCode);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, num);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         total = *num;
         if (pcip->cip_pstrEndDate != NULL)
@@ -360,18 +360,18 @@ static u32 _indiOneStockFind(
 
 static u32 _indiFind(cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
-    u32Ret = xcalloc((void **)&buffer, sizeof(da_day_summary_t) * total);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (strncmp(pcip->cip_pstrStock, "all", 3) == 0)
         {
             stockinfo = getFirstStockInfo();
-            while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+            while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
 #if 0
                 if (stockinfo->si_nIndicator == 0)
@@ -387,14 +387,14 @@ static u32 _indiFind(cli_indi_param_t * pcip, da_master_t * pdm)
         else
         {
             u32Ret = getStockInfo(pcip->cip_pstrStock, &stockinfo);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _indiOneStockFind(
                     pcip, stockinfo, buffer, &total);
         }
     }
 
     if (buffer != NULL)
-        xfree((void **)&buffer);
+        jf_mem_free((void **)&buffer);
 
     return u32Ret;
 }
@@ -403,12 +403,12 @@ static u32 _indisEvaluateDaySummary(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_desc_t * indi;
     da_indicator_param_t dip;
     olint_t id;
 
-    cliengOutputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
 
     for (id = STOCK_INDICATOR_UNKNOWN + 1; id < STOCK_INDICATOR_MAX; id ++)
     {
@@ -423,27 +423,27 @@ static u32 _indisEvaluateDaySummary(
 static u32 _indisEvaluateStock(
     cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
-    u32Ret = xcalloc((void **)&buffer, sizeof(da_day_summary_t) * total);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = getStockInfo(pcip->cip_pstrStock, &stockinfo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             pcip->cip_pstrStock);
 
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _indisEvaluateDaySummary(pcip, stockinfo, buffer, total);
     }
@@ -451,7 +451,7 @@ static u32 _indisEvaluateStock(
     if (buffer != NULL)
     {
         freeDaDaySummaryIndicator(buffer, total);
-        xfree((void **)&buffer);
+        jf_mem_free((void **)&buffer);
     }
 
     return u32Ret;
@@ -459,7 +459,7 @@ static u32 _indisEvaluateStock(
 
 static u32 _listAllIndicators(cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_indicator_desc_t * indi;
     olint_t id;
 
@@ -468,7 +468,7 @@ static u32 _listAllIndicators(cli_indi_param_t * pcip, da_master_t * pdm)
         indi = getDaIndicatorDesc(id);
         indi->did_fnPrintDescVerbose(indi);
     }
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
@@ -477,16 +477,16 @@ static u32 _daySummaryIndiAdxr(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_adxr_t * adxr;
     da_day_summary_t * start, * end;
     olint_t count;
     oldouble_t ratio;
 
-    cliengOutputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
 
     u32Ret = getIndicatorAdxrTrend(buffer, num);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         end = buffer + num - 1;
         adxr = end->dds_pdaAdxr;
@@ -517,17 +517,17 @@ static u32 _indiAdxrOneStock(
     cli_indi_param_t * pcip, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t * num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t dirpath[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
         stockinfo->si_strCode);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, num);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _daySummaryIndiAdxr(pcip, stockinfo, buffer, *num);
 
     freeDaDaySummaryIndicator(buffer, *num);
@@ -537,18 +537,18 @@ static u32 _indiAdxrOneStock(
 
 static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
-    u32Ret = xcalloc((void **)&buffer, sizeof(da_day_summary_t) * total);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (strncmp(pcip->cip_pstrStock, "all", 3) == 0)
         {
             stockinfo = getFirstStockInfo();
-            while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+            while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
 #if 0
                 if (stockinfo->si_nIndicator == 0)
@@ -564,14 +564,14 @@ static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
         else
         {
             u32Ret = getStockInfo(pcip->cip_pstrStock, &stockinfo);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _indiAdxrOneStock(
                     pcip, stockinfo, buffer, &total);
         }
     }
 
     if (buffer != NULL)
-        xfree((void **)&buffer);
+        jf_mem_free((void **)&buffer);
 
     return u32Ret;
 }
@@ -580,7 +580,7 @@ static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
 
 u32 processIndi(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_indi_param_t * pcip = (cli_indi_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
 
@@ -599,14 +599,14 @@ u32 processIndi(void * pMaster, void * pParam)
     else if (pcip->cip_u8Action == CLI_ACTION_INDI_ADXR)
         u32Ret = _indiAdxr(pcip, pdm);
     else
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
 
     return u32Ret;
 }
 
 u32 setDefaultParamIndi(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_indi_param_t * pcip = (cli_indi_param_t *)pParam;
 
     memset(pcip, 0, sizeof(cli_indi_param_t));
@@ -616,7 +616,7 @@ u32 setDefaultParamIndi(void * pMaster, void * pParam)
 
 u32 parseIndi(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_indi_param_t * pcip = (cli_indi_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -624,7 +624,7 @@ u32 parseIndi(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "a:le:c:i:p:df:g:t:hv?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "a:le:c:i:p:df:g:t:hv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -664,7 +664,7 @@ u32 parseIndi(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcip->cip_pstrStock = (olchar_t *)optarg;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'v':
             pcip->cip_bVerbose = TRUE;
@@ -674,7 +674,7 @@ u32 parseIndi(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcip->cip_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 

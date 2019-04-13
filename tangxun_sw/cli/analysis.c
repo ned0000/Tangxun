@@ -20,21 +20,23 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_jiukun.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
+#include "jf_time.h"
+#include "jf_date.h"
+
 #include "parsedata.h"
 #include "indicator.h"
 #include "stocklist.h"
 #include "damethod.h"
-#include "jiukun.h"
+#include "clicmd.h"
 #include "envvar.h"
 #include "datastat.h"
 #include "statarbitrage.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -47,9 +49,9 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _analysisHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
 Analysis stock \n\
 analysis [-s stock] [-v] [-i stock] [-q stock] [-a] [-n] [-t]\n\
   -a: stat arbitrage.\n\
@@ -60,12 +62,12 @@ analysis [-s stock] [-v] [-i stock] [-q stock] [-a] [-n] [-t]\n\
   -q: analysis quotation of stock, use '-f' to specify the date, use last day if\n\
       '-f' is not specified.\n\
   -i: analysis index and stocks, the region is specified by \"-f\" and \"-l\".");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -v: verbose.");
-    cliengOutputRawLine2("\
+    jf_clieng_outputRawLine2("\
   -f: the first date with format \"yyyy-mm-dd\".\n\
   -l: the last date with format \"yyyy-mm-dd\".");
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
@@ -121,11 +123,11 @@ static boolean_t _getStockIndexClosingPriceInc(
 {
     boolean_t bTough = FALSE;
     oldouble_t dbret = -9999.99;
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * strindex = NULL;
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_NUM_OF_RESULT;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * start, * end, * high, * low;
 
     if (isShStockExchange(stockinfo->si_strCode))
@@ -134,13 +136,13 @@ static boolean_t _getStockIndexClosingPriceInc(
         strindex = SZ_COMPOSITIONAL_INDEX;
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, strindex);
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _getStartEndDaySummary(
             buffer, total, pcap->cap_pstrStartDate, pcap->cap_pstrEndDate, &start, &end);
@@ -162,7 +164,7 @@ static boolean_t _getStockIndexClosingPriceInc(
             bTough = TRUE;
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     *dbInc = dbret;
 
@@ -173,7 +175,7 @@ static u32 _analysisDaySummary_OLD(
     cli_analysis_param_t * pcap, stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t inc1, inc2;
     da_day_summary_t * start, * end, * high, * low;
     boolean_t bTough = FALSE;
@@ -235,10 +237,10 @@ static boolean_t _analysisDaySummaryRegion(
     if ((first == NULL) || (last == NULL))
     {
 #if 0
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "Index from %s to %s, %.2f inc",
             idxStart->dds_strDate, idxEnd->dds_strDate, inc1);
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "Stock from %s to %s, no trade in the first day or the last day",
             idxStart->dds_strDate, idxEnd->dds_strDate);
 #endif
@@ -262,10 +264,10 @@ static boolean_t _analysisDaySummaryRegion(
             bTough = TRUE;
     }
 #if 0
-    cliengOutputLine(
+    jf_clieng_outputLine(
         "Index from %s to %s, %.2f inc",
         idxStart->dds_strDate, idxEnd->dds_strDate, inc1);
-    cliengOutputLine(
+    jf_clieng_outputLine(
         "Stock from %s to %s, %.2f inc",
         first->dds_strDate, last->dds_strDate, inc2);
 #endif
@@ -276,7 +278,7 @@ static u32 _analysisDaySummary(
     stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t total,
     da_day_summary_t * idxBuf, olint_t idxTotal, olint_t nCount, boolean_t * pbTough)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bTough = FALSE;
 #define MAX_INF_COUNT  60
     da_day_summary_t * fp[MAX_INF_COUNT];
@@ -291,7 +293,7 @@ static u32 _analysisDaySummary(
     last = idxBuf + idxTotal - 1;
     if (strncmp(end->dds_strDate, last->dds_strDate, 10) != 0)
     {
-//        cliengOutputLine("Stock has no trade in the last day");
+//        jf_clieng_outputLine("Stock has no trade in the last day");
         return u32Ret;
     }
 
@@ -310,11 +312,11 @@ static u32 _analysisDaySummary(
     }
 #if 0
     if (bTough)
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "Stock %s is Tougher than index",
             stockinfo->si_strCode);
     else
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "Stock %s is Weaker than index",
             stockinfo->si_strCode);
 #endif
@@ -328,7 +330,7 @@ static u32 _getVolumePair(
     da_day_summary_t * idxBuf, olint_t idxTotal,
     oldouble_t * pdba, oldouble_t * pdbb, olint_t num)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * cura, * enda, * curb, * endb;
     olint_t ret, count = 0, index = num - 1, mismatch = 0;
 
@@ -364,15 +366,15 @@ static u32 _getVolumePair(
     }
 
     if (count != num)
-        u32Ret = OLERR_NOT_READY;
+        u32Ret = JF_ERR_NOT_READY;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (mismatch >= num * 3 / 4)
-            u32Ret = OLERR_NOT_READY;
+            u32Ret = JF_ERR_NOT_READY;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
@@ -382,9 +384,9 @@ static u32 _getVolumePair(
 
 static u32 _analysisStock(cli_analysis_param_t * pcap, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_ANALYSIS_DAY_SUMMARY;
@@ -397,40 +399,40 @@ static u32 _analysisStock(cli_analysis_param_t * pcap, da_master_t * pdm)
     olint_t nCount = 20;
     oldouble_t * pdba = NULL, * pdbb = NULL, dbr;
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
-    allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
-    allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
-    allocMemory((void **)&pdba, sizeof(oldouble_t) * nCount, 0);
-    allocMemory((void **)&pdbb, sizeof(oldouble_t) * nCount, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
+    jf_jiukun_allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
+    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * nCount, 0);
+    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * nCount, 0);
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
-    for (i = 0; (i < pcap->cap_nDir) && (u32Ret == OLERR_NO_ERROR); i ++)
+    for (i = 0; (i < pcap->cap_nDir) && (u32Ret == JF_ERR_NO_ERROR); i ++)
     {
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = getStockInfo(pcap->cap_pstrDir[i], &stockinfo);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_snprintf(
-                dirpath, MAX_PATH_LEN, "%s%c%s",
+                dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
                 getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
                 pcap->cap_pstrDir[i]);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (isShStockExchange(stockinfo->si_strCode))
             {
@@ -445,19 +447,19 @@ static u32 _analysisStock(cli_analysis_param_t * pcap, da_master_t * pdm)
 
             u32Ret = _getVolumePair(
                 stockinfo, buffer, total, idxBuf, idxTotal, pdba, pdbb, nCount);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = getCorrelation(pdba, pdbb, nCount, &dbr);
 
-            if (u32Ret == OLERR_NO_ERROR)
-                cliengOutputLine("Correlation: %.2f", dbr);
+            if (u32Ret == JF_ERR_NO_ERROR)
+                jf_clieng_outputLine("Correlation: %.2f", dbr);
         }
     }
 
-    freeMemory((void **)&buffer);
-    freeMemory((void **)&shiBuf);
-    freeMemory((void **)&sziBuf);
-    freeMemory((void **)&pdba);
-    freeMemory((void **)&pdbb);
+    jf_jiukun_freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&shiBuf);
+    jf_jiukun_freeMemory((void **)&sziBuf);
+    jf_jiukun_freeMemory((void **)&pdba);
+    jf_jiukun_freeMemory((void **)&pdbb);
 
     return u32Ret;
 }
@@ -481,19 +483,19 @@ static olint_t _analysisCompareStatArbiEntry(const void * a, const void * b)
 static u32 _analysisStockStatArbi(
     cli_analysis_param_t * pcap, stat_arbi_indu_result_t * result)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stat_arbi_indu_param_t saip;
 
-    memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
+    ol_memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
     saip.saip_dbMinCorrelation = 0.98;
     saip.saip_nDaySummary = NUM_OF_STAT_ARBI_DAY_SUMMARY + 10;
     saip.saip_nCorrelationArray = NUM_OF_STAT_ARBI_DAY_SUMMARY;
 
     u32Ret = statArbiAllIndustry(
         getEnvVar(ENV_VAR_DATA_PATH), &saip, result);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        qsort(
+        ol_qsort(
             result->sair_psaireEntry, result->sair_nNumOfPair,
             sizeof(stat_arbi_indu_result_entry_t),
             _analysisCompareStatArbiEntry);
@@ -520,7 +522,7 @@ static oldouble_t _getStockVolatility(
         low->dds_dbClosingPrice;
 
 #if 0
-    cliengOutputLine(
+    jf_clieng_outputLine(
         "%s, volatility %.2f", stockinfo->si_strCode, dbvol);
 #endif
     return dbvol;
@@ -546,7 +548,7 @@ static u32 _analysisStockGraph(
     stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t total,
     boolean_t * pbTough, olint_t count)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end, * high, * start;
     olint_t year, mon, day, days;
     olint_t year2, mon2, day2, days2;
@@ -569,11 +571,11 @@ static u32 _analysisStockGraph(
 
     while (end > start)
     {
-        getDate2FromString(end->dds_strDate, &year, &mon, &day);
-        days = convertDateToDaysFrom1970(year, mon, day);
+        jf_date_getDate2FromString(end->dds_strDate, &year, &mon, &day);
+        days = jf_date_convertDateToDaysFrom1970(year, mon, day);
 
-        getDate2FromString((end - 1)->dds_strDate, &year2, &mon2, &day2);
-        days2 = convertDateToDaysFrom1970(year2, mon2, day2);
+        jf_date_getDate2FromString((end - 1)->dds_strDate, &year2, &mon2, &day2);
+        days2 = jf_date_convertDateToDaysFrom1970(year2, mon2, day2);
 
         if (days - days2 > 30)
         {
@@ -620,8 +622,8 @@ static u32 _analysisStockGraph(
 static u32 _analysisStockToughness(
     cli_analysis_param_t * pcap, stock_info_t ** ppsiStockInfo, olint_t * pnStockInfo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t dirpath[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_ANALYSIS_DAY_SUMMARY;
@@ -640,36 +642,36 @@ static u32 _analysisStockToughness(
 //    *pnStockInfo = 0;
 //    return u32Ret;
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
-    allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
-    allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
-    allocMemory((void **)&ppsiStock, sizeof(stock_info_t *) * getNumOfStock(), 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
+    jf_jiukun_allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
+    jf_jiukun_allocMemory((void **)&ppsiStock, sizeof(stock_info_t *) * getNumOfStock(), 0);
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockinfo = getFirstStockInfo();
         while (stockinfo != NULL)
         {
             ol_snprintf(
-                dirpath, MAX_PATH_LEN, "%s%c%s",
+                dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
                 getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
                 stockinfo->si_strCode);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 stockinfo->si_dbValue = _getStockVolatility(
                     stockinfo, buffer, total, VOLLTILITY_DAY_SUMMARY_COUNT);
@@ -681,7 +683,7 @@ static u32 _analysisStockToughness(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         qsort(ppsiStock, nStock, sizeof(stock_info_t *), _analysisCompareStockValue);
 
@@ -689,13 +691,13 @@ static u32 _analysisStockToughness(
         {
             bTough = FALSE;
             ol_snprintf(
-                dirpath, MAX_PATH_LEN, "%s%c%s",
+                dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
                 getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
                 ppsiStock[i]->si_strCode);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 if (isShStockExchange(ppsiStock[i]->si_strCode))
                 {
@@ -712,7 +714,7 @@ static u32 _analysisStockToughness(
                     ppsiStock[i], buffer, total, idxBuf, idxTotal, 1, &bTough);
             }
 
-            if ((u32Ret == OLERR_NO_ERROR) && bTough)
+            if ((u32Ret == JF_ERR_NO_ERROR) && bTough)
             {
                 u32Ret = _analysisStockGraph(
                     ppsiStock[i], buffer, total, &bTough,
@@ -720,7 +722,7 @@ static u32 _analysisStockToughness(
             }
 
             /*continue if bTouch is true*/
-            if ((u32Ret == OLERR_NO_ERROR) && bTough)
+            if ((u32Ret == JF_ERR_NO_ERROR) && bTough)
             {
                 ppsiStockInfo[nStockInfo] = ppsiStock[i];
                 nStockInfo ++;
@@ -732,10 +734,10 @@ static u32 _analysisStockToughness(
         *pnStockInfo = nStockInfo;
     }
 
-    freeMemory((void **)&buffer);
-    freeMemory((void **)&shiBuf);
-    freeMemory((void **)&sziBuf);
-    freeMemory((void **)&ppsiStock);
+    jf_jiukun_freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&shiBuf);
+    jf_jiukun_freeMemory((void **)&sziBuf);
+    jf_jiukun_freeMemory((void **)&ppsiStock);
 
     return u32Ret;
 }
@@ -750,9 +752,9 @@ static boolean_t _findInStockStatArbi(
     for (i = 0; i < result->sair_nNumOfPair; i ++)
     {
         entry = &result->sair_psaireEntry[i];
-        if (locateSubString(
+        if (jf_string_locateSubString(
                 entry->saire_strStockPair, stockinfo->si_strCode, NULL) ==
-            OLERR_NO_ERROR)
+            JF_ERR_NO_ERROR)
         {
             *ppEntry = entry;
             return TRUE;
@@ -769,19 +771,19 @@ static boolean_t _isDuplicateEntry(
     olint_t i;
     olchar_t code1[16], code2[16];
 
-    memset(code1, 0, sizeof(code1));
-    memset(code2, 0, sizeof(code2));
+    ol_memset(code1, 0, sizeof(code1));
+    ol_memset(code2, 0, sizeof(code2));
 
     ol_strncpy(code1, entry->saire_strStockPair, 8);
     ol_strncpy(code2, entry->saire_strStockPair + 9, 8);
 
     for (i = 0; i < nEntry; i ++)
     {
-        if (locateSubString(
-                pEntry[i]->saire_strStockPair, code1, NULL) == OLERR_NO_ERROR)
+        if (jf_string_locateSubString(
+                pEntry[i]->saire_strStockPair, code1, NULL) == JF_ERR_NO_ERROR)
             return TRUE;
-        if (locateSubString(
-                pEntry[i]->saire_strStockPair, code2, NULL) == OLERR_NO_ERROR)
+        if (jf_string_locateSubString(
+                pEntry[i]->saire_strStockPair, code2, NULL) == JF_ERR_NO_ERROR)
             return TRUE;
     }
 
@@ -790,10 +792,10 @@ static boolean_t _isDuplicateEntry(
 
 static u32 _analysisStockPool(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_info_t ** ppsiStockInfo = NULL;
     olint_t nStockInfo = 0, i;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     stat_arbi_indu_result_t result;
     stat_arbi_indu_result_entry_t * entry;
     stock_indu_info_t * induinfo;
@@ -803,39 +805,39 @@ static u32 _analysisStockPool(cli_analysis_param_t * pcap)
 #define MAX_STOCK_PAIR  2000
 
     nStockInfo = 100; //getNumOfStock();
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&ppsiStockInfo, sizeof(stock_info_t *) * nStockInfo, 0);
 
-    memset(&result, 0, sizeof(stat_arbi_indu_result_t));
+    ol_memset(&result, 0, sizeof(stat_arbi_indu_result_t));
     result.sair_nMaxPair = MAX_STOCK_PAIR;
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&result.sair_psaireEntry,
         sizeof(stat_arbi_indu_result_entry_t) * result.sair_nMaxPair, 0);
 
     u32Ret = _analysisStockToughness(pcap, ppsiStockInfo, &nStockInfo);
-    if ((u32Ret == OLERR_NO_ERROR) && (nStockInfo > 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (nStockInfo > 0))
     {
         for (i = 0; i < nStockInfo; i ++)
-            cliengOutputLine("%s", ppsiStockInfo[i]->si_strCode);
-        cliengOutputLine("Found %d stocks\n", nStockInfo);
+            jf_clieng_outputLine("%s", ppsiStockInfo[i]->si_strCode);
+        jf_clieng_outputLine("Found %d stocks\n", nStockInfo);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _analysisStockStatArbi(pcap, &result);
-    if ((u32Ret == OLERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
     {
         for (i = 0; i < result.sair_nNumOfPair; i ++)
         {
             entry = &result.sair_psaireEntry[i];
             getIndustryInfo(entry->saire_nInduId, &induinfo);
-            cliengOutputLine(
+            jf_clieng_outputLine(
                 "%s, %.2f, %s", entry->saire_strStockPair,
                 entry->saire_dbCorrelation, induinfo->sii_pstrDesc);
         }
-        cliengOutputLine("Found %d pairs stock", result.sair_nNumOfPair);
+        jf_clieng_outputLine("Found %d pairs stock", result.sair_nNumOfPair);
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (nStockInfo > 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (nStockInfo > 0))
     {
         for (i = 0; i < nStockInfo; i ++)
         {
@@ -843,7 +845,7 @@ static u32 _analysisStockPool(cli_analysis_param_t * pcap)
                 ! _isDuplicateEntry(entry, pEntry, nEntry))
             {
                 getIndustryInfo(entry->saire_nInduId, &induinfo);
-                cliengOutputLine(
+                jf_clieng_outputLine(
                     "%s, %.2f, %s, %s", entry->saire_strStockPair,
                     entry->saire_dbCorrelation, induinfo->sii_pstrDesc,
                     ppsiStockInfo[i]->si_strCode);
@@ -855,27 +857,27 @@ static u32 _analysisStockPool(cli_analysis_param_t * pcap)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = openFile2(
+        u32Ret = jf_file_openWithMode(
             STOCK_QUOTATION_LIST_FILE_NAME, O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (i = 0; i < nEntry; i ++)
             {
-                writen(fd, pEntry[i]->saire_strStockPair, 17);
-                writen(fd, "\n", 1);
+                jf_file_writen(fd, pEntry[i]->saire_strStockPair, 17);
+                jf_file_writen(fd, "\n", 1);
             }
 
-            closeFile(&fd);
+            jf_file_close(&fd);
         }
     }
 
-    freeMemory((void **)&result.sair_psaireEntry);
-    freeMemory((void **)&ppsiStockInfo);
+    jf_jiukun_freeMemory((void **)&result.sair_psaireEntry);
+    jf_jiukun_freeMemory((void **)&ppsiStockInfo);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
@@ -884,20 +886,20 @@ static oldouble_t _getIndexClosingPriceInc(
     cli_analysis_param_t * pcap, olchar_t * strstock)
 {
     oldouble_t dbret = -9999.99;
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_NUM_OF_RESULT;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * start, * end;
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, strstock);
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _getStartEndDaySummary(
             buffer, total, pcap->cap_pstrStartDate, pcap->cap_pstrEndDate, &start, &end);
@@ -907,7 +909,7 @@ static oldouble_t _getIndexClosingPriceInc(
             dbret = _getClosingPriceInc(start, end);
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     return dbret;
 }
@@ -954,12 +956,12 @@ static boolean_t _isStockHighlimit(
 
 static u32 _analysisIndexStock1(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_info_t * stockinfo;
     oldouble_t shIndexInc, szIndexInc, stockInc;
     olint_t aboveSh, belowSh, aboveSz, belowSz;
     olint_t aboveShHl, belowShHl, aboveSzHl, belowSzHl;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_NUM_OF_RESULT;
     oldouble_t thres = 1.3;
@@ -967,24 +969,24 @@ static u32 _analysisIndexStock1(cli_analysis_param_t * pcap)
 
 
     if ((pcap->cap_pstrStartDate == NULL) || (pcap->cap_pstrEndDate == NULL))
-        return OLERR_MISSING_PARAM;
+        return JF_ERR_MISSING_PARAM;
 
     shIndexInc = _getIndexClosingPriceInc(pcap, SH_COMPOSITE_INDEX);
     szIndexInc = _getIndexClosingPriceInc(pcap, SZ_COMPOSITIONAL_INDEX);
 
     aboveSh = belowSh = aboveSz = belowSz = 0;
     aboveShHl = belowShHl = aboveSzHl = belowSzHl = 0;
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     stockinfo = getFirstStockInfo();
-    while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+    while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
         total = MAX_NUM_OF_RESULT;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             stockInc = _getStockClosingPriceInc(pcap, buffer, total);
             if (strncmp(stockinfo->si_strCode, "sh", 2) == 0)
@@ -1026,7 +1028,7 @@ static u32 _analysisIndexStock1(cli_analysis_param_t * pcap)
         stockinfo = getNextStockInfo(stockinfo);
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     ol_printf(
         "From %s to %s, thres %.2f\n",
@@ -1038,38 +1040,38 @@ static u32 _analysisIndexStock1(cli_analysis_param_t * pcap)
         "Index %s, %.2f inc. %d stocks above, %d high limit. %d stocks below, %d high limit\n",
         SZ_COMPOSITIONAL_INDEX, szIndexInc, aboveSz, aboveSzHl, belowSz, belowSzHl);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static u32 _analysisIndexStock2(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_info_t * stockinfo;
     oldouble_t stockInc;
     olint_t aboveSh, aboveSz;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_NUM_OF_RESULT;
 
     return u32Ret;
 
     if ((pcap->cap_pstrStartDate == NULL) || (pcap->cap_pstrEndDate == NULL))
-        return OLERR_MISSING_PARAM;
+        return JF_ERR_MISSING_PARAM;
 
     aboveSh = aboveSz = 0;
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     stockinfo = getFirstStockInfo();
-    while ((stockinfo != NULL) && (u32Ret == OLERR_NO_ERROR))
+    while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
         total = MAX_NUM_OF_RESULT;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             stockInc = _getStockClosingPriceInc(pcap, buffer, total);
             if (strncmp(stockinfo->si_strCode, "sh", 2) == 0)
@@ -1097,7 +1099,7 @@ static u32 _analysisIndexStock2(cli_analysis_param_t * pcap)
         stockinfo = getNextStockInfo(stockinfo);
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     ol_printf(
         "From %s to %s\n",
@@ -1109,14 +1111,14 @@ static u32 _analysisIndexStock2(cli_analysis_param_t * pcap)
         "Index %s, %d stocks above\n",
         SZ_COMPOSITIONAL_INDEX, aboveSz);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static u32 _analysisIndexStock(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     _analysisIndexStock1(pcap);
 
@@ -1127,81 +1129,81 @@ static u32 _analysisIndexStock(cli_analysis_param_t * pcap)
 
 static u32 _analysisStockStatArbi2(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     stat_arbi_indu_result_t result;
     stat_arbi_indu_result_entry_t * entry;
     stock_indu_info_t * induinfo;
 #define MAX_STOCK_PAIR  2000
 
-    memset(&result, 0, sizeof(stat_arbi_indu_result_t));
+    ol_memset(&result, 0, sizeof(stat_arbi_indu_result_t));
     result.sair_nMaxPair = MAX_STOCK_PAIR;
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&result.sair_psaireEntry,
         sizeof(stat_arbi_indu_result_entry_t) * result.sair_nMaxPair, 0);
 
     u32Ret = _analysisStockStatArbi(pcap, &result);
-    if ((u32Ret == OLERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
     {
         for (i = 0; i < result.sair_nNumOfPair; i ++)
         {
             entry = &result.sair_psaireEntry[i];
             getIndustryInfo(entry->saire_nInduId, &induinfo);
-            cliengOutputLine(
+            jf_clieng_outputLine(
                 "%s, %.2f, %s", entry->saire_strStockPair,
                 entry->saire_dbCorrelation, induinfo->sii_pstrDesc);
         }
-        cliengOutputLine("Found %d pairs stock", result.sair_nNumOfPair);
+        jf_clieng_outputLine("Found %d pairs stock", result.sair_nNumOfPair);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = openFile2(
+        u32Ret = jf_file_openWithMode(
             STOCK_STAT_ARBI_LIST_FILE_NAME, O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (i = 0; i < result.sair_nNumOfPair; i ++)
             {
                 entry = &result.sair_psaireEntry[i];
-                writen(fd, entry->saire_strStockPair, 17);
-                writen(fd, "\n", 1);
+                jf_file_writen(fd, entry->saire_strStockPair, 17);
+                jf_file_writen(fd, "\n", 1);
             }
 
-            closeFile(&fd);
+            jf_file_close(&fd);
         }
     }
 
-    freeMemory((void **)&result.sair_psaireEntry);
+    jf_jiukun_freeMemory((void **)&result.sair_psaireEntry);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
     stat_arbi_indu_result_t result;
     stat_arbi_indu_result_entry_t * entry;
     stock_indu_info_t * induinfo;
     stat_arbi_indu_param_t saip;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * end, * buffer;
     stock_info_t * stockinfo;
     olint_t total = MAX_NUM_OF_RESULT;
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
-    memset(&result, 0, sizeof(stat_arbi_indu_result_t));
+    ol_memset(&result, 0, sizeof(stat_arbi_indu_result_t));
     result.sair_nMaxPair = 100;
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&result.sair_psaireEntry,
         sizeof(stat_arbi_indu_result_entry_t) * result.sair_nMaxPair, 0);
 
-    memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
+    ol_memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
     saip.saip_dbMinCorrelation = 0.95;
     saip.saip_nDaySummary = NUM_OF_STAT_ARBI_DAY_SUMMARY + 10;
     saip.saip_nCorrelationArray = NUM_OF_STAT_ARBI_DAY_SUMMARY;
@@ -1210,12 +1212,12 @@ static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
     while (stockinfo != NULL)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             stockinfo->si_strCode);
         total = MAX_ANALYSIS_DAY_SUMMARY;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             end = buffer + total - 1;
             if (! end->dds_bHighHighLimit)
@@ -1225,44 +1227,44 @@ static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             result.sair_nNumOfPair = 0;
             u32Ret = statArbiStock(
                 getEnvVar(ENV_VAR_DATA_PATH), stockinfo, &saip, &result);
         }
 
-        if ((u32Ret == OLERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
+        if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
         {
             for (i = 0; i < result.sair_nNumOfPair; i ++)
             {
                 entry = &result.sair_psaireEntry[i];
                 ol_snprintf(
-                    dirpath, MAX_PATH_LEN, "%s%c%s",
+                    dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
                     getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
                     entry->saire_strStockPair + 9);
                 total = MAX_ANALYSIS_DAY_SUMMARY;
                 u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     end = buffer + total - 1;
                     getIndustryInfo(entry->saire_nInduId, &induinfo);
-                    cliengOutputLine(
+                    jf_clieng_outputLine(
                         "%s, %.2f, %s, %.2f", entry->saire_strStockPair,
                         entry->saire_dbCorrelation, induinfo->sii_pstrDesc,
                         end->dds_dbClosingPriceRate);
                 }
             }
-            cliengOutputLine("Found %d pairs stock", result.sair_nNumOfPair);
+            jf_clieng_outputLine("Found %d pairs stock", result.sair_nNumOfPair);
         }
 
         stockinfo = getNextStockInfo(stockinfo);
     }
 
-    freeMemory((void **)&result.sair_psaireEntry);
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&result.sair_psaireEntry);
+    jf_jiukun_freeMemory((void **)&buffer);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
@@ -1296,24 +1298,24 @@ static void _strcatStock(olchar_t ** stocklist, olint_t * numoflist, olchar_t * 
     _addStockToList(stocklist, numoflist, &stockpair[9], stockpair);
 }
 
-static void _allocMemoryForStockList(olchar_t ** stocklist, olint_t num)
+static void _jf_jiukun_allocMemoryForStockList(olchar_t ** stocklist, olint_t num)
 {
     olint_t i;
 
     for (i = 0; i < num; i ++)
     {
-        allocMemory((void **)&stocklist[i], 200, 0);
+        jf_jiukun_allocMemory((void **)&stocklist[i], 200, 0);
     }
 
 }
 
-static void _freeMemoryForStockList(olchar_t ** stocklist, olint_t num)
+static void _jf_jiukun_freeMemoryForStockList(olchar_t ** stocklist, olint_t num)
 {
     olint_t i;
 
     for (i = 0; i < num; i ++)
     {
-        freeMemory((void **)&stocklist[i]);
+        jf_jiukun_freeMemory((void **)&stocklist[i]);
     }
 
 }
@@ -1324,8 +1326,8 @@ static boolean_t _analysisSectorStockToughness(
     da_day_summary_t * sziBuf, olint_t sziTotal)
 {
     boolean_t bTough = FALSE;
-    u32 u32Ret = OLERR_NO_ERROR;
-    olchar_t dirpath[MAX_PATH_LEN];
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
     olint_t total = MAX_ANALYSIS_DAY_SUMMARY;
@@ -1333,27 +1335,27 @@ static boolean_t _analysisSectorStockToughness(
     olint_t idxTotal;
 #define VOLLTILITY_DAY_SUMMARY_COUNT  20
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     u32Ret = getStockInfo(pstrStock, &stockinfo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             stockinfo->si_strCode);
         total = MAX_ANALYSIS_DAY_SUMMARY;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             stockinfo->si_dbValue = _getStockVolatility(
                 stockinfo, buffer, total, VOLLTILITY_DAY_SUMMARY_COUNT);
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (isShStockExchange(stockinfo->si_strCode))
         {
@@ -1369,7 +1371,7 @@ static boolean_t _analysisSectorStockToughness(
         u32Ret = _analysisDaySummary(
             stockinfo, buffer, total, idxBuf, idxTotal, 1, &bTough);
 
-        if ((u32Ret == OLERR_NO_ERROR) && bTough)
+        if ((u32Ret == JF_ERR_NO_ERROR) && bTough)
         {
             u32Ret = _analysisStockGraph(
                 stockinfo, buffer, total, &bTough,
@@ -1377,82 +1379,82 @@ static boolean_t _analysisSectorStockToughness(
         }
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     return bTough;
 }
 
 static u32 _analysisSector(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j;
     stat_arbi_indu_result_t result;
     stat_arbi_indu_result_entry_t * entry;
     stat_arbi_indu_param_t saip;
     olint_t numofsector = 100;
     parse_sector_info_t psi[100];
-    olint_t fd = INVALID_FILE_VALUE;
+    olint_t fd = JF_FILE_INVALID_FILE_VALUE;
     olchar_t str[128];
     olsize_t size;
 #define MAX_STOCKLIST  200
     olint_t numoflist = 0;
     olchar_t * stocklist[MAX_STOCKLIST];
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * shiBuf = NULL;
     olint_t shiTotal = MAX_ANALYSIS_DAY_SUMMARY;
     da_day_summary_t * sziBuf = NULL;
     olint_t sziTotal = MAX_ANALYSIS_DAY_SUMMARY;
 
-    allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
-    allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
-    _allocMemoryForStockList(stocklist, MAX_STOCKLIST);
+    jf_jiukun_allocMemory((void **)&shiBuf, sizeof(da_day_summary_t) * shiTotal, 0);
+    jf_jiukun_allocMemory((void **)&sziBuf, sizeof(da_day_summary_t) * sziTotal, 0);
+    _jf_jiukun_allocMemoryForStockList(stocklist, MAX_STOCKLIST);
 
-    memset(&result, 0, sizeof(stat_arbi_indu_result_t));
+    ol_memset(&result, 0, sizeof(stat_arbi_indu_result_t));
     result.sair_nMaxPair = 300;
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&result.sair_psaireEntry,
         sizeof(stat_arbi_indu_result_entry_t) * result.sair_nMaxPair, 0);
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(psi, 0, sizeof(parse_sector_info_t) * numofsector);
+        ol_memset(psi, 0, sizeof(parse_sector_info_t) * numofsector);
 
-        memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
+        ol_memset(&saip, 0, sizeof(stat_arbi_indu_param_t));
         saip.saip_dbMinCorrelation = 0.95;
         saip.saip_nDaySummary = NUM_OF_STAT_ARBI_DAY_SUMMARY + 10;
         saip.saip_nCorrelationArray = NUM_OF_STAT_ARBI_DAY_SUMMARY;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = openFile2(
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_file_openWithMode(
             STOCK_STAT_ARBI_LIST_FILE_NAME, O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
 
     u32Ret = parseSectorDir("sector", psi, &numofsector);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < numofsector; i ++)
         {
-            cliengOutputLine("%s: %s", psi[i].psi_strName, psi[i].psi_pstrStocks);
+            jf_clieng_outputLine("%s: %s", psi[i].psi_strName, psi[i].psi_pstrStocks);
 
             result.sair_nNumOfPair = 0;
 
             u32Ret = statArbiStockList(
                 getEnvVar(ENV_VAR_DATA_PATH), psi[i].psi_pstrStocks,
                 ol_strlen(psi[i].psi_pstrStocks) / 9, &saip, &result);
-            if ((u32Ret == OLERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
+            if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
             {
 /*
   qsort(
@@ -1470,7 +1472,7 @@ static u32 _analysisSector(cli_analysis_param_t * pcap)
                     if (! _analysisSectorStockToughness(
                             pcap, &entry->saire_strStockPair[9], shiBuf, shiTotal, sziBuf, sziTotal))
                         continue;
-                    cliengOutputLine(
+                    jf_clieng_outputLine(
                         "%s, %.2f", entry->saire_strStockPair,
                         entry->saire_dbCorrelation);
                     _strcatStock(stocklist, &numoflist, entry->saire_strStockPair);
@@ -1478,80 +1480,80 @@ static u32 _analysisSector(cli_analysis_param_t * pcap)
                     if (numoflist >= MAX_STOCKLIST)
                         break;
                 }
-                cliengOutputLine("Found %d pairs stock", result.sair_nNumOfPair);
+                jf_clieng_outputLine("Found %d pairs stock", result.sair_nNumOfPair);
 
                 if (numoflist > 0)
                 {
                     size = ol_sprintf(str, "[%s]\n", psi[i].psi_strName);
-                    writen(fd, str, size);
+                    jf_file_writen(fd, str, size);
                 }
 
                 for (j = 0; j < numoflist; j ++)
                 {
-                    cliengOutputLine("%s", stocklist[j]);
-                    writen(fd, stocklist[j], ol_strlen(stocklist[j]));
-                    writen(fd, "\n", 1);
+                    jf_clieng_outputLine("%s", stocklist[j]);
+                    jf_file_writen(fd, stocklist[j], ol_strlen(stocklist[j]));
+                    jf_file_writen(fd, "\n", 1);
                 }
-                cliengOutputLine("Found %d stocks", numoflist);
+                jf_clieng_outputLine("Found %d stocks", numoflist);
             }
-            cliengOutputLine("");
+            jf_clieng_outputLine("");
             freeSectorInfo(&psi[i]);
         }
     }
 
-    if (fd != INVALID_FILE_VALUE)
-        closeFile(&fd);
+    if (fd != JF_FILE_INVALID_FILE_VALUE)
+        jf_file_close(&fd);
 
-    freeMemory((void **)&result.sair_psaireEntry);
-    _freeMemoryForStockList(stocklist, MAX_STOCKLIST);
+    jf_jiukun_freeMemory((void **)&result.sair_psaireEntry);
+    _jf_jiukun_freeMemoryForStockList(stocklist, MAX_STOCKLIST);
 
-    freeMemory((void **)&shiBuf);
-    freeMemory((void **)&sziBuf);
+    jf_jiukun_freeMemory((void **)&shiBuf);
+    jf_jiukun_freeMemory((void **)&sziBuf);
 
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 
     return u32Ret;
 }
 
 static u32 _analysisStockTough(cli_analysis_param_t * pcap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stock_info_t ** ppsiStockInfo = NULL;
     olint_t nStockInfo = 0, i;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     nStockInfo = 10; //getNumOfStock();
-    allocMemory(
+    jf_jiukun_allocMemory(
         (void **)&ppsiStockInfo, sizeof(stock_info_t *) * nStockInfo, 0);
 
     u32Ret = _analysisStockToughness(pcap, ppsiStockInfo, &nStockInfo);
-    if ((u32Ret == OLERR_NO_ERROR) && (nStockInfo > 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (nStockInfo > 0))
     {
         for (i = 0; i < nStockInfo; i ++)
-            cliengOutputLine("%s", ppsiStockInfo[i]->si_strCode);
-        cliengOutputLine("Found %d stocks\n", nStockInfo);
+            jf_clieng_outputLine("%s", ppsiStockInfo[i]->si_strCode);
+        jf_clieng_outputLine("Found %d stocks\n", nStockInfo);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = openFile2(
+        u32Ret = jf_file_openWithMode(
             STOCK_TOUGH_LIST_FILE_NAME, O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (i = 0; i < nStockInfo; i ++)
             {
-                writen(fd, ppsiStockInfo[i]->si_strCode, 8);
-                writen(fd, "\n", 1);
+                jf_file_writen(fd, ppsiStockInfo[i]->si_strCode, 8);
+                jf_file_writen(fd, "\n", 1);
             }
 
-            closeFile(&fd);
+            jf_file_close(&fd);
         }
     }
 
-    freeMemory((void **)&ppsiStockInfo);
+    jf_jiukun_freeMemory((void **)&ppsiStockInfo);
 
-//    cliengOutputLine("");
+//    jf_clieng_outputLine("");
 
     return u32Ret;
 }
@@ -1582,13 +1584,13 @@ static void _analysisPrintQuotation(stock_quo_t * psq, quo_entry_t ** pqe, olint
 {
     olint_t i;
 
-    cliengOutputLine("Total %d points", total);
+    jf_clieng_outputLine("Total %d points", total);
     for (i = 0; i < total; i ++)
     {
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "%s %.2f", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice);
     }
-    cliengOutputLine("");
+    jf_clieng_outputLine("");
 }
 #endif
 
@@ -1690,7 +1692,7 @@ static void _analysisStockPriceVolumnObv(
 #if 1
     for (i = 0; i < total; i ++)
     {
-        cliengOutputLine(
+        jf_clieng_outputLine(
             "%s, %.2f, %.2f", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice, pdba[i]);
     }
 #endif
@@ -1778,15 +1780,15 @@ static boolean_t _analysisStockPriceVolumn(
 static u32 _analysisStockIndexQuotation(
     stock_quo_t * psq, stock_quo_t * psqi)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, total;
     oldouble_t * pdba = NULL, * pdbb = NULL; //, dbr1, dbr2;
     quo_entry_t ** pqe = NULL;
 //    quo_entry_t * low;
 
-    allocMemory((void **)&pdba, sizeof(oldouble_t) * psq->sq_nMaxEntry, 0);
-    allocMemory((void **)&pdbb, sizeof(oldouble_t) * psq->sq_nMaxEntry, 0);
-    allocMemory((void **)&pqe, sizeof(quo_entry_t *) * psqi->sq_nNumOfEntry, 0);
+    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * psq->sq_nMaxEntry, 0);
+    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * psq->sq_nMaxEntry, 0);
+    jf_jiukun_allocMemory((void **)&pqe, sizeof(quo_entry_t *) * psqi->sq_nNumOfEntry, 0);
 
     for (i = 469; i < psqi->sq_nNumOfEntry; i ++)
     {
@@ -1816,18 +1818,18 @@ static u32 _analysisStockIndexQuotation(
                 continue;
         }
 */
-        cliengPrintDivider();
-        cliengOutputLine(
+        jf_clieng_printDivider();
+        jf_clieng_outputLine(
             "%s, %.2f, %d", psqi->sq_pqeEntry[i].qe_strTime, psqi->sq_pqeEntry[i].qe_dbCurPrice, i);
-//        cliengOutputLine("Stock price and volumn: %.2f", dbr1);
-//        cliengOutputLine("Index price and volumn: %.2f", dbr2);
+//        jf_clieng_outputLine("Stock price and volumn: %.2f", dbr1);
+//        jf_clieng_outputLine("Index price and volumn: %.2f", dbr2);
 //        _analysisPrintQuotation(psqi, pqe, total);
         break;
     }
 
-    freeMemory((void **)&pdba);
-    freeMemory((void **)&pdbb);
-    freeMemory((void **)&pqe);
+    jf_jiukun_freeMemory((void **)&pdba);
+    jf_jiukun_freeMemory((void **)&pdbb);
+    jf_jiukun_freeMemory((void **)&pqe);
 
     return u32Ret;
 }
@@ -1835,20 +1837,20 @@ static u32 _analysisStockIndexQuotation(
 static u32 _analysisFillStockQuotation(
     stock_quo_t * psq, stock_info_t * stockinfo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * buffer = NULL;
     olint_t total = 100;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     da_day_summary_t * end;
 
     ol_snprintf(
-        dirpath, MAX_PATH_LEN, "%s%c%s",
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
         getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     u32Ret = readTradeDaySummary(dirpath, buffer, &total);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         getDaySummaryWithDate(buffer, total, psq->sq_strDate, &end);
         end --;
@@ -1856,27 +1858,27 @@ static u32 _analysisFillStockQuotation(
         psq->sq_dbLastClosingPrice = end->dds_dbClosingPrice;
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
 
     return u32Ret;
 }
 
 static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrIndex;
     stock_quo_t stockquo, stockquoindex;
-    olchar_t dirpath[MAX_PATH_LEN];
+    olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
 
     if (isStockInfoIndex(pcap->cap_pstrDir[0]))
     {
-        cliengOutputLine("Cannot analysis the quotation of stock index");
-        return OLERR_INVALID_PARAM;
+        jf_clieng_outputLine("Cannot analysis the quotation of stock index");
+        return JF_ERR_INVALID_PARAM;
     }
 
-    memset(&stockquo, 0, sizeof(stock_quo_t));
-    memset(&stockquoindex, 0, sizeof(stock_quo_t));
+    ol_memset(&stockquo, 0, sizeof(stock_quo_t));
+    ol_memset(&stockquoindex, 0, sizeof(stock_quo_t));
 
     if (isShStockExchange(pcap->cap_pstrDir[0]))
         pstrIndex = SH_COMPOSITE_INDEX;
@@ -1884,62 +1886,62 @@ static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, da_master_t * pd
         pstrIndex = SZ_COMPOSITIONAL_INDEX;
 
     u32Ret = getStockInfo(pcap->cap_pstrDir[0], &stockinfo);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockquo.sq_nMaxEntry = 3500;
         ol_strcpy(stockquo.sq_strCode, stockinfo->si_strCode);
         if (pcap->cap_pstrStartDate != NULL)
             ol_strcpy(stockquo.sq_strDate, pcap->cap_pstrStartDate);
 
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&stockquo.sq_pqeEntry,
             sizeof(quo_entry_t) * stockquo.sq_nMaxEntry);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcap->cap_pstrDir[0]);
 
         u32Ret = readStockQuotationFile(
             dirpath, &stockquo);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _analysisFillStockQuotation(&stockquo, stockinfo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockquoindex.sq_nMaxEntry = 3500;
         ol_strcpy(stockquoindex.sq_strCode, pstrIndex);
         if (pcap->cap_pstrStartDate != NULL)
             ol_strcpy(stockquoindex.sq_strDate, pcap->cap_pstrStartDate);
 
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&stockquoindex.sq_pqeEntry,
             sizeof(quo_entry_t) * stockquoindex.sq_nMaxEntry);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, MAX_PATH_LEN, "%s%c%s",
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pstrIndex);
 
         u32Ret = readStockQuotationFile(
             dirpath, &stockquoindex);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _analysisStockIndexQuotation(&stockquo, &stockquoindex);
     }
 
     if (stockquo.sq_pqeEntry != NULL)
-        xfree((void **)&stockquo.sq_pqeEntry);
+        jf_mem_free((void **)&stockquo.sq_pqeEntry);
     if (stockquoindex.sq_pqeEntry != NULL)
-        xfree((void **)&stockquoindex.sq_pqeEntry);
+        jf_mem_free((void **)&stockquoindex.sq_pqeEntry);
 
     return u32Ret;
 }
@@ -1948,7 +1950,7 @@ static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, da_master_t * pd
 
 u32 processAnalysis(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_analysis_param_t * pcap = (cli_analysis_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
 
@@ -1956,13 +1958,13 @@ u32 processAnalysis(void * pMaster, void * pParam)
         u32Ret = _analysisHelp(pdm);
     else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
     {
-        cliengOutputLine("Data path is not set.");
-        u32Ret = OLERR_NOT_READY;
+        jf_clieng_outputLine("Data path is not set.");
+        u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcap->cap_u8Action == CLI_ACTION_ANALYSIS_STOCK)
     {
         if (pcap->cap_nDir == 0)
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
         else
             u32Ret = _analysisStock(pcap, pdm);
     }
@@ -1981,17 +1983,17 @@ u32 processAnalysis(void * pMaster, void * pParam)
     else if (pcap->cap_u8Action == CLI_ACTION_ANALYSIS_SECTOR)
         u32Ret = _analysisSector(pcap);
     else
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
 
     return u32Ret;
 }
 
 u32 setDefaultParamAnalysis(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_analysis_param_t * pcap = (cli_analysis_param_t *)pParam;
 
-    memset(pcap, 0, sizeof(cli_analysis_param_t));
+    ol_memset(pcap, 0, sizeof(cli_analysis_param_t));
     pcap->cap_u8Action = CLI_ACTION_ANALYSIS_SECTOR;
 
     return u32Ret;
@@ -1999,7 +2001,7 @@ u32 setDefaultParamAnalysis(void * pMaster, void * pParam)
 
 u32 parseAnalysis(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_analysis_param_t * pcap = (cli_analysis_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -2007,7 +2009,7 @@ u32 parseAnalysis(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "atbns:q:if:l:hv?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "atbns:q:if:l:hv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -2037,7 +2039,7 @@ u32 parseAnalysis(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcap->cap_u8Action = CLI_ACTION_ANALYSIS_SECTOR;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'i':
             pcap->cap_u8Action = CLI_ACTION_ANALYSIS_INDEX_STOCKS;
@@ -2056,7 +2058,7 @@ u32 parseAnalysis(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcap->cap_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 

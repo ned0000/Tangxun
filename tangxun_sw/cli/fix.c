@@ -14,13 +14,13 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
 #include "clicmd.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
 #include "fixdata.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -29,20 +29,20 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _fixHelp(da_master_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputLine("Fix data");
-    cliengOutputLine("\
+    jf_clieng_outputLine("Fix data");
+    jf_clieng_outputLine("\
 fix [-f file] [-o] [-v]");
-    cliengOutputRawLine("\
+    jf_clieng_outputRawLine("\
   -f: fix data from file. The fixed data will be writtten to the new file if");
-    cliengOutputLine("\
+    jf_clieng_outputLine("\
       overwrite option is not specified. \".fix\" is appended to the file name");
-    cliengOutputLine("\
+    jf_clieng_outputLine("\
       as the name of the new file.");
-    cliengOutputLine("\
+    jf_clieng_outputLine("\
   -o: overwrite the original file.");
-    cliengOutputLine("\
+    jf_clieng_outputLine("\
   -v: verbose.");
 
     return u32Ret;
@@ -51,7 +51,7 @@ fix [-f file] [-o] [-v]");
 /* --- public routine section ---------------------------------------------- */
 u32 processFix(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
     da_master_t * pdm = (da_master_t *)pMaster;
     fix_param_t fixp;
@@ -65,28 +65,28 @@ u32 processFix(void * pMaster, void * pParam)
         fixp.fp_bOverwrite = pcfp->cfp_bOverwrite;
 
         u32Ret = fixDataFile(pcfp->cfp_pstrData, &fixp, &fixresult);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (fixresult.fr_nDeletedLine != 0)
-                cliengOutputLine(
+                jf_clieng_outputLine(
                     "Delete %d lines from data file", fixresult.fr_nDeletedLine);
         }
         else
         {
-            cliengOutputLine(
+            jf_clieng_outputLine(
                 "Cannot fix data file %s, correct the error by hand",
                 pcfp->cfp_pstrData);
         }
     }
     else
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
 
     return u32Ret;
 }
 
 u32 setDefaultParamFix(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
 
     memset(pcfp, 0, sizeof(*pcfp));
@@ -97,7 +97,7 @@ u32 setDefaultParamFix(void * pMaster, void * pParam)
 
 u32 parseFix(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -105,7 +105,7 @@ u32 parseFix(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "f:ovh?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "f:ovh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -124,7 +124,7 @@ u32 parseFix(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcfp->cfp_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 

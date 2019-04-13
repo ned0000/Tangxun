@@ -24,19 +24,21 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "errcode.h"
-#include "clieng.h"
-#include "clicmd.h"
-#include "main.h"
-#include "jiukun.h"
-#include "xmalloc.h"
-#include "network.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_clieng.h"
+#include "jf_jiukun.h"
+#include "jf_mem.h"
+#include "jf_network.h"
+#include "jf_process.h"
+
 #include "stocklist.h"
 #include "envvar.h"
 #include "trade_persistency.h"
 #include "damodel.h"
+#include "clicmd.h"
+#include "main.h"
 
 /* --- private data/data structure section --------------------------------- */
 da_master_t * ls_pdmMaster = NULL;
@@ -61,15 +63,15 @@ logger options:\n\
     exit(0);
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, 
-    clieng_param_t * pcp, logger_param_t * plp)
+static u32 _parseCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "T:F:S:Oh")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "T:F:S:Oh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -79,25 +81,25 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
             break;
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -107,14 +109,14 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
 
 static u32 _printShellGreeting(void * pMaster)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    cliengOutputLine("-------------------------------------------------------------");
-    cliengOutputLine("Data Analysis Command Line Interface (CLI) Utility");
-    cliengOutputLine("Version: %s Build Date: %s",
+    jf_clieng_outputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine("Data Analysis Command Line Interface (CLI) Utility");
+    jf_clieng_outputLine("Version: %s Build Date: %s",
                      ls_pstrVersion, ls_pstrBuildData);
-    cliengOutputLine("All rights reserved.");
-    cliengOutputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine("All rights reserved.");
+    jf_clieng_outputLine("-------------------------------------------------------------");
 
     return u32Ret;
 }
@@ -123,77 +125,77 @@ static u32 _printShellGreeting(void * pMaster)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    clieng_param_t cp;
-    logger_param_t lpParam;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_clieng_init_param_t jcip;
+    jf_logger_init_param_t jlipParam;
     da_cli_param_t dcpParam;
-    jiukun_param_t jp;
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = xcalloc((void **)&ls_pdmMaster, sizeof(da_master_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&ls_pdmMaster, sizeof(da_master_t));
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&lpParam, 0, sizeof(logger_param_t));
-        lpParam.lp_pstrCallerName = "DA";
-        lpParam.lp_bLogToStdout = TRUE;
-        lpParam.lp_bLogToFile = TRUE;
-        lpParam.lp_u8TraceLevel = LOGGER_TRACE_DATA;
-        lpParam.lp_pstrLogFilePath = "cli.log";
+        ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+        jlipParam.jlip_pstrCallerName = "DA";
+        jlipParam.jlip_bLogToStdout = TRUE;
+        jlipParam.jlip_bLogToFile = TRUE;
+        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+        jlipParam.jlip_pstrLogFilePath = "cli.log";
 
-        memset(&cp, 0, sizeof(clieng_param_t));
+        ol_memset(&jcip, 0, sizeof(jf_clieng_init_param_t));
 
-        cp.cp_sMaxCmdLine = MAX_COMMAND_LINE_SIZE;
-        cp.cp_sCmdHistroyBuf = 20;
-        ol_strcpy(cp.cp_strCliName, "TANGXUN-CLI");
-        cp.cp_pstrNewLine = "\n";
-        cp.cp_pMaster = ls_pdmMaster;
-        cp.cp_fnPrintGreeting = _printShellGreeting;
+        jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
+        jcip.jcip_sCmdHistroyBuf = 20;
+        ol_strcpy(jcip.jcip_strCliName, "TANGXUN-CLI");
+        jcip.jcip_pstrNewLine = "\n";
+        jcip.jcip_pMaster = ls_pdmMaster;
+        jcip.jcip_fnPrintGreeting = _printShellGreeting;
 
-        u32Ret = _parseCmdLineParam(argc, argv, &cp, &lpParam);
+        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initLogger(&lpParam);
-        initNetworkLib();
+        jf_logger_init(&jlipParam);
+        jf_process_initSocket();
 
-        memset(&jp, 0, sizeof(jiukun_param_t));
-        jp.jp_sPool = MAX_JIUKUN_POOL_SIZE;
-        jp.jp_bNoGrow = FALSE;
+        ol_memset(&jjip, 0, sizeof(jf_jiukun_init_param_t));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+        jjip.jjip_bNoGrow = FALSE;
 
-        u32Ret = initJiukun(&jp);
+        u32Ret = jf_jiukun_init(&jjip);
 
-        if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = initClieng(&cp);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_clieng_init(&jcip);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initStockList();
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initEnvPersistency();
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initTradePersistency();
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initDaModel();
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = addDaCmd(ls_pdmMaster, &dcpParam);
 
-        if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = runClieng();
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_clieng_run();
 
-        finiClieng();
+        jf_clieng_fini();
         finiEnvPersistency();
         finiStockList();
-        finiJiukun();
+        jf_jiukun_fini();
 
-        finiNetworkLib();
-        finiLogger();
+        jf_process_finiSocket();
+        jf_logger_fini();
     }
 
     if (ls_pdmMaster != NULL)
-        xfree((void **)&ls_pdmMaster);
+        jf_mem_free((void **)&ls_pdmMaster);
 
     return u32Ret;
 }
