@@ -26,7 +26,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -lollogger -lolfiles -ldamodel -ltrade_persistency -ltradehelper
+EXTRA_LIBS = -ljf_logger -ljf_files -ldamodel -ltrade_persistency -ltradehelper
 
 include $(TOPDIR)/mak/lnxlib.mak
 
