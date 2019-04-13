@@ -12,18 +12,18 @@
 #ifndef TRADE_PERSISTENCY_COMMON_H
 #define TRADE_PERSISTENCY_COMMON_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_sqlite.h"
 
 #include "trade_persistency.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct tp_config_sqlite
 {
 #define MAX_TP_CONFIG_NAME_LEN    (64)
@@ -111,11 +111,11 @@ typedef struct tp_manager
 
 } tp_manager_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 
 #endif /*TRADE_PERSISTENCY_COMMON_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

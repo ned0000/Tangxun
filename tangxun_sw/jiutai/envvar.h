@@ -12,21 +12,21 @@
 #ifndef TANGXUN_JIUTAI_ENVVAR_H
 #define TANGXUN_JIUTAI_ENVVAR_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define ENV_VAR_DATA_PATH           "DataPath"
 #define ENV_VAR_DAYS_STOCK_POOL     "DaysForStockInPool"
 #define ENV_VAR_MAX_STOCK_IN_POOL   "MaxStockInPool"
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 char * getEnvVar(olchar_t * name);
 olint_t getEnvVarDaysStockPool(void);
@@ -43,6 +43,6 @@ u32 finiEnvPersistency(void);
 
 #endif /*TANGXUN_JIUTAI_ENVVAR_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

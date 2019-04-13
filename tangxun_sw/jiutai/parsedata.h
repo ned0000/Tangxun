@@ -12,13 +12,13 @@
 #ifndef TANGXUN_JIUTAI_PARSEDATA_H
 #define TANGXUN_JIUTAI_PARSEDATA_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define AMOUNT_UNIT              (10000)
 
 #define STRAIGHT_LINE_MOTION     (0.03)
@@ -29,7 +29,7 @@
 #define VOL_RATIO_FIERCE         (5.0)
 #define VOL_RATIO_ABNORMAL       (10.0)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     olchar_t ddr_strDate[16];
@@ -289,7 +289,7 @@ typedef struct
     olchar_t * psi_pstrStocks;
 } parse_sector_info_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 parseDataFile(
     olchar_t * file, parse_param_t * ppp, olint_t daindex,
     da_day_result_t * daresult);
@@ -381,6 +381,6 @@ void freeSectorInfo(parse_sector_info_t * sector);
 
 #endif /*TANGXUN_JIUTAI_PARSEDATA_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

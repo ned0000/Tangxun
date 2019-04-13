@@ -12,13 +12,13 @@
 #ifndef TANGXUN_JIUTAI_STOCKLIST_H
 #define TANGXUN_JIUTAI_STOCKLIST_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define SMALL_MEDIUM_STOCK_SHARE    (3000000000ULL)
 #define GROWTH_STOCK_SHARE          (200000000ULL)
 #define TINY_STOCK_SHARE            (30000000ULL)
@@ -111,7 +111,7 @@ enum stock_indu
     STOCK_INDU_MAX,
 };
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -155,7 +155,7 @@ typedef struct
 #define STOCK_STAT_ARBI_LIST_FILE_NAME  "StockStatArbiList.txt"
 #define STOCK_TOUGH_LIST_FILE_NAME      "StockToughList.txt"
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 initStockList(void);
 u32 finiStockList(void);
 
@@ -184,6 +184,6 @@ boolean_t isShStockExchange(olchar_t * stock);
 
 #endif /*TANGXUN_JIUTAI_STOCKLIST_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -69,15 +69,15 @@
 #ifndef TANGXUN_JIUTAI_INDICATOR_H
 #define TANGXUN_JIUTAI_INDICATOR_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "parsedata.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 enum stock_indicator
 {
@@ -323,7 +323,7 @@ typedef struct
     oldouble_t goip_dbMinProfitTimeRatio;
 } get_optimized_indicator_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 da_indicator_desc_t * getDaIndicatorDesc(olint_t id);
 
@@ -344,6 +344,6 @@ char * getStringIndicatorName(olint_t nIndicator);
 
 #endif /*TANGXUN_JIUTAI_INDICATOR_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

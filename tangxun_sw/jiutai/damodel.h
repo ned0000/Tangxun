@@ -12,9 +12,9 @@
 #ifndef TANGXUN_DAMODEL_H
 #define TANGXUN_DAMODEL_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
 
@@ -22,11 +22,11 @@
 #include "parsedata.h"
 #include "stocktrade.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef enum da_model_id
 {
@@ -67,7 +67,7 @@ typedef struct da_model
     jf_listhead_t dm_jlList;
 } da_model_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 initDaModel(void);
 u32 finiDaModel(void);
@@ -82,6 +82,6 @@ u32 addDaModelRoi(jf_listhead_t * pjl);
 
 #endif /*TANGXUN_DAMODEL_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

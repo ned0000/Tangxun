@@ -12,15 +12,15 @@
 #ifndef TANGXUN_JIUTAI_DATASTAT_H
 #define TANGXUN_JIUTAI_DATASTAT_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "parsedata.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     olchar_t ds_strName[16];
@@ -153,7 +153,7 @@ typedef struct
 } desc_stat_t;
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 dataStatFromDaySummary(
     data_stat_param_t * pdsp, data_stat_t * stat,
@@ -181,6 +181,6 @@ u32 getCorrelation(
 
 #endif /*TANGXUN_JIUTAI_DATASTAT_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

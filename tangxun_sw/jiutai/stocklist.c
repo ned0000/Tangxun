@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -31,7 +31,7 @@
 
 #include "stocklist.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static stock_list_t ls_slStockList;
 
@@ -120,7 +120,7 @@ static stock_info_t ls_siStockInfoIndex[] =
 static olint_t ls_nNumOfStockInfoIndex =
     sizeof(ls_siStockInfoIndex) / sizeof(stock_info_t);
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _findStock(stock_list_t * psl, olchar_t * name, stock_info_t ** info)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
@@ -361,7 +361,7 @@ static u32 _classifyStock(stock_list_t * psl)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 initStockList(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -561,6 +561,6 @@ olchar_t * getStringIndustry(olint_t nIndustry)
     return _getStringIndustry(nIndustry);
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

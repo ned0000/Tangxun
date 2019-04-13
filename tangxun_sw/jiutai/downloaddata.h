@@ -12,15 +12,15 @@
 #ifndef TANGXUN_JIUTAI_DOWNLOADDATA_H
 #define TANGXUN_JIUTAI_DOWNLOADDATA_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -38,7 +38,7 @@ typedef struct
     u32 ddp_u32Reserved[2];
 } download_data_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 downloadData(download_data_param_t * param);
 
@@ -46,6 +46,6 @@ u32 downloadStockInfoIndex(download_data_param_t * param);
 
 #endif /*TANGXUN_JIUTAI_DOWNLOADDATA_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

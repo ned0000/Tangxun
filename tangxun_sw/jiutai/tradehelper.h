@@ -12,9 +12,9 @@
 #ifndef TANGXUN_TRADEHELPER_H
 #define TANGXUN_TRADEHELPER_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "parsedata.h"
@@ -23,11 +23,11 @@
 #include "trade_persistency.h"
 
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 setStockFirstTradeDate(const char * strStockPath);
 
@@ -39,6 +39,6 @@ boolean_t isHoliday(olint_t year, olint_t mon, olint_t day);
 
 #endif /*TANGXUN_TRADEHELPER_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

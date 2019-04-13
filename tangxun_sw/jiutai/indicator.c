@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_clieng.h"
@@ -33,7 +33,7 @@
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static jf_clieng_caption_t ls_jccDmiParamVerbose[] =
 {
@@ -102,7 +102,7 @@ static olchar_t * ls_pstrIndicator[] =
     "MAX",
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _freeDaDaySummaryIndicator(da_day_summary_t *summary, olint_t num)
 {
@@ -2698,7 +2698,7 @@ static da_indicator_desc_t ls_didIndicatorDesc[] =
      _printIndicatorDescVerbose},
 };
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 da_indicator_desc_t * getDaIndicatorDesc(olint_t id)
 {
@@ -2851,6 +2851,6 @@ char * getStringIndicatorName(olint_t nIndicator)
     return ls_pstrIndicator[nIndicator];
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

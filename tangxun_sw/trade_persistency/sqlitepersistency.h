@@ -12,25 +12,25 @@
 #ifndef TRADE_PERSISTENCY_SQLPERSISTENCY_H
 #define TRADE_PERSISTENCY_SQLPERSISTENCY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "persistencycommon.h"
 #include "sqlite3.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 initTpSqlite(tp_manager_t * pManager);
 
 
 #endif /*TRADE_PERSISTENCY_SQLPERSISTENCY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

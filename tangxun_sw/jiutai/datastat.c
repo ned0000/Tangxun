@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "datastat.h"
@@ -28,7 +28,7 @@
 #include "jf_string.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_jccDataStatVerbose[] =
 {
     {"Name", JF_CLIENG_CAP_HALF_LINE},
@@ -91,7 +91,7 @@ static jf_clieng_caption_t ls_jccFrequencyBrief[] =
 
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static olint_t _compareData(const void * a, const void * b)
 {
@@ -411,7 +411,7 @@ static void _dsOtherFromDayResult(
 
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 dataStatFromDaySummary(
     data_stat_param_t * pdsp, data_stat_t * stat,
     da_day_summary_t * buffer, olint_t num)
@@ -861,6 +861,6 @@ u32 getCorrelation(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

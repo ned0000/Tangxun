@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "regression.h"
@@ -23,7 +23,7 @@
 #include "datastat.h"
 #include "jf_matrix.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #define DEBUG_REGRESSION_ANALYSIS  0
 #define MAX_RA_SE_RATIO  2.0
 
@@ -63,7 +63,7 @@ static jf_clieng_caption_t ls_jccRaResultUnusualObservBrief[] =
     {"StResid", 10},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 agaus(oldouble_t *a, oldouble_t *b, olint_t n)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -631,7 +631,7 @@ static void _makeMatrix(
 
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 regressionAnalysis(
     olchar_t * rname, oldouble_t * response, olchar_t ** pname,
     oldouble_t ** predictors, olint_t countp, olint_t num, ra_result_t * result)
@@ -747,6 +747,6 @@ void printRaResult(ra_result_t * result)
 
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

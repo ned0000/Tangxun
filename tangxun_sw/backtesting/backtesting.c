@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -38,7 +38,7 @@
 #include "stocktrade.h"
 #include "tradehelper.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static olchar_t * ls_pstrBacktestingStartDateDayByDay = "2014-01-01";
 
 #define MAX_NUM_OF_DDS_FOR_BACKTESTING   (800)
@@ -54,7 +54,7 @@ typedef struct
     boolean_t bre_bSaveAsset;
 } backtesting_result_ext_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _backtestingFindAndTradeStockInModel(
     backtesting_param_t * pbp, backtesting_result_ext_t * pbre,
@@ -891,7 +891,7 @@ static u32 _startBacktestingModelDayByDay(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 backtestingModel(backtesting_param_t * pbp, backtesting_result_t * pbr)
 {
@@ -942,6 +942,6 @@ u32 backtestingModel(backtesting_param_t * pbp, backtesting_result_t * pbr)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

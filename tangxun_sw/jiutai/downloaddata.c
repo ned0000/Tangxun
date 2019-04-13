@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -31,7 +31,7 @@
 #include "downloaddata.h"
 #include "stocklist.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static olchar_t * ls_pstrDataServer = "market.finance.sina.com.cn";
 static olchar_t * ls_pstrDataServerNetease = "quotes.money.163.com";
 static olchar_t * ls_pstrDataFileNetease = "Summary.csv";
@@ -39,7 +39,7 @@ static olchar_t * ls_pstrStartData = "19980101";
 
 #define DATE_STRING_FORMAT "%4d%02d%02d"
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _recvOneXls(
     jf_network_socket_t * sock, olchar_t * stock, olchar_t * date,
     olchar_t * recvdata, olsize_t * srecv, download_data_param_t * param)
@@ -1024,7 +1024,7 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 downloadData(download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1054,6 +1054,6 @@ u32 downloadStockInfoIndex(download_data_param_t * param)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

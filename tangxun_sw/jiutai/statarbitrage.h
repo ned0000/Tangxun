@@ -12,17 +12,17 @@
 #ifndef TANGXUN_JIUTAI_STATARBITRAGE_H
 #define TANGXUN_JIUTAI_STATARBITRAGE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "parsedata.h"
 #include "stocklist.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define MIN_STAT_ARBI_DAY_SUMMARY  300
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -120,7 +120,7 @@ typedef struct
     oldouble_t gbsap_dbMinProfitTimeRatio;
 } get_best_stat_arbi_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 stat_arbi_desc_t * getStatArbiDesc(olint_t id);
 
@@ -155,6 +155,6 @@ oldouble_t getSaStockInfoCorrelation(
 
 #endif /*TANGXUN_JIUTAI_STATARBITRAGE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -25,7 +25,7 @@
 #include "jf_jiukun.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
 static u32 _fsNDaysUpInMDays(
@@ -68,7 +68,7 @@ static da_rule_t ls_drDaRules[] =
 
 static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 
 /*DA_RULE_M_DAYS_UP_IN_N_DAYS*/
@@ -454,7 +454,7 @@ static u32 _fsUpRiseTriangle(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 
 u32 getAllDaRules(da_rule_t ** ppRule)
@@ -515,6 +515,6 @@ u32 getNumOfDaRules(void)
     return ls_u32NumOfRules;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

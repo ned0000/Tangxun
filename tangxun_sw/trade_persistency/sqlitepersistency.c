@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -24,7 +24,7 @@
 #include "persistencycommon.h"
 #include "trade_persistency.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define TP_SQLITE_DB_NAME                         "../db/trade.db"
 
@@ -52,7 +52,7 @@
 #define TP_SQLITE_TABLE_RECORD_COLUMN_VOLUME      "volume"
 #define TP_SQLITE_TABLE_RECORD_COLUMN_PRICE       "price"
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _rollbackSqliteTpTransaction(struct tp_manager * ptm)
 {
@@ -477,7 +477,7 @@ static u32 _clearDataInSqliteTp(struct tp_manager * ptm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 initTpSqlite(tp_manager_t * pManager)
 {
@@ -514,5 +514,5 @@ u32 initTpSqlite(tp_manager_t * pManager)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

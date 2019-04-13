@@ -12,18 +12,18 @@
 #ifndef TANGXUN_TRADE_PERSISTENCY_H
 #define TANGXUN_TRADE_PERSISTENCY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "stocktrade.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 initTradePersistency(void);
 u32 finiTradePersistency(void);
@@ -50,5 +50,5 @@ u32 insertTradingRecordIntoTradePersistency(trade_trading_record_t * pRecord);
 
 #endif   /*TANGXUN_TRADE_PERSISTENCY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

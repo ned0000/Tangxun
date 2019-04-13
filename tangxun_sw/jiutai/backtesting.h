@@ -12,15 +12,15 @@
 #ifndef TANGXUN_BACKTESTING_H
 #define TANGXUN_BACKTESTING_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_file.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
 /*the method backtests one day then another day*/
@@ -50,12 +50,12 @@ typedef struct
     oldouble_t br_dbRateOfReturn;
 } backtesting_result_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 backtestingModel(backtesting_param_t * pbp, backtesting_result_t * result);
 
 #endif /*TANGXUN_BACKTESTING_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

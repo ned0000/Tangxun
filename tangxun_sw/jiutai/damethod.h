@@ -12,17 +12,17 @@
 #ifndef TANGXUN_JIUTAI_DAMETHOD_H
 #define TANGXUN_JIUTAI_DAMETHOD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "stocklist.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 oldouble_t getCorrelationWithIndex(stock_info_t * info);
 
 oldouble_t getCorrelationWithSmeIndex(stock_info_t * info);
@@ -30,6 +30,6 @@ oldouble_t getCorrelationWithSmeIndex(stock_info_t * info);
 
 #endif /*TANGXUN_JIUTAI_DAMETHOD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

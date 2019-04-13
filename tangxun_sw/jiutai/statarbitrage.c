@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_clieng.h"
@@ -34,7 +34,7 @@
 #include "jf_jiukun.h"
 #include "indicator.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /** 1 year
  */
@@ -50,7 +50,7 @@ static jf_clieng_caption_t ls_jccStatArbiDescVerbose[] =
     {"Desc", JF_CLIENG_CAP_FULL_LINE},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _getClosingPricePair(
     sa_stock_info_t * pssia, sa_stock_info_t * pssib,
@@ -1030,7 +1030,7 @@ static stat_arbi_desc_t ls_sadStatArbiDesc[] =
      _getDescStatParamFromString, _printStatArbiDescVerbose},
 };
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 stat_arbi_desc_t * getStatArbiDesc(olint_t id)
 {
@@ -1189,6 +1189,6 @@ oldouble_t getSaStockInfoCorrelation(
     return dbret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

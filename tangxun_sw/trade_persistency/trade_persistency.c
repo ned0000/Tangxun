@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_mem.h"
@@ -22,13 +22,13 @@
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static tp_manager_t ls_tmTpManager;
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 u32 initTradePersistency(void)
 {
@@ -226,7 +226,7 @@ u32 clearDataInTradePersistency(void)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

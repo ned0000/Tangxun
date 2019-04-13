@@ -12,14 +12,14 @@
 #ifndef TANGXUN_DARULE_H
 #define TANGXUN_DARULE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "parsedata.h"
 #include "stocklist.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 typedef enum da_ruld_id
 {
     DA_RULE_N_DAYS_UP_IN_M_DAYS = 0, /*n days up in m days*/
@@ -36,7 +36,7 @@ typedef enum da_ruld_id
     DA_RULE_ONE_HIGH_HIGH_LIMIT_DAY,
 } da_ruld_id_t;
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -165,7 +165,7 @@ typedef struct
     fnExecStocksRule_t dr_fnExecRule;
 } da_rule_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 getNumOfDaRules(void);
 
@@ -179,6 +179,6 @@ void printDaRuleBrief(da_rule_t * pRule, u32 num);
 
 #endif /*TANGXUN_DARULE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

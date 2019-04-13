@@ -12,15 +12,15 @@
 #ifndef TANGXUN_JIUTAI_STOCKTRADE_H
 #define TANGXUN_JIUTAI_STOCKTRADE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "parsedata.h"
 #include "jf_time.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define MAX_TRADE_FIELD_LEN               (16)
 #define MAX_TRADE_OP_REMARK_LEN           (32)
@@ -43,7 +43,7 @@
 #define STOCK_OP_SELL                     (2)  /*closeout transaction*/
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct trade_pool_stock
 {
@@ -74,7 +74,7 @@ typedef struct trade_trading_record
 } trade_trading_record_t;
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 boolean_t isTradePoolStockOpBuy(trade_pool_stock_t * ptps);
 void setTradePoolStockOpBuy(trade_pool_stock_t * ptps);
 boolean_t isTradePoolStockOpSell(trade_pool_stock_t * ptps);
@@ -111,6 +111,6 @@ u32 filterPoolStockByOp(
 
 #endif /*TANGXUN_JIUTAI_STOCKTRADE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

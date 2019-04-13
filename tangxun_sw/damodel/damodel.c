@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_listhead.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -24,11 +24,11 @@
 
 #include "damodel.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static JF_LISTHEAD(ls_jlModel);
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _findModelByName(olchar_t * name, da_model_t ** model)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -78,7 +78,7 @@ static u32 _findModel(da_model_id_t id, da_model_t ** model)
 }
 
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 initDaModel(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -150,6 +150,6 @@ u32 getDaModel(da_model_id_t id, da_model_t ** model)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

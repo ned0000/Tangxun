@@ -12,15 +12,15 @@
 #ifndef TANGXUN_JIUTAI_REGRESSION_H
 #define TANGXUN_JIUTAI_REGRESSION_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     olchar_t rrc_strPredictor[16];
@@ -86,7 +86,7 @@ typedef struct
 
 } ra_result_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 regressionAnalysis(
     olchar_t * rname, oldouble_t * response, olchar_t ** pname,
     oldouble_t ** predictors, olint_t countp, olint_t num,
@@ -96,6 +96,6 @@ void printRaResult(ra_result_t * result);
 
 #endif /*TANGXUN_JIUTAI_REGRESSION_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

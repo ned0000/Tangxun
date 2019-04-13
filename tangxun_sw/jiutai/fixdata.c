@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "fixdata.h"
@@ -22,12 +22,12 @@
 #include "jf_string.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define SAVE_LINE      (0)
 #define DELETE_LINE    (1)
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _saveOneLine(
     fix_param_t * pfp, olchar_t * line,
     olsize_t llen, olchar_t * time, jf_file_t fdt, fix_result_t * pResult)
@@ -112,7 +112,7 @@ static u32 _verifyFirstLine(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
 {
@@ -192,6 +192,6 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

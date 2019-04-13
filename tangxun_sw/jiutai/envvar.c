@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "jf_persistency.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define MAX_STOCK_IN_POOL     (30)
 
@@ -41,7 +41,7 @@ env_var_t ls_evEnvVar = {
 
 static jf_persistency_t * ls_jpEnvPersist = NULL;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _clearEnvVar(env_var_t * pev, olchar_t * name)
 {
@@ -141,7 +141,7 @@ static u32 _initEnvVar(jf_persistency_t * pPersist)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olchar_t * getEnvVar(olchar_t * name)
 {
@@ -235,6 +235,6 @@ u32 finiEnvPersistency(void)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

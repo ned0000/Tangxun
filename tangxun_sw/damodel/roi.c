@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "roi.h"
@@ -24,7 +24,7 @@
 #include "stocktrade.h"
 #include "jf_string.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define ROI_SETTING_NAME_LEFT_UPPER        "left_upper"
 #define ROI_SETTING_NAME_LEFT_LOWER        "left_lower"
@@ -32,7 +32,7 @@
 #define ROI_SETTING_NAME_RIGHT_LOWER       "right_lower"
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _initDaModelRoi(da_model_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -327,7 +327,7 @@ static u32 _tradeInRoi(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 addDaModelRoi(jf_listhead_t * pjl)
 {
@@ -352,6 +352,6 @@ u32 addDaModelRoi(jf_listhead_t * pjl)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

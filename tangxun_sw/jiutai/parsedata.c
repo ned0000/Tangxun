@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -29,7 +29,7 @@
 
 #include "parsedata.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static olchar_t * ls_pstrTradeSummaryFile = "Summary.csv";
 
@@ -65,7 +65,7 @@ static jf_clieng_caption_t ls_ccDaConcSumVerbose[] =
     {"HoldDays", JF_CLIENG_CAP_HALF_LINE}, {"AveHoldDays", JF_CLIENG_CAP_HALF_LINE},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _convertResult(da_day_result_t * result)
 {
     result->ddr_u64AllA /= AMOUNT_UNIT;
@@ -1505,7 +1505,7 @@ static u32 _fillTradeDaySummaryFromDate(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 parseDataFile(olchar_t * file, parse_param_t * ppp,
     olint_t daindex, da_day_result_t * daresult)
 {
@@ -2811,6 +2811,6 @@ void freeSectorInfo(parse_sector_info_t * sector)
         jf_string_free(&sector->psi_pstrStocks);
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
