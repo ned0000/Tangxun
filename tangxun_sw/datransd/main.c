@@ -15,16 +15,18 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "errcode.h"
-#include "datransd.h"
-#include "process.h"
-#include "files.h"
-#include "xtime.h"
-#include "jiukun.h"
-#include "network.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_process.h"
+#include "jf_file.h"
+#include "jf_time.h"
+#include "jf_jiukun.h"
+#include "jf_network.h"
+#include "jf_date.h"
+
 #include "stocklist.h"
+#include "datransd.h"
 
 /* --- private data/data structure section --------------------------------- */
 static datransd_t * ls_pgDatransd = NULL;
@@ -51,15 +53,15 @@ logger options:\n\
     exit(0);
 }
 
-static u32 _parseDatransdCmdLineParam(olint_t argc, olchar_t ** argv, 
-    datransd_param_t * pdp, logger_param_t * plp)
+static u32 _parseDatransdCmdLineParam(
+    olint_t argc, olchar_t ** argv, datransd_param_t * pdp, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "fVT:F:S:Oh")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "fVT:F:S:Oh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -75,25 +77,25 @@ static u32 _parseDatransdCmdLineParam(olint_t argc, olchar_t ** argv,
             exit(0);
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -112,22 +114,22 @@ static void _terminate(olint_t signal)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    jiukun_param_t jp;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_init_param_t jjip;
     olint_t year, mon, day;
     olint_t dw;
-    logger_param_t ehpParam;
+    jf_logger_init_param_t ehpParam;
     datransd_param_t dp;
     olchar_t strExecutable[100];
 
-    getFileName(strExecutable, 100, argv[0]);
-    if (bAlreadyRunning(strExecutable))
+    jf_file_getFileName(strExecutable, 100, argv[0]);
+    if (jf_process_isAlreadyRunning(strExecutable))
     {
         fprintf(stderr, "another %s is running\n", strExecutable);
         exit(-1);
     }
 
-    getDateToday(&year, &mon, &day);
+    jf_date_getDateToday(&year, &mon, &day);
     dw = 1; //getDayOfWeekFromDate(year, mon, day);
     if ((dw == 0) || (dw == 6))
     {
@@ -136,61 +138,61 @@ olint_t main(olint_t argc, olchar_t ** argv)
         exit(-1);
     }
 
-    memset(&ehpParam, 0, sizeof(logger_param_t));
-    ehpParam.lp_pstrCallerName = "DATRANSD";
-    ehpParam.lp_u8TraceLevel = LOGGER_TRACE_DATA;
-    ehpParam.lp_bLogToStdout = TRUE;
-    ehpParam.lp_bLogToFile = TRUE;
-    ehpParam.lp_pstrLogFilePath = "datransd.log";
+    memset(&ehpParam, 0, sizeof(jf_logger_init_param_t));
+    ehpParam.jlip_pstrCallerName = "DATRANSD";
+    ehpParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    ehpParam.jlip_bLogToStdout = TRUE;
+    ehpParam.jlip_bLogToFile = TRUE;
+    ehpParam.jlip_pstrLogFilePath = "datransd.log";
 
     setDefaultDatransdParam(&dp);
     dp.dp_pstrCmdLine = argv[0];
 
     u32Ret = _parseDatransdCmdLineParam(argc, argv, &dp, &ehpParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initLogger(&ehpParam);
-        initNetworkLib();
+        jf_logger_init(&ehpParam);
+        jf_process_initSocket();
 
-        memset(&jp, 0, sizeof(jiukun_param_t));
-        jp.jp_sPool = 32 * 1024 * 1024;
+        memset(&jjip, 0, sizeof(jf_jiukun_init_param_t));
+        jjip.jjip_sPool = 32 * 1024 * 1024;
 
-        u32Ret = initJiukun(&jp);
+        u32Ret = jf_jiukun_init(&jjip);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initStockList();
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
 //            if (! ls_bForeground)
 //                u32Ret = switchToDaemon(strExecutable);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = registerSignalHandlers(_terminate);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_process_registerSignalHandlers(_terminate);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = createDatransd(&ls_pgDatransd, &dp);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = startDatransd(ls_pgDatransd);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             sleep(3);
             destroyDatransd(&ls_pgDatransd);
         }
 
         finiStockList();
-        finiJiukun();
+        jf_jiukun_fini();
 
-        finiNetworkLib();
-        finiLogger();
+        jf_process_finiSocket();
+        jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        ol_printf("%s\n", getErrorDescription(u32Ret));
+        ol_printf("%s\n", jf_err_getDescription(u32Ret));
     }
 
     return 0;

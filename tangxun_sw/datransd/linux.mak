@@ -26,10 +26,10 @@ EXTRA_CFLAGS = -DENT
 
 # For executable file build 
 EXTRA_LDFLAGS = 
-EXTRA_OBJECTS = ../jtk/inc/syncmutex.o ../jtk/inc/syncsem.o
+EXTRA_OBJECTS = ../jtk/inc/jf_mutex.o ../jtk/inc/jf_sem.o ../jtk/inc/jf_thread.o
 EXTRA_LIB_DIR = -L../jtk/lib 
-EXTRA_LIBS = -lollogger -lolfiles -lolstringparse -lolifmgmt -lolnetwork \
-    -loljiukun -lolhttpparser -lolpersistency -lolclieng -lolwebclient \
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_string -ljf_ifmgmt -ljf_network \
+    -ljf_jiukun -ljf_httpparser -ljf_persistency -ljf_clieng -ljf_webclient \
     -lsqlite3 -lm
 
 include $(TOPDIR)/mak/lnxexe.mak
