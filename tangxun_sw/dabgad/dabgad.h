@@ -12,16 +12,16 @@
 #ifndef JIUFENG_DABGAD_H
 #define JIUFENG_DABGAD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef void  dabgad_t;
 
 typedef struct
@@ -31,7 +31,7 @@ typedef struct
     u8 dp_u8Reserved[16];
 } dabgad_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 setDefaultDabgadParam(dabgad_param_t * pgp);
 
 u32 createDabgad(dabgad_t ** ppDabgad, dabgad_param_t * pgp);
@@ -44,6 +44,6 @@ u32 stopDabgad(dabgad_t * pDabgad);
 
 #endif /*JIUFENG_DABGAD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

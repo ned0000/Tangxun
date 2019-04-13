@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,7 +23,7 @@
 
 #include "dabgad.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static dabgad_t * ls_pgDabgad = NULL;
 static boolean_t ls_bForeground = FALSE;
 
@@ -42,7 +42,7 @@ static const olchar_t * ls_pstrVersion = "1.0.0";
     static SERVICE_STATUS_HANDLE ls_sshServiceStatus;
 #endif
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printDabgadUsage(void)
 {
     ol_printf("\
@@ -178,7 +178,7 @@ static u32 _initDabgad(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -191,6 +191,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -30,7 +30,7 @@
 
 #include "dabgad.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data structures ------------------------------------------------------------------ */
 
 typedef struct
 {
@@ -46,7 +46,7 @@ typedef struct
 /*10 minutes*/
 #define DOWNLOAD_TIMER_INTERVAL  600
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _startDownload(void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -80,7 +80,7 @@ static u32 _startDownload(void * pData)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 createDabgad(dabgad_t ** ppDabgad, dabgad_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -173,6 +173,6 @@ u32 setDefaultDabgadParam(dabgad_param_t * pdp)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
