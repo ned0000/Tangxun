@@ -14,14 +14,15 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "errcode.h"
-#include "trade_persistency.h"
-#include "persistencycommon.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_string.h"
+#include "jf_sqlite.h"
+
 #include "sqlitepersistency.h"
-#include "stringparse.h"
-#include "jtsqlite.h"
+#include "persistencycommon.h"
+#include "trade_persistency.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -55,25 +56,25 @@
 
 static u32 _rollbackSqliteTpTransaction(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
 
-    u32Ret = rollbackJtSqliteTransaction(&pSqlite->ts_jsSqlite);
+    u32Ret = jf_sqlite_rollbackTransaction(&pSqlite->ts_jsSqlite);
 
     return u32Ret;
 }
 
 static u32 _initSqliteTp(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
     tp_config_sqlite_t * ptcs = &ptm->tm_tdData.td_tsSqlite.ts_tcsConfigSqlite;
-    jt_sqlite_param_t param;
+    jf_sqlite_init_param_t param;
 
-    ol_bzero(&param, sizeof(jt_sqlite_param_t));
-    param.jsp_pstrDbName = ptcs->tcs_strDbName;
+    ol_bzero(&param, sizeof(jf_sqlite_init_param_t));
+    param.jsip_pstrDbName = ptcs->tcs_strDbName;
 
-    u32Ret = initJtSqlite(&pSqlite->ts_jsSqlite, &param);
+    u32Ret = jf_sqlite_init(&pSqlite->ts_jsSqlite, &param);
 
     return u32Ret;
 }
@@ -81,10 +82,10 @@ static u32 _initSqliteTp(struct tp_manager * ptm)
 
 static u32 _finiSqliteTp(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
 
-    u32Ret = finiJtSqlite(&pSqlite->ts_jsSqlite);
+    u32Ret = jf_sqlite_fini(&pSqlite->ts_jsSqlite);
 
     return u32Ret;
 }
@@ -93,7 +94,7 @@ static u32 _finiSqliteTp(struct tp_manager * ptm)
 static u32 _replacePoolStockIntoSqliteTp(
     struct tp_manager * ptm, trade_pool_stock_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryresult[32];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -105,7 +106,7 @@ static u32 _replacePoolStockIntoSqliteTp(
         pStock->tps_strStock, pStock->tps_strModel, pStock->tps_strModelParam, pStock->tps_strAddDate,
         pStock->tps_strOp, pStock->tps_strOpRemark, pStock->tps_strTradeDate, pStock->tps_strPosition,
         pStock->tps_nVolume, pStock->tps_dbPrice);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
 
     return u32Ret;
@@ -113,7 +114,7 @@ static u32 _replacePoolStockIntoSqliteTp(
 
 static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stock_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryresult[32];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -126,7 +127,7 @@ static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stoc
         pStock->tps_strOp, pStock->tps_strOpRemark, pStock->tps_strTradeDate, pStock->tps_strPosition,
         pStock->tps_nVolume, pStock->tps_dbPrice);
 
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
 
     return u32Ret;
@@ -134,7 +135,7 @@ static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stoc
 
 static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryresult[32];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -152,7 +153,7 @@ static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_
         TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->tps_strStock,
         TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->tps_strModel);
 
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
 
     return u32Ret;
@@ -161,7 +162,7 @@ static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_
 static u32 _removePoolStockFromSqliteTp(
     struct tp_manager * ptm, trade_pool_stock_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryRet[512];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -172,7 +173,7 @@ static u32 _removePoolStockFromSqliteTp(
         TP_SQLITE_TABLE_POOL,
         TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->tps_strStock,
         TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->tps_strModel);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryRet, sizeof(queryRet));
 
     return u32Ret;
@@ -180,10 +181,10 @@ static u32 _removePoolStockFromSqliteTp(
 
 static u32 _startSqliteTpTransaction(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
 
-    u32Ret = startJtSqliteTransaction(&pSqlite->ts_jsSqlite);
+    u32Ret = jf_sqlite_startTransaction(&pSqlite->ts_jsSqlite);
 
     return u32Ret;
 }
@@ -191,10 +192,10 @@ static u32 _startSqliteTpTransaction(struct tp_manager * ptm)
 
 static u32 _commitSqliteTpTransaction(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
 
-    u32Ret = commitJtSqliteTransaction(&pSqlite->ts_jsSqlite);
+    u32Ret = jf_sqlite_commitTransaction(&pSqlite->ts_jsSqlite);
 
     return u32Ret;
 }
@@ -202,7 +203,7 @@ static u32 _commitSqliteTpTransaction(struct tp_manager * ptm)
 static u32 _getAllPoolStockInSqliteTp(
     struct tp_manager * ptm, trade_pool_stock_t * pStock, olint_t * pnNum)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
     olchar_t query[512];
     sqlite3_stmt * statement;
@@ -221,11 +222,11 @@ static u32 _getAllPoolStockInSqliteTp(
         pSqlite->ts_jsSqlite.js_psSqlite, query, -1, &statement, NULL);
     if (retCode != SQLITE_OK)
     {
-        u32Ret = OLERR_SQL_EVAL_ERROR;
-        logErrMsg(u32Ret, "get all stock, sqlite prepare error");
+        u32Ret = JF_ERR_SQL_EVAL_ERROR;
+        jf_logger_logErrMsg(u32Ret, "get all stock, sqlite prepare error");
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ptps = pStock;
         ol_bzero(ptps, sizeof(*ptps));
@@ -253,8 +254,8 @@ static u32 _getAllPoolStockInSqliteTp(
 
         if ((retCode != SQLITE_DONE) && (retCode != SQLITE_ROW))
         {
-            u32Ret = OLERR_SQL_EVAL_ERROR;
-            logErrMsg(u32Ret, "get all stock, sqlite step error");
+            u32Ret = JF_ERR_SQL_EVAL_ERROR;
+            jf_logger_logErrMsg(u32Ret, "get all stock, sqlite step error");
         }
     }
 
@@ -266,7 +267,7 @@ static u32 _getAllPoolStockInSqliteTp(
 static u32 _getPoolStockInSqliteTp(
     struct tp_manager * ptm, trade_pool_stock_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     sqlite3_stmt * statement;
     olint_t retCode = SQLITE_OK;
@@ -282,11 +283,11 @@ static u32 _getPoolStockInSqliteTp(
         pSqlite->ts_jsSqlite.js_psSqlite, query, -1, &statement, NULL);
     if (retCode != SQLITE_OK)
     {
-        u32Ret = OLERR_SQL_EVAL_ERROR;
-        logErrMsg(u32Ret, "get stock, sqlite prepare error");
+        u32Ret = JF_ERR_SQL_EVAL_ERROR;
+        jf_logger_logErrMsg(u32Ret, "get stock, sqlite prepare error");
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         bzero(pStock, sizeof(*pStock));
         retCode = sqlite3_step(statement);
@@ -305,7 +306,7 @@ static u32 _getPoolStockInSqliteTp(
         }
         else
         {
-            u32Ret = OLERR_NOT_FOUND;
+            u32Ret = JF_ERR_NOT_FOUND;
         }
         sqlite3_finalize(statement);
     }
@@ -315,7 +316,7 @@ static u32 _getPoolStockInSqliteTp(
 
 static olint_t _getNumOfPoolStockInSqliteTp(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
     olchar_t query[512];
     olchar_t queryresult[32];
@@ -325,11 +326,11 @@ static olint_t _getNumOfPoolStockInSqliteTp(struct tp_manager * ptm)
     ol_snprintf(
         query, sizeof(query), "SELECT COUNT(*) FROM %s;",
         TP_SQLITE_TABLE_POOL);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getS32FromString(queryresult, ol_strlen(queryresult), &count);
+        u32Ret = jf_string_getS32FromString(queryresult, ol_strlen(queryresult), &count);
     }
 
     return count;
@@ -338,7 +339,7 @@ static olint_t _getNumOfPoolStockInSqliteTp(struct tp_manager * ptm)
 static u32 _getAllTradingRecordInSqliteTp(
     struct tp_manager * ptm, trade_trading_record_t * pStock, olint_t * pnNum)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
     olchar_t query[512];
     sqlite3_stmt * statement;
@@ -358,11 +359,11 @@ static u32 _getAllTradingRecordInSqliteTp(
         pSqlite->ts_jsSqlite.js_psSqlite, query, -1, &statement, NULL);
     if (retCode != SQLITE_OK)
     {
-        u32Ret = OLERR_SQL_EVAL_ERROR;
-        logErrMsg(u32Ret, "get all trading record, sqlite prepare error");
+        u32Ret = JF_ERR_SQL_EVAL_ERROR;
+        jf_logger_logErrMsg(u32Ret, "get all trading record, sqlite prepare error");
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pttr = pStock;
         ol_bzero(pttr, sizeof(*pttr));
@@ -389,8 +390,8 @@ static u32 _getAllTradingRecordInSqliteTp(
 
         if ((retCode != SQLITE_DONE) && (retCode != SQLITE_ROW))
         {
-            u32Ret = OLERR_SQL_EVAL_ERROR;
-            logErrMsg(u32Ret, "get all trading record, sqlite step error");
+            u32Ret = JF_ERR_SQL_EVAL_ERROR;
+            jf_logger_logErrMsg(u32Ret, "get all trading record, sqlite step error");
         }
     }
 
@@ -401,7 +402,7 @@ static u32 _getAllTradingRecordInSqliteTp(
 
 static olint_t _getNumOfTradingRecordInSqliteTp(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
     olchar_t query[512];
     olchar_t queryresult[32];
@@ -411,11 +412,11 @@ static olint_t _getNumOfTradingRecordInSqliteTp(struct tp_manager * ptm)
     ol_snprintf(
         query, sizeof(query), "SELECT COUNT(*) FROM %s;",
         TP_SQLITE_TABLE_RECORD);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getS32FromString(queryresult, ol_strlen(queryresult), &count);
+        u32Ret = jf_string_getS32FromString(queryresult, ol_strlen(queryresult), &count);
     }
 
     return count;
@@ -424,7 +425,7 @@ static olint_t _getNumOfTradingRecordInSqliteTp(struct tp_manager * ptm)
 static u32 _insertTradingRecordInSqliteTp(
     struct tp_manager * ptm, trade_trading_record_t * pStock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryresult[32];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -437,7 +438,7 @@ static u32 _insertTradingRecordInSqliteTp(
         pStock->ttr_strOp, pStock->ttr_strOpRemark, pStock->ttr_strTradeDate,
         pStock->ttr_strPosition, pStock->ttr_nVolume, pStock->ttr_dbPrice);
 
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
 
     return u32Ret;
@@ -445,7 +446,7 @@ static u32 _insertTradingRecordInSqliteTp(
 
 static u32 _clearDataInSqliteTp(struct tp_manager * ptm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
     olchar_t queryresult[32];
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
@@ -453,22 +454,22 @@ static u32 _clearDataInSqliteTp(struct tp_manager * ptm)
     ol_snprintf(
         query, sizeof(query), "DELETE FROM %s;",
         TP_SQLITE_TABLE_POOL);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        logErrMsg(
+        jf_logger_logErrMsg(
             u32Ret, "clear data in sqlite tp, failed to delete table %s",
             TP_SQLITE_TABLE_POOL);
     }
 
     ol_snprintf(
         query, sizeof(query), "DELETE FROM %s;", TP_SQLITE_TABLE_RECORD);
-    u32Ret = execJtSqliteSql(
+    u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        logErrMsg(
+        jf_logger_logErrMsg(
             u32Ret, "clear data in sqlite tp, failed to delete table %s",
             TP_SQLITE_TABLE_RECORD);
     }
@@ -480,9 +481,9 @@ static u32 _clearDataInSqliteTp(struct tp_manager * ptm)
 
 u32 initTpSqlite(tp_manager_t * pManager)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    logInfoMsg("init tp sqlite");
+    jf_logger_logInfoMsg("init tp sqlite");
 
     ol_strcpy(
         pManager->tm_tdData.td_tsSqlite.ts_tcsConfigSqlite.tcs_strDbName,

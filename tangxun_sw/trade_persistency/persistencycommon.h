@@ -15,9 +15,10 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
+#include "jf_sqlite.h"
+
 #include "trade_persistency.h"
-#include "jtsqlite.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
@@ -70,7 +71,7 @@ typedef u32 (* fnInsertTradingRecordIntoTp_t)(
 typedef struct tp_sqlite
 {
     tp_config_sqlite_t ts_tcsConfigSqlite;
-    jt_sqlite_t ts_jsSqlite;
+    jf_sqlite_t ts_jsSqlite;
 } tp_sqlite_t;
 
 typedef union tp_data

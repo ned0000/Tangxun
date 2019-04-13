@@ -14,8 +14,8 @@ TOPDIR := $(shell /bin/pwd)
 
 export TOPDIR
 
-SUBDIRS = jiutai trade_persistency darule damodel tradehelper backtesting \
-    dabgad datransd cli misc
+SUBDIRS = jiutai trade_persistency darule # damodel tradehelper backtesting \
+#    dabgad datransd cli misc
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

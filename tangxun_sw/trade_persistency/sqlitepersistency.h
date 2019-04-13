@@ -1,5 +1,5 @@
 /**
- *  @file sqlitepersistency.h
+ *  @file sqlitejf_persistency.h
  *
  *  @brief The sqlite persistency
  *
@@ -15,8 +15,8 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "errcode.h"
+#include "jf_basic.h"
+#include "jf_err.h"
 #include "persistencycommon.h"
 #include "sqlite3.h"
 

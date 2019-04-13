@@ -27,8 +27,8 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib 
-EXTRA_LIBS = -lollogger
-EXTRA_OBJECTS = ../jtk/inc/jtsqlite.o
+EXTRA_LIBS = -ljf_logger
+EXTRA_OBJECTS = ../jtk/inc/jf_sqlite.o
 
 include $(TOPDIR)/mak/lnxlib.mak
 

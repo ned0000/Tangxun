@@ -14,15 +14,15 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "process.h"
-#include "stringparse.h"
-#include "files.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_process.h"
+#include "jf_string.h"
+#include "jf_file.h"
 #include "darule.h"
-#include "clieng.h"
-#include "xmalloc.h"
-#include "jiukun.h"
+#include "jf_clieng.h"
+#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "envvar.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -75,7 +75,7 @@ static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);
 static u32 _fsNDaysUpInMDays(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_n_days_up_in_m_days_param_t * param = (da_rule_n_days_up_in_m_days_param_t *)pdrp;
     da_day_summary_t * summary;
     int i, count = 0;
@@ -84,7 +84,7 @@ static u32 _fsNDaysUpInMDays(
         return u32Ret;
 
     if (param->drnduimdp_u8NDays > param->drnduimdp_u8MDays)
-        return OLERR_INVALID_PARAM;
+        return JF_ERR_INVALID_PARAM;
 
     summary = buffer + total - 1;
 
@@ -97,7 +97,7 @@ static u32 _fsNDaysUpInMDays(
     }
 
     if (count >= param->drnduimdp_u8NDays)
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
@@ -105,12 +105,12 @@ static u32 _fsNDaysUpInMDays(
 static u32 _fsHighLimitOfLastDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
 //    da_rule_high_limit_of_last_day_param_t * param = (da_rule_high_limit_of_last_day_param_t *)pdrp;
     da_day_summary_t * last = buffer + total - 1;
 
     if (last->dds_bCloseHighLimit)
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
@@ -118,12 +118,12 @@ static u32 _fsHighLimitOfLastDay(
 static u32 _fsLowLimitOfLastDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
 //    da_rule_low_limit_of_last_day_param_t * param = (da_rule_low_limit_of_last_day_param_t *)pdrp;
     da_day_summary_t * last = buffer + total - 1;
 
     if (last->dds_bCloseLowLimit)
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
@@ -153,11 +153,11 @@ static boolean_t _isInBottomArea(
 static u32 _fsInBottomArea(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_rule_in_bottom_area_param_t * param = (da_rule_in_bottom_area_param_t *)pdrp;
 
     if (! _isInBottomArea(buffer, total, param->dribap_u8Threshold))
-        u32Ret = OLERR_NOT_MATCH;
+        u32Ret = JF_ERR_NOT_MATCH;
 
     return u32Ret;
 }
@@ -165,7 +165,7 @@ static u32 _fsInBottomArea(
 static u32 _fsMinRampingDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_min_ramping_day_param_t * param = (da_rule_min_ramping_day_param_t *)pdrp;
     u32 highcount = 0, closecount = 0;
     da_day_summary_t * start, * end;
@@ -201,13 +201,13 @@ static u32 _fsMinRampingDay(
             return u32Ret;
     }
 
-    return OLERR_NO_ERROR;
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsMinHighLimitDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_min_high_limit_day_param_t * param = (da_rule_min_high_limit_day_param_t *)pdrp;
     u32 highcount = 0, closecount = 0;
     da_day_summary_t * start, * end;
@@ -243,13 +243,13 @@ static u32 _fsMinHighLimitDay(
             return u32Ret;
     }
 
-    return OLERR_NO_ERROR;
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsMinAbnormalVolRatioDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_min_abnormal_vol_ratio_day_param_t * param = (da_rule_min_abnormal_vol_ratio_day_param_t *)pdrp;
     u32 count = 0;
     da_day_summary_t * start, * end;
@@ -267,13 +267,13 @@ static u32 _fsMinAbnormalVolRatioDay(
     if (count < param->drmavrdp_u32MinDay)
         return u32Ret;
 
-    return OLERR_NO_ERROR;
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsNotSt(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * cur = buffer + total - 1;
 
     if (cur->dds_bS)
@@ -281,25 +281,25 @@ static u32 _fsNotSt(
     if (buffer->dds_bS)
         return u32Ret;
 
-    return OLERR_NO_ERROR;
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsMinNumOfDaySummary(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_min_num_of_day_summary_param_t * param = (da_rule_min_num_of_day_summary_param_t *)pdrp;
 
     if (total < param->drmnodsp_u32MinDay)
         return u32Ret;
 
-    return OLERR_NO_ERROR;
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsRectangle(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
     da_rule_rectangle_param_t * param = (da_rule_rectangle_param_t *)pdrp;
     da_day_summary_t * inp[200];
     da_day_summary_t * lower, * end, * high;
@@ -309,7 +309,7 @@ static u32 _fsRectangle(
     int rectangle_start = 0;
     da_rule_param_t drp;
 
-    logInfoMsg("rule rectangle, %s", stockinfo->si_strCode);
+    jf_logger_logInfoMsg("rule rectangle, %s", stockinfo->si_strCode);
 
     if (total < param->drrp_u32MaxDays)
         return u32Ret;
@@ -431,21 +431,21 @@ static u32 _fsRectangle(
         drp.drp_drmhldpMinHighLimitDay.drmhldp_u32MinHighHighLimitDay = 1;
         u32Ret = _fsMinHighLimitDay(
             stockinfo, end - param->drrp_u32MaxDays + 1, param->drrp_u32MaxDays, &drp);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = OLERR_NOT_MATCH;
+            u32Ret = JF_ERR_NOT_MATCH;
             return u32Ret;
         }
     }
 
-    logInfoMsg("rule rectangle is match, %s", stockinfo->si_strCode);
-    return OLERR_NO_ERROR;
+    jf_logger_logInfoMsg("rule rectangle is match, %s", stockinfo->si_strCode);
+    return JF_ERR_NO_ERROR;
 }
 
 static u32 _fsUpRiseTriangle(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = OLERR_NOT_MATCH;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
 //    da_rule_up_rise_triangle_param_t * param = (da_rule_up_rise_triangle_param_t *)pdrp;
 
 
@@ -459,7 +459,7 @@ static u32 _fsUpRiseTriangle(
 
 u32 getAllDaRules(da_rule_t ** ppRule)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     *ppRule = ls_drDaRules;
 
@@ -468,7 +468,7 @@ u32 getAllDaRules(da_rule_t ** ppRule)
 
 u32 getDaRule(da_ruld_id_t id, da_rule_t ** ppRule)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     u32 index = 0;
     da_rule_t * pRule = ls_drDaRules;
 
@@ -478,7 +478,7 @@ u32 getDaRule(da_ruld_id_t id, da_rule_t ** ppRule)
         if (pRule->dr_driId == id)
         {
             *ppRule = pRule;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -490,7 +490,7 @@ u32 getDaRule(da_ruld_id_t id, da_rule_t ** ppRule)
 
 u32 getDaRuleByDesc(char * desc, da_rule_t ** ppRule)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     u32 index = 0;
     da_rule_t * pRule = ls_drDaRules;
 
@@ -500,7 +500,7 @@ u32 getDaRuleByDesc(char * desc, da_rule_t ** ppRule)
         if (strcmp(pRule->dr_pstrDesc, desc) == 0)
         {
             *ppRule = pRule;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
