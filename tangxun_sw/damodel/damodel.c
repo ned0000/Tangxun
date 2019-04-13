@@ -14,31 +14,32 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
+#include "jf_listhead.h"
+#include "jf_limit.h"
+#include "jf_listhead.h"
+#include "jf_string.h"
+#include "jf_file.h"
+#include "jf_mem.h"
+#include "jf_clieng.h"
+
 #include "damodel.h"
-#include "stringparse.h"
-#include "files.h"
-#include "xmalloc.h"
-#include "clieng.h"
 
 /* --- private data/data structure section --------------------------------- */
 
-static LIST_HEAD(ls_lhModel);
+static JF_LISTHEAD(ls_jlModel);
 
 /* --- private routine section---------------------------------------------- */
 static u32 _findModelByName(olchar_t * name, da_model_t ** model)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    list_head_t * pos;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_listhead_t * pos;
     da_model_t * pmp;
 
     *model = NULL;
 
-    listForEach(&ls_lhModel, pos)
+    jf_listhead_forEach(&ls_jlModel, pos)
     {
-        pmp = listEntry(pos, da_model_t, dm_lhList);
+        pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
         if (strncmp(pmp->dm_strName, name, ol_strlen(pmp->dm_strName)) == 0)
         {
             *model = pmp;
@@ -47,22 +48,22 @@ static u32 _findModelByName(olchar_t * name, da_model_t ** model)
     }
 
     if (*model == NULL)
-        u32Ret = OLERR_NOT_FOUND;
+        u32Ret = JF_ERR_NOT_FOUND;
 
     return u32Ret;
 }
 
 static u32 _findModel(da_model_id_t id, da_model_t ** model)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    list_head_t * pos;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_listhead_t * pos;
     da_model_t * pmp;
 
     *model = NULL;
 
-    listForEach(&ls_lhModel, pos)
+    jf_listhead_forEach(&ls_jlModel, pos)
     {
-        pmp = listEntry(pos, da_model_t, dm_lhList);
+        pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
         if (pmp->dm_dmiId == id)
         {
             *model = pmp;
@@ -71,7 +72,7 @@ static u32 _findModel(da_model_id_t id, da_model_t ** model)
     }
 
     if (*model == NULL)
-        u32Ret = OLERR_NOT_FOUND;
+        u32Ret = JF_ERR_NOT_FOUND;
 
     return u32Ret;
 }
@@ -80,22 +81,22 @@ static u32 _findModel(da_model_id_t id, da_model_t ** model)
 /* --- public routine section ---------------------------------------------- */
 u32 initDaModel(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-    list_head_t * pos;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_listhead_t * pos;
     da_model_t * pmp;
 
-    if (! listIsEmpty(&ls_lhModel))
+    if (! jf_listhead_isEmpty(&ls_jlModel))
         return u32Ret;
 
-    logInfoMsg("init da model");
+    jf_logger_logInfoMsg("init da model");
 
-    u32Ret = addDaModelRoi(&ls_lhModel);
+    u32Ret = addDaModelRoi(&ls_jlModel);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        listForEach(&ls_lhModel, pos)
+        jf_listhead_forEach(&ls_jlModel, pos)
         {
-            pmp = listEntry(pos, da_model_t, dm_lhList);
+            pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
 
             pmp->dm_fnInitModel(pmp);
         }
@@ -106,12 +107,12 @@ u32 initDaModel(void)
 
 u32 finiDaModel(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pmp;
 
-    while (! listIsEmpty(&ls_lhModel))
+    while (! jf_listhead_isEmpty(&ls_jlModel))
     {
-        pmp = listEntry(ls_lhModel.lh_plhNext, da_model_t, dm_lhList);
+        pmp = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
 
         pmp->dm_fnFiniModel(pmp);
     }
@@ -121,13 +122,13 @@ u32 finiDaModel(void)
 
 u32 getDaModelByName(olchar_t * name, da_model_t ** model)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm = NULL;
 
     assert(name != NULL);
 
     u32Ret = _findModelByName(name, &pdm);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *model = pdm;
     }
@@ -137,11 +138,11 @@ u32 getDaModelByName(olchar_t * name, da_model_t ** model)
 
 u32 getDaModel(da_model_id_t id, da_model_t ** model)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm = NULL;
 
     u32Ret = _findModel(id, &pdm);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *model = pdm;
     }

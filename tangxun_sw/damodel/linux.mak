@@ -27,7 +27,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -lollogger -ldarule
+EXTRA_LIBS = -ljf_logger -ldarule
 
 include $(TOPDIR)/mak/lnxlib.mak
 

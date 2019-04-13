@@ -14,15 +14,15 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "roi.h"
 #include "damodel.h"
-#include "xmalloc.h"
-#include "clieng.h"
+#include "jf_mem.h"
+#include "jf_clieng.h"
 #include "darule.h"
 #include "stocktrade.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -35,11 +35,11 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _initDaModelRoi(da_model_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_roi_data_t * pdmrd = NULL;
 
-    u32Ret = xcalloc((void **)&pdmrd, sizeof(*pdmrd));
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&pdmrd, sizeof(*pdmrd));
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
         pdm->dm_pData = pdmrd;
@@ -50,14 +50,14 @@ static u32 _initDaModelRoi(da_model_t * pdm)
 
 static u32 _finiDaModelRoi(da_model_t * pdm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pdm->dm_pData != NULL)
-        xfree((void **)&pdm->dm_pData);
+        jf_mem_free((void **)&pdm->dm_pData);
 
-    listDel(&pdm->dm_lhList);
+    jf_listhead_del(&pdm->dm_jlList);
 
-    xfree((void **)&pdm);
+    jf_mem_free((void **)&pdm);
 
     return u32Ret;
 }
@@ -66,22 +66,22 @@ static u32 _canBeTradedInRoi(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_day_summary_t * buffer, int total)
 {
-    u32 u32Ret = OLERR_NOT_READY;
+    u32 u32Ret = JF_ERR_NOT_READY;
     da_rule_t * rule;
     da_rule_param_t drp;
     da_day_summary_t * end = buffer + total - 1;
 
-    logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->si_strCode, total);
+    jf_logger_logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->si_strCode, total);
 
     u32Ret = getDaRule(DA_RULE_MIN_NUM_OF_DAY_SUMMARY, &rule);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         bzero(&drp, sizeof(drp));
         drp.drp_drmnodspMinDay.drmnodsp_u32MinDay = RECTANGLE_MAX_DAYS;
         u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaRule(DA_RULE_RECTANGLE, &rule);
 
@@ -96,7 +96,7 @@ static u32 _canBeTradedInRoi(
         u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         initTradePoolStock(ptps, stockinfo->si_strCode, pdm->dm_strName);
         strcpy(ptps->tps_strAddDate, end->dds_strDate);
@@ -111,7 +111,7 @@ static u32 _canBeTradedInRoi(
             drp.drp_drrpRectangle.drrp_pddsRectangle[RIGHT_UPPER]->dds_strDate,
             ROI_SETTING_NAME_RIGHT_LOWER,
             drp.drp_drrpRectangle.drrp_pddsRectangle[RIGHT_LOWER]->dds_strDate);
-        logInfoMsg(
+        jf_logger_logInfoMsg(
             "can be traded in roi, setting string: %s", ptps->tps_strModelParam);
     }
 
@@ -122,12 +122,12 @@ static u32 _tradeTryBuyInRoi(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end = buffer + total - 1;
     char strNextDate[MAX_TRADE_FIELD_LEN];
 
     getNextTradingDate(ptps->tps_strAddDate, strNextDate);
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "try buy in roi, addDate: %s, nextDate: %s",
         ptps->tps_strAddDate, strNextDate);
 
@@ -140,12 +140,12 @@ static u32 _tradeTryBuyInRoi(
         ptps->tps_dbPrice = end->dds_dbOpeningPrice;
         /*TODO: use all funds for the trade, improve this to reduce the risk*/
         ptps->tps_nVolume = pdmtd->dmtd_dbFund / ptps->tps_dbPrice;
-        logInfoMsg("try buy in roi, volume: %d", ptps->tps_nVolume);
+        jf_logger_logInfoMsg("try buy in roi, volume: %d", ptps->tps_nVolume);
         /*one board lot is 100 shares*/
         ptps->tps_nVolume /= 100;
         ptps->tps_nVolume *= 100;
         pdmtd->dmtd_dbFund -= ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
-        logInfoMsg(
+        jf_logger_logInfoMsg(
             "try buy in roi, volume: %d, fund remains %.2f",
             ptps->tps_nVolume, pdmtd->dmtd_dbFund);
     }
@@ -158,7 +158,7 @@ static u32 _getRoiRectanglePoint(
     da_day_summary_t ** ppLeftUpper, da_day_summary_t ** ppLeftLower,
     da_day_summary_t ** ppRightUpper, da_day_summary_t ** ppRightLower)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     char strParam[MAX_TRADE_MODEL_PARAM_LEN];
     char * pstrArray[8];
     olsize_t sArray = 8;
@@ -166,51 +166,51 @@ static u32 _getRoiRectanglePoint(
 
     memcpy(strParam, ptps->tps_strModelParam, MAX_TRADE_MODEL_PARAM_LEN);
 
-    u32Ret = processSettings(strParam, pstrArray, &sArray);
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_string_processSettings(strParam, pstrArray, &sArray);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getSettingsString(
+        u32Ret = jf_string_getSettingsString(
             pstrArray, sArray, ROI_SETTING_NAME_LEFT_UPPER, "\0",
             strDate, sizeof(strDate));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaySummaryWithDate(buffer, total, strDate, ppLeftUpper);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getSettingsString(
+        u32Ret = jf_string_getSettingsString(
             pstrArray, sArray, ROI_SETTING_NAME_LEFT_LOWER, "\0",
             strDate, sizeof(strDate));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaySummaryWithDate(buffer, total, strDate, ppLeftLower);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getSettingsString(
+        u32Ret = jf_string_getSettingsString(
             pstrArray, sArray, ROI_SETTING_NAME_RIGHT_UPPER, "\0",
             strDate, sizeof(strDate));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaySummaryWithDate(buffer, total, strDate, ppRightUpper);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getSettingsString(
+        u32Ret = jf_string_getSettingsString(
             pstrArray, sArray, ROI_SETTING_NAME_RIGHT_LOWER, "\0",
             strDate, sizeof(strDate));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaySummaryWithDate(buffer, total, strDate, ppRightLower);
     }
@@ -262,23 +262,23 @@ static u32 _tradeTrySellInRoi(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * pLeftUpper, * pLeftLower, * pRightUpper, * pRightLower;
     da_day_summary_t * end = buffer + total - 1;
     oldouble_t dbPrice;
     boolean_t bSell = FALSE;
 
-    logDebugMsg("try sell in roi, %s", stockinfo->si_strCode);
+    jf_logger_logDebugMsg("try sell in roi, %s", stockinfo->si_strCode);
     
     if (ol_strcmp(end->dds_strDate, ptps->tps_strTradeDate) <= 0)
     {
-        logDebugMsg("try sell in roi, T+1, cannot sell stock");
+        jf_logger_logDebugMsg("try sell in roi, T+1, cannot sell stock");
         return u32Ret;
     }
     
     u32Ret = _getRoiRectanglePoint(
         ptps, buffer, total, &pLeftUpper, &pLeftLower, &pRightUpper, &pRightLower);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (_isInPressureAreaInRoi(buffer, total, pLeftUpper, pRightUpper, &dbPrice))
         {
@@ -298,7 +298,7 @@ static u32 _tradeTrySellInRoi(
             strcpy(ptps->tps_strTradeDate, end->dds_strDate);
             ptps->tps_dbPrice = dbPrice;
             pdmtd->dmtd_dbFund += ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
-            logInfoMsg(
+            jf_logger_logInfoMsg(
                 "try sell in roi, fund remains %.2f",
                 pdmtd->dmtd_dbFund);
         }
@@ -311,7 +311,7 @@ static u32 _tradeInRoi(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (isTradePoolStockOpNone(ptps))
     {
@@ -329,13 +329,13 @@ static u32 _tradeInRoi(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 addDaModelRoi(list_head_t * plh)
+u32 addDaModelRoi(jf_listhead_t * pjl)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm;
 
-    u32Ret = xcalloc((void **)&pdm, sizeof(*pdm));
-    if (u32Ret == OLERR_NO_ERROR)
+    u32Ret = jf_mem_calloc((void **)&pdm, sizeof(*pdm));
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pdm->dm_dmiId = DA_MODEL_ROI;
         strcpy(pdm->dm_strName, "ROI");
@@ -345,7 +345,7 @@ u32 addDaModelRoi(list_head_t * plh)
         pdm->dm_fnCanBeTraded = _canBeTradedInRoi;
         pdm->dm_fnTrade = _tradeInRoi;
 
-        listAdd(plh, &pdm->dm_lhList);
+        jf_listhead_add(pjl, &pdm->dm_jlList);
     }
 
     return u32Ret;
