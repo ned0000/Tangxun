@@ -45,7 +45,7 @@ tangxun_sw_dest_db_dir = $(build_dir_db)
 tangxun_sw_jtk_src_dir = $(TOPDIR)/../tangxun_sw/jtk
 tangxun_sw_jtk_lib_dir = $(tangxun_sw_jtk_src_dir)/lib
 tangxun_sw_jtk_bin_dir = $(tangxun_sw_jtk_src_dir)/bin
-tangxun_sw_jtk_bin_files = genuuid oldongyuan olservmgmt
+tangxun_sw_jtk_bin_files = jf_genuuid jf_dongyuan jf_servmgmt
 tangxun_sw_jtk_dest_bin_dir = $(build_dir_bin)
 tangxun_sw_jtk_dest_lib_dir = $(build_dir_lib)
 
