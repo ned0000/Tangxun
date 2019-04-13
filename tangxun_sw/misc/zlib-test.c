@@ -15,12 +15,10 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "bases.h"
-#include "errcode.h"
-#include "zlib.h"
-#include "files.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_file.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bDecompress = FALSE;
@@ -48,11 +46,11 @@ Usage: compress-test [-d file] [-s] [-c] [-e file] \n\
 
 static u32 _parseCmdLineParam(int argc, char ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     int nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "dsce:f:T:F:S:h")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "dsce:f:T:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -76,7 +74,7 @@ static u32 _parseCmdLineParam(int argc, char ** argv)
             _printUsage();
             exit(0);
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -88,20 +86,20 @@ static u32 _parseCmdLineParam(int argc, char ** argv)
 
 int main(int argc, char ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (argc < 2)
     {
         _printUsage();
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseCmdLineParam(argc, argv);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bDecompressBuffer)
         {
@@ -117,9 +115,9 @@ int main(int argc, char ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        printf("Err (0x%X) %s\n", u32Ret, getErrorDescription(u32Ret));
+        printf("Err (0x%X) %s\n", u32Ret, jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;

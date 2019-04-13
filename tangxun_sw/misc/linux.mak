@@ -33,10 +33,10 @@ EXTRA_LIB_DIR = -L../jtk/lib
 
 all: $(FULL_PROGRAMS)
 
-$(BIN_DIR)/zlib-test: zlib-test.o ../jtk/inc/xmalloc.o ../jtk/inc/syncmutex.o \
-       ../jtk/inc/process.o
+$(BIN_DIR)/zlib-test: zlib-test.o ../jtk/inc/jf_mem.o ../jtk/inc/jf_mutex.o \
+       ../jtk/inc/jf_process.o
 	$(CC) $(EXTRA_LDFLAGS) $(EXTRA_LIB_DIR) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lz -lolfiles -lollogger
+       -o $@ $(SYSLIBS) -lz -ljf_files -ljf_logger
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
