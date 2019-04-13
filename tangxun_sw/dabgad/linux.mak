@@ -26,10 +26,9 @@ EXTRA_CFLAGS =
 
 # For executable file build 
 EXTRA_LDFLAGS = 
-EXTRA_OBJECTS = ../jtk/inc/process.o
+EXTRA_OBJECTS = ../jtk/inc/jf_process.o
 EXTRA_LIB_DIR = -L../jtk/lib 
-EXTRA_LIBS = -lollogger -lolfiles -lolifmgmt -lolnetwork -lolstringparse \
-    -lolifmgmt -lpthread
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_ifmgmt -ljf_network -ljf_string -lpthread
 
 include $(TOPDIR)/mak/lnxexe.mak
 

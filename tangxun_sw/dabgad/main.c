@@ -15,12 +15,13 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
-#include "errcode.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_err.h"
+#include "jf_process.h"
+#include "jf_file.h"
+
 #include "dabgad.h"
-#include "process.h"
-#include "files.h"
 
 /* --- private data/data structure section --------------------------------- */
 static dabgad_t * ls_pgDabgad = NULL;
@@ -60,15 +61,15 @@ logger options:\n\
     exit(0);
 }
 
-static u32 _parseDabgadCmdLineParam(olint_t argc, olchar_t ** argv, 
-    dabgad_param_t * pgp, logger_param_t * plp)
+static u32 _parseDabgadCmdLineParam(
+    olint_t argc, olchar_t ** argv, dabgad_param_t * pgp, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "fs:VT:F:S:Oh")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "fs:VT:F:S:Oh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -87,25 +88,25 @@ static u32 _parseDabgadCmdLineParam(olint_t argc, olchar_t ** argv,
             exit(0);
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -123,55 +124,55 @@ static void _terminate(olint_t signal)
 
 static u32 _startDabgad(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = startDabgad(ls_pgDabgad);
-    if (u32Ret != OLERR_NO_ERROR)
-        logErrMsg(u32Ret, "quit dabgad");
+    if (u32Ret != JF_ERR_NO_ERROR)
+        jf_logger_logErrMsg(u32Ret, "quit dabgad");
 
     if (ls_pgDabgad != NULL)
         destroyDabgad(&ls_pgDabgad);
 
-    finiLogger();
+    jf_logger_fini();
 
     return u32Ret;
 }
 
 static u32 _initDabgad(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     dabgad_param_t dp;
-    logger_param_t ehpParam;
+    jf_logger_init_param_t ehpParam;
     olchar_t strExecutable[100];
 
-    memset(&ehpParam, 0, sizeof(logger_param_t));
-    ehpParam.lp_pstrCallerName = "DABGAD";
-    ehpParam.lp_u8TraceLevel = 0;
+    memset(&ehpParam, 0, sizeof(jf_logger_init_param_t));
+    ehpParam.jlip_pstrCallerName = "DABGAD";
+    ehpParam.jlip_u8TraceLevel = 0;
 
     setDefaultDabgadParam(&dp);
     dp.dp_pstrCmdLine = argv[0];
 
     u32Ret = _parseDabgadCmdLineParam(argc, argv, &dp, &ehpParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initLogger(&ehpParam);
+        jf_logger_init(&ehpParam);
 
-        getFileName(strExecutable, 100, argv[0]);
+        jf_file_getFileName(strExecutable, 100, argv[0]);
 
-        if (bAlreadyRunning(strExecutable))
+        if (jf_process_isAlreadyRunning(strExecutable))
         {
             fprintf(stderr, "another %s is ruuning\n", strExecutable);
             exit(-1);
         }
 
         if (! ls_bForeground)
-            u32Ret = switchToDaemon(strExecutable);
+            u32Ret = jf_process_switchToDaemon(strExecutable);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = registerSignalHandlers(_terminate);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_process_registerSignalHandlers(_terminate);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = createDabgad(&ls_pgDabgad, &dp);
 
     return u32Ret;
@@ -180,10 +181,10 @@ static u32 _initDabgad(olint_t argc, olchar_t ** argv)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _initDabgad(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _startDabgad();
 
     return u32Ret;
