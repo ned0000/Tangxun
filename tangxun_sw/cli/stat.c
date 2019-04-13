@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "clicmd.h"
@@ -37,7 +37,7 @@
 #include "statarbitrage.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define STAT_ARBI_STOCK_FILE "StatArbiStocks.txt"
 
@@ -72,7 +72,7 @@ static jf_clieng_caption_t ls_ccDaySummaryVolumnBrief[] =
 };
 #endif
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _statHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1082,7 +1082,7 @@ static u32 _statArbiFind(cli_stat_param_t * pcsp, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processStat(void * pMaster, void * pParam)
 {
@@ -1189,6 +1189,6 @@ u32 parseStat(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

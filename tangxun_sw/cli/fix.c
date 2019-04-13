@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -23,10 +23,10 @@
 #include "jf_mem.h"
 #include "fixdata.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _fixHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -48,7 +48,7 @@ fix [-f file] [-o] [-v]");
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 processFix(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -131,6 +131,6 @@ u32 parseFix(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -34,7 +34,7 @@
 #include "trade_persistency.h"
 #include "backtesting.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
 {
     {"NumOfTrade", JF_CLIENG_CAP_FULL_LINE},
@@ -46,7 +46,7 @@ static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
 
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _backtestHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -181,7 +181,7 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processBacktest(void * pMaster, void * pParam)
 {
@@ -254,6 +254,6 @@ u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -12,20 +12,20 @@
 #ifndef TANGXUN_CLI_CLICMD_H
 #define TANGXUN_CLI_CLICMD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_clieng.h"
 #include "jf_listhead.h"
 #include "main.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define CLI_ACTION_UNKNOWN    0
 #define CLI_ACTION_SHOW_HELP  1
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -256,7 +256,7 @@ typedef union
     cli_backtest_param_t dcp_cbpBacktest;
 } da_cli_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 addDaCmd(da_master_t * pdm, da_cli_param_t * dcp);
 
@@ -321,6 +321,6 @@ u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
 #endif /*TANGXUN_CLI_CLICMD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

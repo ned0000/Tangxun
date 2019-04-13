@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "clicmd.h"
@@ -25,11 +25,11 @@
 #include "stocklist.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define MAX_INDI_DAY_SUMMARY (TOTAL_OPTIMIZE_INDI_DAY_SUMMARY + 8 * OPTIMIZE_INDI_DAY_SUMMARY)
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _indiHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -576,7 +576,7 @@ static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processIndi(void * pMaster, void * pParam)
 {
@@ -683,6 +683,6 @@ u32 parseIndi(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

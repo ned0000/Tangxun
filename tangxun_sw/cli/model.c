@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "damodel.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccDaModelBrief[] =
 {
     {"Id", 3},
@@ -32,7 +32,7 @@ static jf_clieng_caption_t ls_ccDaModelBrief[] =
 };
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _modelHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -133,7 +133,7 @@ static u32 _printDaModel(cli_model_param_t * pcmp)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 processModel(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -209,6 +209,6 @@ u32 parseModel(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

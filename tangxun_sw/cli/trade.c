@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -33,7 +33,7 @@
 #include "damodel.h"
 #include "trade_persistency.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccTradingStockBrief[] =
 {
     {"Id", 4},
@@ -70,7 +70,7 @@ static jf_clieng_caption_t ls_ccTradingRecordVerbose[] =
     {"Volume", JF_CLIENG_CAP_HALF_LINE}, {"Price", JF_CLIENG_CAP_HALF_LINE},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _tradeHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -436,7 +436,7 @@ static u32 _listTradingRecord(cli_trade_param_t * pctp, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processTrade(void * pMaster, void * pParam)
 {
@@ -510,6 +510,6 @@ u32 parseTrade(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

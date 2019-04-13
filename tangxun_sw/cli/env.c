@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static jf_clieng_caption_t ls_ccEnvVarVerbose[] =
 {
@@ -32,7 +32,7 @@ static jf_clieng_caption_t ls_ccEnvVarVerbose[] =
 };
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _envHelp(da_master_t * pdm)
 {
@@ -93,7 +93,7 @@ static u32 _printEnvVar(olchar_t * name)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processEnv(void * pMaster, void * pParam)
 {
@@ -179,6 +179,6 @@ u32 parseEnv(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

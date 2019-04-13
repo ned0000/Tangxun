@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -34,7 +34,7 @@
 #include "damodel.h"
 #include "trade_persistency.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccStockPoolBrief[] =
 {
     {"Id", 4},
@@ -44,7 +44,7 @@ static jf_clieng_caption_t ls_ccStockPoolBrief[] =
     {"AddDate", 12},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _findHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -431,7 +431,7 @@ static u32 _cleanStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processFind(void * pMaster, void * pParam)
 {
@@ -519,6 +519,6 @@ u32 parseFind(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -34,7 +34,7 @@
 #include "damethod.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccStockInfoAdditionalVerbose[] =
 {
     {"CorrelationWithIndex", JF_CLIENG_CAP_HALF_LINE}, {"CorrelationWithSmeIndex", JF_CLIENG_CAP_HALF_LINE},
@@ -61,7 +61,7 @@ static jf_clieng_caption_t ls_ccStockInfoVerbose[] =
     {"GeneralCapital", JF_CLIENG_CAP_HALF_LINE}, {"TradableShare", JF_CLIENG_CAP_HALF_LINE},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _stockHelp(da_master_t * pdm)
 {
@@ -239,7 +239,7 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 processStock(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -314,6 +314,6 @@ u32 parseStock(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

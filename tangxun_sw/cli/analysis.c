@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
@@ -38,7 +38,7 @@
 #include "datastat.h"
 #include "statarbitrage.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define MAX_NUM_OF_RESULT  500
 #define MAX_ANALYSIS_FIND_DAY_SUMMARY  500
@@ -46,7 +46,7 @@
 
 #define NUM_OF_STAT_ARBI_DAY_SUMMARY 40
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _analysisHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1946,7 +1946,7 @@ static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, da_master_t * pd
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processAnalysis(void * pMaster, void * pParam)
 {
@@ -2075,6 +2075,6 @@ void __toSuppressWarnMsg(void)
     _analysisDaySummary_OLD(pcap, stockinfo, buffer, total);
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

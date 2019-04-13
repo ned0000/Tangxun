@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -19,7 +19,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "clicmd.h"
@@ -36,7 +36,7 @@
 #include "jf_jiukun.h"
 #include "envvar.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define MAX_NUM_OF_RESULT  600
 #define MAX_NUM_OF_TRADE_DETAIL_FILE  100
@@ -148,7 +148,7 @@ static jf_clieng_caption_t ls_ccDaySummaryVerbose[] =
     {"Status", JF_CLIENG_CAP_FULL_LINE},
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _parseHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -958,7 +958,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, da_master_t * pdm)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 processParse(void * pMaster, void * pParam)
 {
@@ -1072,6 +1072,6 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

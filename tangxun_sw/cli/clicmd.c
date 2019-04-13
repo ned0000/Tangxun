@@ -9,11 +9,11 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -24,9 +24,9 @@
 
 #include "clicmd.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 
 static u32 _setDefaultParamExit(void * pMaster, void * pParam)
@@ -164,7 +164,7 @@ static u32 _processHelp(void * pMaster, void * pParam)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 addDaCmd(da_master_t * pdm, da_cli_param_t * pdcp)
 {
@@ -222,6 +222,6 @@ u32 addDaCmd(da_master_t * pdm, da_cli_param_t * pdcp)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
