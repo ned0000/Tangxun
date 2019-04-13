@@ -17,6 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
+
 #include "stocklist.h"
 #include "parsedata.h"
 #include "stocktrade.h"
@@ -63,7 +64,7 @@ typedef struct da_model
 
     void * dm_pData;
 
-    list_head_t dm_lhList;
+    jf_listhead_t dm_jlList;
 } da_model_t;
 
 /* --- functional routines ------------------------------------------------- */
@@ -75,7 +76,7 @@ u32 getDaModel(da_model_id_t id, da_model_t ** model);
 u32 getDaModelByName(olchar_t * name, da_model_t ** model);
 
 /* ROI model*/
-u32 addDaModelRoi(list_head_t * plh);
+u32 addDaModelRoi(jf_listhead_t * pjl);
 
 
 

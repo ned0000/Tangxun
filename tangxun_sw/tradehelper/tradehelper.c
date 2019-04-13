@@ -14,12 +14,13 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "olbasic.h"
-#include "ollimit.h"
-#include "jiukun.h"
+#include "jf_basic.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_jiukun.h"
+#include "jf_time.h"
+
 #include "parsedata.h"
-#include "xtime.h"
 #include "damodel.h"
 #include "trade_persistency.h"
 #include "tradehelper.h"
@@ -32,33 +33,33 @@
 
 u32 setStockFirstTradeDate(const char * strStockPath)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 10;
     da_day_summary_t * buffer = NULL;
-    olchar_t strFullname[MAX_PATH_LEN];
+    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     stock_info_t * stockinfo;
 
-    logInfoMsg("set stock first trade date, %s", strStockPath);
+    jf_logger_logInfoMsg("set stock first trade date, %s", strStockPath);
 
-    allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
     stockinfo = getFirstStockInfo();
     while (stockinfo != NULL)
     {
         ol_snprintf(
-            strFullname, MAX_PATH_LEN - 1, "%s%c%s",
+            strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
             strStockPath,
             PATH_SEPARATOR, stockinfo->si_strCode);
-        strFullname[MAX_PATH_LEN - 1] = '\0';
+        strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
         total = 10;
 
         u32Ret = readTradeDaySummaryFromDate(
             strFullname, NULL, buffer, &total);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_strcpy(stockinfo->si_strFirstTradeDate, buffer->dds_strDate);
-            logDebugMsg(
+            jf_logger_logDebugMsg(
                 "set stock first trade date, stock: %s, firstdate: %s",
                 stockinfo->si_strCode, stockinfo->si_strFirstTradeDate);
         }
@@ -66,7 +67,7 @@ u32 setStockFirstTradeDate(const char * strStockPath)
         stockinfo = getNextStockInfo(stockinfo);
     }
 
-    freeMemory((void **)&buffer);
+    jf_jiukun_freeMemory((void **)&buffer);
     
     return u32Ret;
 }
