@@ -9,18 +9,18 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_file.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bDecompress = FALSE;
 
 static boolean_t ls_bCompress = FALSE;
@@ -29,7 +29,7 @@ static boolean_t ls_bBestSpeed = FALSE;
 static boolean_t ls_bBestCompression = FALSE;
 static char * ls_pstrFile = NULL;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static void _printUsage(void)
 {
@@ -82,7 +82,7 @@ static u32 _parseCmdLineParam(int argc, char ** argv)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 int main(int argc, char ** argv)
 {
@@ -123,6 +123,6 @@ int main(int argc, char ** argv)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
