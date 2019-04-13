@@ -12,18 +12,18 @@
 #ifndef JIUFENG_DATRANSD_H
 #define JIUFENG_DATRANSD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 /*in seconds*/
 #define DA_GET_QUO_INTERVAL  6
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef void  datransd_t;
 
 typedef struct
@@ -32,7 +32,7 @@ typedef struct
     u8 dp_u8Reserved[64];
 } datransd_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 setDefaultDatransdParam(datransd_param_t * pgp);
 
 u32 createDatransd(datransd_t ** ppDatransd, datransd_param_t * pgp);
@@ -45,6 +45,6 @@ u32 stopDatransd(datransd_t * pDatransd);
 
 #endif /*JIUFENG_DATRANSD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

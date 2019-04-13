@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -28,14 +28,14 @@
 #include "stocklist.h"
 #include "datransd.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static datransd_t * ls_pgDatransd = NULL;
 static boolean_t ls_bForeground = FALSE;
 
 static const olchar_t * ls_pstrProgramName = "datransd";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printDatransdUsage(void)
 {
     ol_printf("\
@@ -111,7 +111,7 @@ static void _terminate(olint_t signal)
         stopDatransd(ls_pgDatransd);
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -199,6 +199,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

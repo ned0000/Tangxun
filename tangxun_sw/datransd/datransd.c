@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #include <math.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -44,7 +44,7 @@
 #include "stocklist.h"
 #include "datransd.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data structures ------------------------------------------------------------------ */
 
 #define DATRANSD_FAKE_DATA  0 /*For testing purpose*/
 
@@ -121,7 +121,7 @@ static olint_t ls_nMaxStockPerReq = 0;
 /*for calulating the correlation between 2 stocks*/
 static oldouble_t * ls_pdbStockArray1, * ls_pdbStockArray2;
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _daGetQuotation(void * pData);
 
 static void _copyRawQuo(u8 * pu8Body, olsize_t sBody)
@@ -1726,7 +1726,7 @@ static u32 _initStrStockList(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 createDatransd(datransd_t ** ppDatransd, datransd_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1891,6 +1891,6 @@ u32 setDefaultDatransdParam(datransd_param_t * pdp)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
