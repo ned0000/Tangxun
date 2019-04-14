@@ -50,6 +50,8 @@ static u32 _fsMinHighLimitDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 static u32 _fsMinAbnormalVolRatioDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
+static u32 _fsIndicatorMacd(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
 static da_rule_t ls_drDaRules[] =
 {
@@ -64,6 +66,7 @@ static da_rule_t ls_drDaRules[] =
     {DA_RULE_MIN_RAMPING_DAY, "min_ramping_day", _fsMinRampingDay},
     {DA_RULE_MIN_HIGH_LIMIT_DAY, "min_high_limit_day", _fsMinHighLimitDay},
     {DA_RULE_MIN_ABNORMAL_VOL_RATIO_DAY, "min_abnormal_vol_ratio_day", _fsMinAbnormalVolRatioDay},
+    {DA_RULE_INDICATOR_MACD, "indicator_macd", _fsIndicatorMacd},
 };
 
 static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);
@@ -454,8 +457,21 @@ static u32 _fsUpRiseTriangle(
     return u32Ret;
 }
 
-/* --- public routine section ------------------------------------------------------------------- */
+static u32 _fsIndicatorMacd(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+{
+    u32 u32Ret = JF_ERR_NOT_MATCH;
+    da_rule_indicator_macd_param_t * param = (da_rule_indicator_macd_param_t *)pdrp;
 
+    jf_logger_logInfoMsg("rule indi macd, %s", stockinfo->si_strCode);
+
+    if (total < param->drimp_nMacdLongDays)
+        return u32Ret;
+
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 getAllDaRules(da_rule_t ** ppRule)
 {

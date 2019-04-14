@@ -34,6 +34,7 @@ typedef enum da_ruld_id
     DA_RULE_MIN_HIGH_LIMIT_DAY,
     DA_RULE_MIN_ABNORMAL_VOL_RATIO_DAY,
     DA_RULE_ONE_HIGH_HIGH_LIMIT_DAY,
+    DA_RULE_INDICATOR_MACD,
 } da_ruld_id_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
@@ -140,6 +141,13 @@ typedef struct
     u32 drmavrdp_u32MinDay;
 } da_rule_min_abnormal_vol_ratio_day_param_t;
 
+typedef struct
+{
+    olint_t drimp_nMacdShortDays;
+    olint_t drimp_nMacdLongDays;
+    olint_t drimp_nMacdMDays;
+} da_rule_indicator_macd_param_t;
+
 typedef union
 {
     da_rule_n_days_up_in_m_days_param_t drp_drnduimdpDyasUp;
@@ -153,6 +161,7 @@ typedef union
     da_rule_min_ramping_day_param_t drp_drmrdpMinRampingDay;
     da_rule_min_high_limit_day_param_t drp_drmhldpMinHighLimitDay;
     da_rule_min_abnormal_vol_ratio_day_param_t drp_drmavrdpAbnormalVolRatioDay;
+    da_rule_indicator_macd_param_t drp_drimpIndicatorMacd;
 } da_rule_param_t;
 
 typedef u32 (* fnExecStocksRule_t)(
