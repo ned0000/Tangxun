@@ -83,10 +83,9 @@ typedef struct
 typedef struct
 {
 #define CLI_ACTION_INFLEXION_POINT    0x80
-#define CLI_ACTION_MARKOV_DIR         0x81
+#define CLI_ACTION_STAT_AMOUNT        0x81
 #define CLI_ACTION_DESCRIPTIVE_STAT   0x82
 #define CLI_ACTION_STAT_ARBI_INDUSTRY 0x83
-#define CLI_ACTION_STAT_ARBI_STOCKS   0x84
 #define CLI_ACTION_STAT_ARBI_FIND     0x85
 #define CLI_ACTION_INFLEXION_POINT_2  0x86
     u8 csp_u8Action;
@@ -198,10 +197,7 @@ typedef struct
 typedef struct
 {
 #define CLI_ACTION_INDI_LIST       0x80
-#define CLI_ACTION_INDI_FIND       0x81
 #define CLI_ACTION_INDI_TEST       0x82
-#define CLI_ACTION_INDI_EVALUATE   0x83
-#define CLI_ACTION_INDIS_EVALUATE  0x84
 #define CLI_ACTION_INDI_ADXR       0x85
     u8 cip_u8Action;
     boolean_t cip_bVerbose;

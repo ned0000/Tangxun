@@ -16,6 +16,7 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
+
 #include "parsedata.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -159,11 +160,7 @@ u32 dataStatFromDaySummary(
     data_stat_param_t * pdsp, data_stat_t * stat,
     da_day_summary_t * buffer, olint_t num);
 
-void printDataStatVerbose(data_stat_t * stat);
-
 u32 descStatFromData(desc_stat_t * stat, oldouble_t * pdbdata, olint_t num);
-
-void printDescStatVerbose(desc_stat_t * stat);
 
 void getDoubleFrequency(
     oldouble_t * pdbValue, olint_t num, olint_t numofarea, olint_t * freq,

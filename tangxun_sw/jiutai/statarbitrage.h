@@ -83,20 +83,10 @@ typedef union
 
 struct stat_arbi_desc;
 
-typedef u32 (* fnStatArbiStocks_t)(
-    struct stat_arbi_desc * arbi, stat_arbi_param_t * psap,
-    sa_stock_info_t * stocks, da_conc_t * conc);
-typedef u32 (* fnOptimizeStatArbi_t)(
-    struct stat_arbi_desc * arbi, stat_arbi_param_t * psap,
-    sa_stock_info_t * stocks, da_conc_sum_t * conc);
-typedef void (* fnPrintStatArbiParamVerbose_t)(
-    struct stat_arbi_desc * arbi, stat_arbi_param_t * pdip);
 typedef void (* fnGetStringStatArbiParam_t)(
     struct stat_arbi_desc * arbi, const stat_arbi_param_t * psap, olchar_t * buf);
 typedef void (* fnGetStatArbiParamFromString_t)(
     struct stat_arbi_desc * arbi, stat_arbi_param_t * psap, const olchar_t * buf);
-typedef void (* fnPrintStatArbiDescVerbose_t)(
-    struct stat_arbi_desc * arbi);
 
 typedef struct stat_arbi_desc
 {
@@ -104,12 +94,8 @@ typedef struct stat_arbi_desc
     olchar_t * sad_pstrName;
     olchar_t * sad_pstrDesc;
 
-    fnStatArbiStocks_t sad_fnStatArbiStocks;
-    fnOptimizeStatArbi_t sad_fnOptimize;
-    fnPrintStatArbiParamVerbose_t sad_fnPrintParamVerbose;
     fnGetStringStatArbiParam_t sad_fnGetStringParam;
     fnGetStatArbiParamFromString_t sad_fnGetParamFromString;
-    fnPrintStatArbiDescVerbose_t sad_fnPrintDescVerbose;
 } stat_arbi_desc_t;
 
 typedef struct
@@ -139,10 +125,6 @@ u32 statArbiAllIndustry(
 u32 statArbiStockList(
     olchar_t * pstrDataPath, olchar_t * stocklist, olint_t nStock, stat_arbi_indu_param_t * param,
     stat_arbi_indu_result_t * result);
-
-u32 getBestStatArbiMethod(
-    sa_stock_info_t * stocks, get_best_stat_arbi_param_t * pgbsap,
-    olint_t * pnId, stat_arbi_param_t * psap, da_conc_sum_t * conc);
 
 u32 newSaStockInfo(
     olchar_t * pstrDataPath, olchar_t * pstrStocks,

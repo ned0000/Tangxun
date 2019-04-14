@@ -22,74 +22,13 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "datastat.h"
 #include "jf_err.h"
-#include "jf_clieng.h"
 #include "jf_string.h"
 #include "jf_mem.h"
 
+#include "datastat.h"
+
 /* --- private data/data structure section ------------------------------------------------------ */
-static jf_clieng_caption_t ls_jccDataStatVerbose[] =
-{
-    {"Name", JF_CLIENG_CAP_HALF_LINE},
-    {"NumOfTradingDay", JF_CLIENG_CAP_HALF_LINE}, {"DayForTrend", JF_CLIENG_CAP_HALF_LINE},
-    {"StartDate", JF_CLIENG_CAP_HALF_LINE}, {"EndDate", JF_CLIENG_CAP_HALF_LINE},
-
-    {"MinClosingPriceRate", JF_CLIENG_CAP_HALF_LINE}, {"MaxClosingPriceRate", JF_CLIENG_CAP_HALF_LINE},
-    {"MinTunePercent", JF_CLIENG_CAP_HALF_LINE}, {"MaxTunePercent", JF_CLIENG_CAP_HALF_LINE},
-    {"CloseHighLimit", JF_CLIENG_CAP_HALF_LINE}, {"LastTimeCloseHighLimit", JF_CLIENG_CAP_HALF_LINE},
-    {"MaxTimeOpenCloseHighLimit", JF_CLIENG_CAP_FULL_LINE},
-
-    {"MinBuyPercent", JF_CLIENG_CAP_HALF_LINE}, {"MaxBuyPercent", JF_CLIENG_CAP_HALF_LINE},
-    {"AveBuyPercent", JF_CLIENG_CAP_HALF_LINE}, {"MinAveBuyPercentForTrend", JF_CLIENG_CAP_HALF_LINE},
-    {"MinSoldPercent", JF_CLIENG_CAP_HALF_LINE}, {"MaxSoldPercent", JF_CLIENG_CAP_HALF_LINE},
-    {"AveSoldPercent", JF_CLIENG_CAP_FULL_LINE},
-    {"MinLambBuyPercent", JF_CLIENG_CAP_HALF_LINE}, {"MaxLambBuyPercent", JF_CLIENG_CAP_HALF_LINE},
-    {"AveLambBuyPercent", JF_CLIENG_CAP_FULL_LINE},
-    {"MinLambSoldPercent", JF_CLIENG_CAP_HALF_LINE}, {"MaxLambSoldPercent", JF_CLIENG_CAP_HALF_LINE},
-    {"AveLambSoldPercent", JF_CLIENG_CAP_FULL_LINE},
-    {"BuyInAm", JF_CLIENG_CAP_FULL_LINE},
-    {"MaxVolumeRatio", JF_CLIENG_CAP_FULL_LINE},
-    {"MaxSoldVolumeRatio", JF_CLIENG_CAP_HALF_LINE}, {"MaxLambSoldVolumeRatio", JF_CLIENG_CAP_HALF_LINE},
-    {"MaxCloseHighLimitVolumeRatio", JF_CLIENG_CAP_FULL_LINE},
-    {"MaxCloseHighLimitSoldVolumeRatio", JF_CLIENG_CAP_HALF_LINE}, {"MaxCloseHighLimitLambSoldVolumeRatio", JF_CLIENG_CAP_HALF_LINE},
-
-    {"MinBuyA", JF_CLIENG_CAP_HALF_LINE}, {"MaxBuyA", JF_CLIENG_CAP_HALF_LINE},
-    {"AveBuyA", JF_CLIENG_CAP_FULL_LINE},
-    {"MinSoldA", JF_CLIENG_CAP_HALF_LINE}, {"MaxSoldA", JF_CLIENG_CAP_HALF_LINE},
-    {"AveSoldA", JF_CLIENG_CAP_FULL_LINE},
-    {"MinLambBuyA", JF_CLIENG_CAP_HALF_LINE}, {"MaxLambBuyA", JF_CLIENG_CAP_HALF_LINE},
-    {"AveLambBuyA", JF_CLIENG_CAP_FULL_LINE},
-    {"MinLambSoldA", JF_CLIENG_CAP_HALF_LINE}, {"MaxLambSoldA", JF_CLIENG_CAP_HALF_LINE},
-    {"AveLambSoldA", JF_CLIENG_CAP_FULL_LINE},
-
-    {"MaxUpperShadowRatio", JF_CLIENG_CAP_HALF_LINE}, {"MaxLowerShadowRatio", JF_CLIENG_CAP_HALF_LINE},
-
-    {"MaxLastLowPriceInc", JF_CLIENG_CAP_HALF_LINE}, {"LastTimeOfLowPrice", JF_CLIENG_CAP_HALF_LINE},
-};
-
-static jf_clieng_caption_t ls_jccDescStatVerbose[] =
-{
-    {"Count", JF_CLIENG_CAP_FULL_LINE},
-    {"All", JF_CLIENG_CAP_FULL_LINE},
-    {"Mean", JF_CLIENG_CAP_HALF_LINE}, {"SEMean", JF_CLIENG_CAP_HALF_LINE},
-
-    {"Variance", JF_CLIENG_CAP_HALF_LINE}, {"StDev", JF_CLIENG_CAP_HALF_LINE},
-
-    {"Min", JF_CLIENG_CAP_HALF_LINE}, {"Q1", JF_CLIENG_CAP_HALF_LINE},
-    {"Median", JF_CLIENG_CAP_HALF_LINE}, {"Q3", JF_CLIENG_CAP_HALF_LINE},
-    {"Max", JF_CLIENG_CAP_FULL_LINE},
-
-    {"StDev1Percent", JF_CLIENG_CAP_HALF_LINE}, {"StDev2Percent", JF_CLIENG_CAP_HALF_LINE},
-};
-
-static jf_clieng_caption_t ls_jccFrequencyBrief[] =
-{
-    {"Unit", 6},
-    {"Region", 24},
-    {"Freq", 6},
-
-};
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -412,9 +351,9 @@ static void _dsOtherFromDayResult(
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 dataStatFromDaySummary(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num)
+    data_stat_param_t * pdsp, data_stat_t * stat, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * summary = buffer, * end = buffer + num - 1;
@@ -438,179 +377,6 @@ u32 dataStatFromDaySummary(
     _dsOtherFromDayResult(pdsp, stat, buffer, num);
 
     return u32Ret;
-}
-
-void printDataStatVerbose(data_stat_t * stat)
-{
-    jf_clieng_caption_t * pcc = &ls_jccDataStatVerbose[0];
-    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-
-    /* Name */
-    jf_clieng_printOneFullLine(pcc, stat->ds_strName);
-    pcc += 1;
-
-    /* NumOfTradingDay */
-    ol_sprintf(strLeft, "%d", stat->ds_nNumOfDay);
-    ol_sprintf(strRight, "%d", stat->ds_nDayForTrend);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* StartDate */
-    jf_clieng_printTwoHalfLine(pcc, stat->ds_strStartDate, stat->ds_strEndDate);
-    pcc += 2;
-
-    /* MinClosingPriceRate */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinClosingPriceRate);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxClosingPriceRate);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* MinTunePercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinTunePercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxTunePercent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* CloseHighLimit*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(stat->ds_bCloseHighLimit));
-    jf_clieng_printTwoHalfLine(pcc, strLeft, stat->ds_strLastTimeCloseHighLimit);
-    pcc += 2;
-
-    /* MaxTimeOpenCloseHighLimit */
-    ol_sprintf(strLeft, "%d", stat->ds_nMaxTimeOpenCloseHighLimit);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinBuyPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinBuyPercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxBuyPercent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveBuyPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbAveBuyPercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMinAveBuyPercentForTrend);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* MinSoldPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinSoldPercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxSoldPercent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveSoldPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbAveSoldPercent);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinLambBuyPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinLambBuyPercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxLambBuyPercent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveLambBuyPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbAveLambBuyPercent);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinLambSoldPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMinLambSoldPercent);
-    ol_sprintf(strRight, "%.2f%%", stat->ds_dbMaxLambSoldPercent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveLambSoldPercent */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbAveLambSoldPercent);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* BuyInAm */
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(stat->ds_bBuyInAm));
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MaxVolumeRatio */
-    ol_sprintf(strLeft, "%.2f", stat->ds_dbMaxVolumeRatio);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MaxSoldVolumeRatio */
-    ol_sprintf(strLeft, "%.2f", stat->ds_dbMaxSoldVolumeRatio);
-    ol_sprintf(strRight, "%.2f", stat->ds_dbMaxLambSoldVolumeRatio);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* MaxCloseHighLimitVolumeRatio */
-    ol_sprintf(strLeft, "%.2f", stat->ds_dbMaxCloseHighLimitVolumeRatio);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MaxCloseHighLimitSoldVolumeRatio */
-    ol_sprintf(strLeft, "%.2f", stat->ds_dbMaxCloseHighLimitSoldVolumeRatio);
-    ol_sprintf(strRight, "%.2f", stat->ds_dbMaxCloseHighLimitLambSoldVolumeRatio);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* MinBuyA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64MinBuyA);
-    ol_sprintf(strRight, "%llu", stat->ds_u64MaxBuyA);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveBuyA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64AveBuyA);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinSoldA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64MinSoldA);
-    ol_sprintf(strRight, "%llu", stat->ds_u64MaxSoldA);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveSoldA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64AveSoldA);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinLambBuyA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64MinLambBuyA);
-    ol_sprintf(strRight, "%llu", stat->ds_u64MaxLambBuyA);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveLambBuyA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64AveLambBuyA);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MinLambSoldA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64MinLambSoldA);
-    ol_sprintf(strRight, "%llu", stat->ds_u64MaxLambSoldA);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* AveLambSoldA */
-    ol_sprintf(strLeft, "%llu", stat->ds_u64AveLambSoldA);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* MaxUpperShadowRatio */
-    ol_sprintf(strLeft, "%.2f", stat->ds_dbMaxUpperShadowRatio);
-    ol_sprintf(strRight, "%.2f", stat->ds_dbMaxLowerShadowRatio);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* MaxLastXInc */
-    ol_sprintf(strLeft, "%.2f%%", stat->ds_dbMaxLastXInc);
-    ol_sprintf(strRight, "%s %s",
-         stat->ds_strLastTimeLowPriceDate, stat->ds_strLastTimeLowPrice);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    jf_clieng_outputLine("");
 }
 
 /*WARNING: data is changed when sorting*/
@@ -688,59 +454,6 @@ u32 descStatFromData(desc_stat_t * stat, oldouble_t * pdbdata, olint_t num)
     return u32Ret;
 }
 
-void printDescStatVerbose(desc_stat_t * stat)
-{
-    jf_clieng_caption_t * pcc = &ls_jccDescStatVerbose[0];
-    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-
-    /* Count */
-    ol_sprintf(strLeft, "%d", stat->ds_nCount);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* All */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbAll);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* Mean */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbMean);
-    ol_sprintf(strRight, "%.3f", stat->ds_dbSEMean);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* Variance */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbVariance);
-    ol_sprintf(strRight, "%.3f", stat->ds_dbStDev);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* Min */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbMin);
-    ol_sprintf(strRight, "%.3f", stat->ds_dbQ1);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* Median */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbMedian);
-    ol_sprintf(strRight, "%.3f", stat->ds_dbQ3);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /* Max */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbMax);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
-
-    /* StDev1Percent */
-    ol_sprintf(strLeft, "%.3f", stat->ds_dbStDev1Percent);
-    ol_sprintf(strRight, "%.3f", stat->ds_dbStDev2Percent);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 1;
-
-    jf_clieng_outputLine("");
-}
-
 void getDoubleFrequency(
     oldouble_t * pdbValue, olint_t num, olint_t numofarea, olint_t * freq, oldouble_t * area)
 {
@@ -776,54 +489,6 @@ void getDoubleFrequency(
 
         freq[--j] ++;
     }
-}
-
-void printDoubleFrequencyBrief(olint_t numofarea, olint_t * freq, oldouble_t * area)
-{
-    jf_clieng_caption_t * pcc = &ls_jccFrequencyBrief[0];
-    olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-    olint_t i;
-
-    jf_clieng_printHeader(ls_jccFrequencyBrief,
-        sizeof(ls_jccFrequencyBrief) / sizeof(jf_clieng_caption_t));
-
-    for (i = 0; i < numofarea - 1; i ++)
-    {
-        strInfo[0] = '\0';
-        pcc = &ls_jccFrequencyBrief[0];
-
-        /* Unit */
-        ol_sprintf(strField, "%d", i);
-        jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-        pcc++;
-
-        ol_sprintf(strField, "%.1f ~ %.1f", area[i], area[i + 1]);
-        jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-        pcc++;
-
-        ol_sprintf(strField, "%d", freq[i]);
-        jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-        pcc++;
-
-        jf_clieng_outputLine(strInfo);
-    }
-
-    strInfo[0] = '\0';
-    pcc = &ls_jccFrequencyBrief[0];
-
-    ol_sprintf(strField, "%d", i);
-    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-    pcc++;
-
-    ol_sprintf(strField, "%.1f", area[i]);
-    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-    pcc++;
-
-    ol_sprintf(strField, "%d", freq[i]);
-    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
-    pcc++;
-
-    jf_clieng_outputLine(strInfo);
 }
 
 u32 getCorrelation2(

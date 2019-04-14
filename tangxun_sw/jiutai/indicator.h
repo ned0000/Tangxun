@@ -280,22 +280,10 @@ typedef struct
 
 struct da_indicator_desc;
 
-typedef u32 (* fnIndicatorSystem_t)(
-    struct da_indicator_desc * indi, da_indicator_param_t * pdip,
-    da_day_summary_t * buffer, olint_t num, da_conc_t * conc);
-typedef u32 (* fnOptimizeIndicator_t)(
-    struct da_indicator_desc * indi, da_indicator_param_t * pdip,
-    da_day_summary_t * buffer, olint_t num, da_conc_sum_t * conc);
-typedef void (* fnPrintIndicatorParamVerbose_t)(
-    struct da_indicator_desc * indi, da_indicator_param_t * pdip);
-typedef void (* fnIndicatorPrintDaySummary_t)(
-    struct da_indicator_desc * indi, da_day_summary_t * buffer, olint_t num);
 typedef void (* fnGetStringIndicatorParam_t)(
     struct da_indicator_desc * indi, const da_indicator_param_t * pdip, olchar_t * buf);
 typedef void (* fnGetIndicatorParamFromString_t)(
     struct da_indicator_desc * indi, da_indicator_param_t * pdip, const olchar_t * buf);
-typedef void (* fnPrintIndicatorDescVerbose_t)(
-    struct da_indicator_desc * indi);
 
 typedef struct da_indicator_desc
 {
@@ -306,13 +294,8 @@ typedef struct da_indicator_desc
     olint_t did_nType;
     olchar_t * did_pstrName;
     olchar_t * did_pstrDesc;
-    fnIndicatorSystem_t did_fnSystem;
-    fnOptimizeIndicator_t did_fnOptimize;
-    fnPrintIndicatorParamVerbose_t did_fnPrintParamVerbose;
-    fnIndicatorPrintDaySummary_t did_fnPrintDaySummary;
     fnGetStringIndicatorParam_t did_fnGetStringParam;
     fnGetIndicatorParamFromString_t did_fnGetParamFromString;
-    fnPrintIndicatorDescVerbose_t did_fnPrintDescVerbose;
 } da_indicator_desc_t;
 
 typedef struct
@@ -331,16 +314,14 @@ da_indicator_desc_t * getDaIndicatorDescByName(olchar_t * name);
 
 u32 freeDaDaySummaryIndicator(da_day_summary_t *summary, olint_t num);
 
-u32 getOptimizedIndicator(
-    da_day_summary_t * buffer, olint_t num, get_optimized_indicator_param_t * pgoip,
-    olint_t * pnId, da_indicator_param_t * pdip, da_conc_sum_t * conc);
-
 u32 getIndicatorAdxrTrend(da_day_summary_t * buffer, olint_t num);
 
-char * getStringKcp(olint_t nKcp);
-char * getAbbrevStringKcp(olint_t nKcp);
+olchar_t * getStringKcp(olint_t nKcp);
+olchar_t * getAbbrevStringKcp(olint_t nKcp);
 
-char * getStringIndicatorName(olint_t nIndicator);
+olchar_t * getStringIndicatorName(olint_t nIndicator);
+
+olchar_t * getStringIndiType(olint_t type);
 
 #endif /*TANGXUN_JIUTAI_INDICATOR_H*/
 

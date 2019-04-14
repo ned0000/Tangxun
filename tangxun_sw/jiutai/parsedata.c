@@ -57,14 +57,6 @@ typedef struct
     olint_t ti_nOp;
 } trade_item_t;
 
-static jf_clieng_caption_t ls_ccDaConcSumVerbose[] =
-{
-    {"Time", JF_CLIENG_CAP_HALF_LINE}, {"ProfitTimeRatio", JF_CLIENG_CAP_HALF_LINE},
-    {"ProfitTime", JF_CLIENG_CAP_HALF_LINE}, {"LossTime", JF_CLIENG_CAP_HALF_LINE},
-    {"OverallYield", JF_CLIENG_CAP_HALF_LINE}, {"AveYield", JF_CLIENG_CAP_HALF_LINE},
-    {"HoldDays", JF_CLIENG_CAP_HALF_LINE}, {"AveHoldDays", JF_CLIENG_CAP_HALF_LINE},
-};
-
 /* --- private routine section ------------------------------------------------------------------ */
 static void _convertResult(da_day_result_t * result)
 {
@@ -2278,105 +2270,6 @@ void getStringDaySummaryStatus(da_day_summary_t * summary, olchar_t * pstr)
         else
             ol_strcat(pstr, ",ST");
     }
-}
-
-olint_t compareDaConcSum(da_conc_sum_t * a, da_conc_sum_t * b)
-{
-    /*prefer the positive yield*/
-    if ((a->dcs_dbOverallYield >= 0) &&
-        (b->dcs_dbOverallYield < 0))
-        return 1;
-    else if ((a->dcs_dbOverallYield < 0) &&
-             (b->dcs_dbOverallYield >= 0))
-        return -1;
-
-    /*prefer the profit ratio more than MIN_PROFIT_TIME_RATIO*/
-    if ((a->dcs_dbProfitTimeRatio >= MIN_PROFIT_TIME_RATIO) &&
-        (b->dcs_dbProfitTimeRatio < MIN_PROFIT_TIME_RATIO))
-        return 1;
-    else if ((a->dcs_dbProfitTimeRatio < MIN_PROFIT_TIME_RATIO) &&
-             (b->dcs_dbProfitTimeRatio >= MIN_PROFIT_TIME_RATIO))
-        return -1;
-
-    /*both are less than MIN_PROFIT_TIME_RATIO, prefer the higher ratio*/
-    if ((a->dcs_dbProfitTimeRatio < MIN_PROFIT_TIME_RATIO) &&
-        (b->dcs_dbProfitTimeRatio < MIN_PROFIT_TIME_RATIO))
-    {
-        if (a->dcs_dbProfitTimeRatio > b->dcs_dbProfitTimeRatio)
-            return 1;
-        else if (a->dcs_dbProfitTimeRatio < b->dcs_dbProfitTimeRatio)
-            return -1;
-    }
-
-    /*both are more than MIN_PROFIT_TIME_RATIO, or
-      both are less than MIN_PROFIT_TIME_RATIO and equal,
-      prefer the higher time and less average hold days*/
-    if (a->dcs_nTime > b->dcs_nTime)
-        return 1;
-    else if (a->dcs_nTime < b->dcs_nTime)
-        return -1;
-
-    if (a->dcs_dbAveYield > b->dcs_dbAveYield)
-        return 1;
-    else if (a->dcs_dbAveYield < b->dcs_dbAveYield)
-        return -1;
-
-    return 0;
-}
-
-void addToDaConcSum(da_conc_sum_t * sum, da_conc_t * conc)
-{
-#define INITIAL_FUND  1000
-    if (sum->dcs_nTime == 0)
-    {
-        sum->dcs_dbFund = INITIAL_FUND;
-    }
-
-    sum->dcs_nTime ++;
-    if (conc->dc_dbYield >= 0.0)
-        sum->dcs_nProfitTime ++;
-    else
-        sum->dcs_nLossTime ++;
-    sum->dcs_dbProfitTimeRatio = (oldouble_t)sum->dcs_nProfitTime * 100 / (oldouble_t)sum->dcs_nTime;
-
-    sum->dcs_nHoldDays += conc->dc_nHoldDays;
-    sum->dcs_nAveHoldDays = sum->dcs_nHoldDays / sum->dcs_nTime;
-
-    sum->dcs_dbFund *= 1 + conc->dc_dbYield / 100;
-    sum->dcs_dbOverallYield = (sum->dcs_dbFund - INITIAL_FUND) * 100 / INITIAL_FUND;
-    sum->dcs_dbAveYield = sum->dcs_dbOverallYield / sum->dcs_nTime;
-}
-
-void printDaConcSumVerbose(da_conc_sum_t * sum)
-{
-    jf_clieng_caption_t * pcc = &ls_ccDaConcSumVerbose[0];
-    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-
-    jf_clieng_printDivider();
-
-    /*Time*/
-    ol_sprintf(strLeft, "%d", sum->dcs_nTime);
-    ol_sprintf(strRight, "%.2f%%", sum->dcs_dbProfitTimeRatio);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /*ProfitTime*/
-    ol_sprintf(strLeft, "%d", sum->dcs_nProfitTime);
-    ol_sprintf(strRight, "%d", sum->dcs_nLossTime);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /*OverallYield*/
-    ol_sprintf(strLeft, "%.2f%%", sum->dcs_dbOverallYield);
-    ol_sprintf(strRight, "%.2f%%", sum->dcs_dbAveYield);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
-
-    /*HoldDays*/
-    ol_sprintf(strLeft, "%d", sum->dcs_nHoldDays);
-    ol_sprintf(strRight, "%d", sum->dcs_nAveHoldDays);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
 }
 
 quo_entry_t * getQuoEntryWithHighestPrice(

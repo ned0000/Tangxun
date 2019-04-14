@@ -217,41 +217,6 @@ typedef struct
 
 typedef struct
 {
-#define CONC_POSITION_SHORT  0
-#define CONC_POSITION_FULL   1
-	olint_t dc_nPosition;
-#define CONC_ACTION_NONE      0
-#define CONC_ACTION_BULL_OPENING   1
-#define CONC_ACTION_BULL_CLOSEOUT  2
-#define CONC_ACTION_BEAR_OPENING   3
-#define CONC_ACTION_BEAR_CLOSEOUT  4
-	olint_t dc_nAction;
-	oldouble_t dc_dbPrice;
-	oldouble_t dc_dbYield;
-
-    da_day_summary_t * dc_pddsOpening;
-    da_day_summary_t * dc_pddsCloseout;
-    olint_t dc_nHoldDays; /*days with stock in hand*/
-} da_conc_t;
-
-typedef struct
-{
-    olint_t dcs_nTime;
-    olint_t dcs_nProfitTime;
-    olint_t dcs_nLossTime;
-#define MIN_PROFIT_TIME_RATIO  80
-    oldouble_t dcs_dbProfitTimeRatio;
-
-    olint_t dcs_nHoldDays;
-    olint_t dcs_nAveHoldDays;
-
-    oldouble_t dcs_dbFund;
-    oldouble_t dcs_dbOverallYield;
-    oldouble_t dcs_dbAveYield;
-} da_conc_sum_t;
-
-typedef struct
-{
     u64 qdp_u64Volume;
     oldouble_t qdp_dbPrice;
 } quo_data_price_t;
@@ -297,8 +262,6 @@ u32 parseDataFile(
 u32 readTradeDayDetail(
     olchar_t * dirpath, parse_param_t * ppp,
     da_day_result_t * buffer, olint_t * numofresult);
-
-void printTradeDayDetailVerbose(da_day_result_t * result);
 
 da_day_summary_t * getDaySummaryWithHighestClosingPrice(
     da_day_summary_t * buffer, olint_t num);
@@ -354,12 +317,7 @@ boolean_t isStraightLineMotion(
     da_day_summary_t * buffer, olint_t total, olint_t ndays);
 boolean_t isStraightHighLimitDay(da_day_summary_t * pdds);
 
-void printDaDaySummaryVerbose(da_day_summary_t * summary);
 void getStringDaySummaryStatus(da_day_summary_t * summary, olchar_t * pstr);
-
-olint_t compareDaConcSum(da_conc_sum_t * a, da_conc_sum_t * b);
-void addToDaConcSum(da_conc_sum_t * sum, da_conc_t * conc);
-void printDaConcSumVerbose(da_conc_sum_t * sum);
 
 quo_entry_t * getQuoEntryWithHighestPrice(
     quo_entry_t * start, quo_entry_t * end);
