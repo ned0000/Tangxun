@@ -36,8 +36,7 @@ typedef struct
 
 struct da_model;
 
-typedef u32 (* fnInitDaModel_t)(struct da_model * pdm);
-typedef u32 (* fnFiniDaModel_t)(struct da_model * pdm);
+typedef u32 (* fnDestroyDaModel_t)(struct da_model ** ppdm);
 typedef u32 (* fnCanBeTradedInDaModel_t)(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_day_summary_t * buffer, olint_t total);
@@ -50,8 +49,7 @@ typedef struct da_model
     olchar_t dm_strName[8];
     olchar_t dm_strLongName[64];
 
-    fnInitDaModel_t dm_fnInitModel;
-    fnFiniDaModel_t dm_fnFiniModel;
+    fnDestroyDaModel_t dm_fnDestroyModel;
     fnCanBeTradedInDaModel_t dm_fnCanBeTraded;
     fnTradeInDaModel_t dm_fnTrade;
 
@@ -62,8 +60,8 @@ typedef struct da_model
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 initDaModel(void);
-u32 finiDaModel(void);
+u32 initDaModelFramework(void);
+u32 finiDaModelFramework(void);
 
 u32 getDaModel(const olchar_t * name, da_model_t ** ppModel);
 

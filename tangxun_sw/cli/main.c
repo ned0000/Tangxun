@@ -177,7 +177,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = initTradePersistency();
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initDaModel();
+            u32Ret = initDaModelFramework();
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = addDaCmd(ls_pdmMaster, &dcpParam);
@@ -188,6 +188,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_clieng_fini();
         finiEnvPersistency();
         finiStockList();
+        finiDaModelFramework();
         jf_jiukun_fini();
 
         jf_process_finiSocket();

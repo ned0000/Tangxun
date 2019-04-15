@@ -29,7 +29,7 @@ typedef struct da_model_roi_data
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaModelRoi(jf_listhead_t * pjl);
+u32 createDaModel(jf_listhead_t * pjl);
 
 
 

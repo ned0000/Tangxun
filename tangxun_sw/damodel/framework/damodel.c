@@ -56,7 +56,7 @@ static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 initDaModel(void)
+u32 initDaModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pos;
@@ -82,7 +82,7 @@ u32 initDaModel(void)
     return u32Ret;
 }
 
-u32 finiDaModel(void)
+u32 finiDaModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm;
@@ -91,7 +91,7 @@ u32 finiDaModel(void)
     {
         pdm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
 
-        pdm->dm_fnFiniModel(pdm);
+        pdm->dm_fnDestroyModel(&pdm);
     }
 
     return u32Ret;
