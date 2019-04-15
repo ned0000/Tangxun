@@ -76,7 +76,7 @@ typedef struct
     u8 cmp_u8Action;
     boolean_t cmp_bVerbose;
     u8 cmp_u8Reserved[14];
-    u32 cmp_u32ModelId;
+    olchar_t * cmp_pstrModelName;
     u32 cmp_u32Reserved[7];
 } cli_model_param_t;
 

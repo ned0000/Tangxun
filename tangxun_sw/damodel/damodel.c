@@ -23,26 +23,28 @@
 #include "jf_clieng.h"
 
 #include "damodel.h"
+#include "model_roi.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 static JF_LISTHEAD(ls_jlModel);
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _findModelByName(olchar_t * name, da_model_t ** model)
+
+static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pos;
-    da_model_t * pmp;
+    da_model_t * pdm;
 
     *model = NULL;
 
     jf_listhead_forEach(&ls_jlModel, pos)
     {
-        pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
-        if (strncmp(pmp->dm_strName, name, ol_strlen(pmp->dm_strName)) == 0)
+        pdm = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
+        if (strncmp(pdm->dm_strName, name, ol_strlen(pdm->dm_strName)) == 0)
         {
-            *model = pmp;
+            *model = pdm;
             break;
         }
     }
@@ -52,38 +54,14 @@ static u32 _findModelByName(olchar_t * name, da_model_t ** model)
 
     return u32Ret;
 }
-
-static u32 _findModel(da_model_id_t id, da_model_t ** model)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_listhead_t * pos;
-    da_model_t * pmp;
-
-    *model = NULL;
-
-    jf_listhead_forEach(&ls_jlModel, pos)
-    {
-        pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
-        if (pmp->dm_dmiId == id)
-        {
-            *model = pmp;
-            break;
-        }
-    }
-
-    if (*model == NULL)
-        u32Ret = JF_ERR_NOT_FOUND;
-
-    return u32Ret;
-}
-
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 initDaModel(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pos;
-    da_model_t * pmp;
+    da_model_t * pdm;
 
     if (! jf_listhead_isEmpty(&ls_jlModel))
         return u32Ret;
@@ -96,9 +74,9 @@ u32 initDaModel(void)
     {
         jf_listhead_forEach(&ls_jlModel, pos)
         {
-            pmp = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
+            pdm = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
 
-            pmp->dm_fnInitModel(pmp);
+            pdm->dm_fnInitModel(pdm);
         }
     }
 
@@ -108,19 +86,19 @@ u32 initDaModel(void)
 u32 finiDaModel(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pmp;
+    da_model_t * pdm;
 
     while (! jf_listhead_isEmpty(&ls_jlModel))
     {
-        pmp = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
+        pdm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
 
-        pmp->dm_fnFiniModel(pmp);
+        pdm->dm_fnFiniModel(pdm);
     }
 
     return u32Ret;
 }
 
-u32 getDaModelByName(olchar_t * name, da_model_t ** model)
+u32 getDaModel(const olchar_t * name, da_model_t ** ppModel)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm = NULL;
@@ -130,24 +108,30 @@ u32 getDaModelByName(olchar_t * name, da_model_t ** model)
     u32Ret = _findModelByName(name, &pdm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *model = pdm;
+        *ppModel = pdm;
     }
 
     return u32Ret;
 }
 
-u32 getDaModel(da_model_id_t id, da_model_t ** model)
+da_model_t * getFirstDaModel(void)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm = NULL;
 
-    u32Ret = _findModel(id, &pdm);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        *model = pdm;
-    }
+    if (! jf_listhead_isEmpty(&ls_jlModel))
+        pdm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
 
-    return u32Ret;
+    return pdm;
+}
+
+da_model_t * getNextDaModel(da_model_t * pdm)
+{
+    da_model_t * pNext = NULL;
+
+    if (! jf_listhead_isLast(&ls_jlModel, &pdm->dm_jlList))
+        pNext = jf_listhead_getEntry(pdm->dm_jlList.jl_pjlNext, da_model_t, dm_jlList);
+
+    return pNext;
 }
 
 /*------------------------------------------------------------------------------------------------*/

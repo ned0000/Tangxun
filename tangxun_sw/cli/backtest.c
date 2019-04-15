@@ -22,8 +22,8 @@
 #include "jf_file.h"
 #include "jf_jiukun.h"
 #include "jf_time.h"
-#include "stocklist.h"
 
+#include "stocklist.h"
 #include "clicmd.h"
 #include "parsedata.h"
 #include "indicator.h"

@@ -119,7 +119,7 @@ sw_dirs:
 .build_sw:
 	@echo "###### Building Tangxun software ######"
 	@(cd $(tangxun_sw_src_dir); make -f linux.mak)
-	@touch .build_sw
+#	@touch .build_sw
 	@echo "###### Completed making Tangxun software ######"
 
 sw_clean:

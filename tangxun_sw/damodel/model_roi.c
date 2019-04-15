@@ -16,13 +16,14 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "roi.h"
-#include "damodel.h"
 #include "jf_mem.h"
 #include "jf_clieng.h"
-#include "darule.h"
-#include "stocktrade.h"
 #include "jf_string.h"
+
+#include "darule.h"
+#include "model_roi.h"
+#include "damodel.h"
+#include "stocktrade.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,8 +32,8 @@
 #define ROI_SETTING_NAME_RIGHT_UPPER       "right_upper"
 #define ROI_SETTING_NAME_RIGHT_LOWER       "right_lower"
 
-
 /* --- private routine section ------------------------------------------------------------------ */
+
 static u32 _initDaModelRoi(da_model_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -337,9 +338,8 @@ u32 addDaModelRoi(jf_listhead_t * pjl)
     u32Ret = jf_mem_calloc((void **)&pdm, sizeof(*pdm));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pdm->dm_dmiId = DA_MODEL_ROI;
-        strcpy(pdm->dm_strName, "ROI");
-        strcpy(pdm->dm_strLongName, "rectangle_over_index");
+        ol_strcpy(pdm->dm_strName, "ROI");
+        ol_strcpy(pdm->dm_strLongName, "rectangle_over_index");
         pdm->dm_fnInitModel = _initDaModelRoi;
         pdm->dm_fnFiniModel = _finiDaModelRoi;
         pdm->dm_fnCanBeTraded = _canBeTradedInRoi;

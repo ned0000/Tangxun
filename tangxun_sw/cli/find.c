@@ -101,7 +101,6 @@ static u32 _throwStockIntoModel(
     stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t index, max = DA_MODEL_MAX_ID;
     da_model_t * model = NULL;
     trade_pool_stock_t tps;
     da_day_summary_t * end;
@@ -109,14 +108,10 @@ static u32 _throwStockIntoModel(
     end = buffer + num - 1;
     jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->dds_strDate);
 
-    for (index = 0; index < max; index ++)
+    model = getFirstDaModel();
+    while (model != NULL)
     {
-        u32Ret = getDaModel((da_model_id_t)index, &model);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
-        }
-
+        u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_bzero(&tps, sizeof(trade_pool_stock_t));
@@ -143,6 +138,8 @@ static u32 _throwStockIntoModel(
 
             u32Ret = insertPoolStockIntoTradePersistency(&tps);
         }
+
+        model = getNextDaModel(model);
     }
 
     return JF_ERR_NO_ERROR; //u32Ret;

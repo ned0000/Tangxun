@@ -28,12 +28,6 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-typedef enum da_model_id
-{
-    DA_MODEL_ROI = 0,
-    DA_MODEL_MAX_ID,
-} da_model_id_t;
-
 typedef struct
 {
     oldouble_t dmtd_dbFund;
@@ -53,7 +47,6 @@ typedef u32 (* fnTradeInDaModel_t)(
 
 typedef struct da_model
 {
-    da_model_id_t dm_dmiId;
     olchar_t dm_strName[8];
     olchar_t dm_strLongName[64];
 
@@ -72,13 +65,10 @@ typedef struct da_model
 u32 initDaModel(void);
 u32 finiDaModel(void);
 
-u32 getDaModel(da_model_id_t id, da_model_t ** model);
-u32 getDaModelByName(olchar_t * name, da_model_t ** model);
+u32 getDaModel(const olchar_t * name, da_model_t ** ppModel);
 
-/* ROI model*/
-u32 addDaModelRoi(jf_listhead_t * pjl);
-
-
+da_model_t * getFirstDaModel(void);
+da_model_t * getNextDaModel(da_model_t * pdm);
 
 #endif /*TANGXUN_DAMODEL_H*/
 

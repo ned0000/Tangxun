@@ -29,6 +29,9 @@ typedef struct da_model_roi_data
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+u32 addDaModelRoi(jf_listhead_t * pjl);
+
+
 
 #endif /*TANGXUN_DAMODEL_ROI_H*/
 

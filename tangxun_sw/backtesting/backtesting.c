@@ -61,7 +61,6 @@ static u32 _backtestingFindAndTradeStockInModel(
     stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t index, max = DA_MODEL_MAX_ID;
     da_model_t * model = NULL;
     da_day_summary_t * end;
     trade_pool_stock_t tps;
@@ -73,14 +72,14 @@ static u32 _backtestingFindAndTradeStockInModel(
     jf_logger_logInfoMsg(
         "throw stock into model, total: %d, last day: %s", num, end->dds_strDate);
 
-    for (index = 0; index < max; index ++)
+    model = getFirstDaModel();
+    while (model != NULL)
     {
-        u32Ret = getDaModel((da_model_id_t)index, &model);
-        if (u32Ret == JF_ERR_NO_ERROR)
+        if ((pbp->bp_pstrModel != NULL) &&
+            ol_strcmp(model->dm_strName, pbp->bp_pstrModel) != 0)
         {
-            if ((pbp->bp_pstrModel != NULL) &&
-                ol_strcmp(model->dm_strName, pbp->bp_pstrModel) != 0)
-                continue;
+            model = getNextDaModel(model);
+            continue;
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -159,6 +158,8 @@ static u32 _backtestingFindAndTradeStockInModel(
                 }
             }
         }
+
+        model = getNextDaModel(model);
     }
 
     return u32Ret;
@@ -471,21 +472,20 @@ static u32 _backtestingFindStockInModelDayByDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t index, max = DA_MODEL_MAX_ID;
     da_model_t * model = NULL;
     trade_pool_stock_t tps;
 
     if (num == 0)
         return u32Ret;
 
-    for (index = 0; index < max; index ++)
+    model = getFirstDaModel();
+    while (model != NULL)
     {
-        u32Ret = getDaModel((da_model_id_t)index, &model);
-        if (u32Ret == JF_ERR_NO_ERROR)
+        if ((pbp->bp_pstrModel != NULL) &&
+            ol_strcmp(model->dm_strName, pbp->bp_pstrModel) != 0)
         {
-            if ((pbp->bp_pstrModel != NULL) &&
-                ol_strcmp(model->dm_strName, pbp->bp_pstrModel) != 0)
-                continue;
+            model = getNextDaModel(model);
+            continue;
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -508,6 +508,8 @@ static u32 _backtestingFindStockInModelDayByDay(
                 }
             }
         }
+
+        model = getNextDaModel(model);
     }
 
     return u32Ret;
@@ -626,7 +628,7 @@ static u32 _backtestingSellStockDayByDay(
     {
         pStock = ptpsOp[index];
 
-        u32Ret = getDaModelByName(pStock->tps_strModel, &model);
+        u32Ret = getDaModel(pStock->tps_strModel, &model);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = getStockInfo(pStock->tps_strStock, &stockinfo);
@@ -739,7 +741,7 @@ static u32 _backtestingBuyStockDayByDay(
     {
         pStock = ptpsOp[index];
 
-        u32Ret = getDaModelByName(pStock->tps_strModel, &model);
+        u32Ret = getDaModel(pStock->tps_strModel, &model);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = getStockInfo(pStock->tps_strStock, &stockinfo);
@@ -903,7 +905,7 @@ u32 backtestingModel(backtesting_param_t * pbp, backtesting_result_t * pbr)
     {
         assert(pbp->bp_pstrModel != NULL);
 
-        u32Ret = getDaModelByName(pbp->bp_pstrModel, &model);
+        u32Ret = getDaModel(pbp->bp_pstrModel, &model);
         if (u32Ret != JF_ERR_NO_ERROR)
             u32Ret = JF_ERR_INVALID_PARAM;
     }

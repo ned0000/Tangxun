@@ -24,23 +24,25 @@
 #include "damodel.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-static jf_clieng_caption_t ls_ccDaModelBrief[] =
+
+static jf_clieng_caption_t ls_jccDaModelBrief[] =
 {
     {"Id", 3},
     {"Name", 9},
     {"LongName", 65},
 };
 
-
 /* --- private routine section ------------------------------------------------------------------ */
+
 static u32 _modelHelp(da_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputRawLine2("\
 Model\n\
-model [-m model] [-v] [-h]");
-    jf_clieng_outputRawLine2("  -m: specify the model to show modol information.");
+model [-m model-name] [-v] [-h]");
+    jf_clieng_outputRawLine2("\
+  -m: specify the model name to show model information.");
     jf_clieng_outputRawLine2("\
   -v: verbose.\n\
   -h: show this help information.\n\
@@ -49,15 +51,15 @@ model [-m model] [-v] [-h]");
     return u32Ret;
 }
 
-static void _printOneDaModelBrief(da_model_t * model)
+static void _printOneDaModelBrief(int modelid, da_model_t * model)
 {
-    jf_clieng_caption_t * pcc = &ls_ccDaModelBrief[0];
+    jf_clieng_caption_t * pcc = &ls_jccDaModelBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
 
     /* Id */
-    ol_sprintf(strField, "%d", model->dm_dmiId);
+    ol_sprintf(strField, "%d", modelid);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -75,22 +77,22 @@ static void _printOneDaModelBrief(da_model_t * model)
 static u32 _printAllDaModelBrief(cli_model_param_t * pcmp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_id_t modelid;
+    int modelid = 1;
     da_model_t * pdm;
 
     jf_clieng_printDivider();
 
     jf_clieng_printHeader(
-        ls_ccDaModelBrief,
-        sizeof(ls_ccDaModelBrief) / sizeof(jf_clieng_caption_t));
+        ls_jccDaModelBrief,
+        sizeof(ls_jccDaModelBrief) / sizeof(jf_clieng_caption_t));
 
-    for (modelid = 0; modelid < DA_MODEL_MAX_ID; modelid ++)
+    pdm = getFirstDaModel();
+    while (pdm != NULL)
     {
-        u32Ret = getDaModel(modelid, &pdm);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            _printOneDaModelBrief(pdm);
-        }
+        _printOneDaModelBrief(modelid, pdm);
+        modelid ++;
+
+        pdm = getNextDaModel(pdm);
     }
     jf_clieng_outputLine("");
 
@@ -118,22 +120,23 @@ static u32 _printDaModel(cli_model_param_t * pcmp)
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * pdm;
 
-    u32Ret = getDaModel((da_model_id_t)pcmp->cmp_u32ModelId, &pdm);
+    u32Ret = getDaModel(pcmp->cmp_pstrModelName, &pdm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_clieng_printDivider();
 
         jf_clieng_printHeader(
-            ls_ccDaModelBrief,
-            sizeof(ls_ccDaModelBrief) / sizeof(jf_clieng_caption_t));
+            ls_jccDaModelBrief,
+            sizeof(ls_jccDaModelBrief) / sizeof(jf_clieng_caption_t));
 
-        _printOneDaModelBrief(pdm);
+        _printOneDaModelBrief(1, pdm);
     }
 
     return u32Ret;
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 processModel(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -182,14 +185,7 @@ u32 parseModel(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
         switch (nOpt)
         {
         case 'm':
-            pcmp->cmp_u8Action = CLI_ACTION_MODEL_LIST;
-            u32Ret = jf_string_getU32FromString(
-                optarg, ol_strlen(optarg), &pcmp->cmp_u32ModelId);
-            if (u32Ret != JF_ERR_NO_ERROR)
-            {
-                jf_clieng_reportInvalidOpt('m');
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            pcmp->cmp_pstrModelName = (olchar_t *)optarg;
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
