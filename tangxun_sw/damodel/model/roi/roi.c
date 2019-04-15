@@ -21,7 +21,7 @@
 #include "jf_string.h"
 
 #include "darule.h"
-#include "model_roi.h"
+#include "roi.h"
 #include "damodel.h"
 #include "stocktrade.h"
 

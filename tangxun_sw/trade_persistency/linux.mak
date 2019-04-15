@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = trade_persistency
+SONAME = datrade_persistency
 
 # Source files
 SOURCES = sqlitepersistency.c trade_persistency.c 

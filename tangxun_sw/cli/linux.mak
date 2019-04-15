@@ -34,7 +34,7 @@ EXTRA_OBJECTS = ../jtk/inc/jf_mem.o ../jtk/inc/jf_time.o
 EXTRA_LIB_DIR = -L../jtk/lib
 EXTRA_LIBS = -ljf_logger -ljf_files -ljf_clieng -ljf_string -ljf_ifmgmt \
     -ljf_network -ljf_httpparser -ljf_jiukun -ljf_matrix -ljf_persistency \
-    -ltradehelper -ldarule -ldamodel -ltrade_persistency -lbacktesting \
+    -ldatradehelper -ldarule -ldamodel -ldatrade_persistency -ldabacktesting \
     -lm -lsqlite3
 
 include $(TOPDIR)/mak/lnxexe.mak

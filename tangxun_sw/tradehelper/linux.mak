@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = tradehelper
+SONAME = datradehelper
 
 # Source files
 SOURCES = tradehelper.c
@@ -27,7 +27,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -ljf_logger -ldamodel -ltrade_persistency
+EXTRA_LIBS = -ljf_logger -ldamodel -ldatrade_persistency
 
 include $(TOPDIR)/mak/lnxlib.mak
 

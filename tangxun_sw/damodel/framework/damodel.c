@@ -23,7 +23,6 @@
 #include "jf_clieng.h"
 
 #include "damodel.h"
-#include "model_roi.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -67,7 +66,7 @@ u32 initDaModel(void)
         return u32Ret;
 
     jf_logger_logInfoMsg("init da model");
-
+#if 0
     u32Ret = addDaModelRoi(&ls_jlModel);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -79,7 +78,7 @@ u32 initDaModel(void)
             pdm->dm_fnInitModel(pdm);
         }
     }
-
+#endif
     return u32Ret;
 }
 
