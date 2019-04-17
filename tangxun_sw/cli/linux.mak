@@ -25,12 +25,12 @@ JIUTAI_SRCS = stocklist.c parsedata.c fixdata.c datastat.c regression.c \
 
 
 # For code complile
-EXTRA_INC_DIR = -I../jtk/inc
 EXTRA_CFLAGS =
+EXTRA_INC_DIR = -I$(TOPDIR)/jtk/inc
+EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_mem.o $(TOPDIR)/jtk/inc/jf_time.o
 
 # For executable file build 
 EXTRA_LDFLAGS = 
-EXTRA_OBJECTS = ../jtk/inc/jf_mem.o ../jtk/inc/jf_time.o
 EXTRA_LIB_DIR = -L../jtk/lib
 EXTRA_LIBS = -ljf_logger -ljf_files -ljf_clieng -ljf_string -ljf_ifmgmt \
     -ljf_network -ljf_httpparser -ljf_jiukun -ljf_matrix -ljf_persistency \

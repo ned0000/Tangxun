@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for model roi library
+#  @brief The Makefile for model roi
 #
 #  @author Min Zhang
 #

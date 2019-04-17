@@ -23,8 +23,13 @@
 #include "jf_clieng.h"
 
 #include "damodel.h"
+#include "model_manager.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
+/** The directory includes library which contain model 
+ */
+#define MODEL_LIB_DIR "../lib/model"
 
 static JF_LISTHEAD(ls_jlModel);
 
@@ -59,40 +64,19 @@ static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
 u32 initDaModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_listhead_t * pos;
-    da_model_t * pdm;
 
-    if (! jf_listhead_isEmpty(&ls_jlModel))
-        return u32Ret;
+    jf_logger_logInfoMsg("init da model framework");
 
-    jf_logger_logInfoMsg("init da model");
-#if 0
-    u32Ret = addDaModelRoi(&ls_jlModel);
+    u32Ret = addDaModel(&ls_jlModel, MODEL_LIB_DIR);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        jf_listhead_forEach(&ls_jlModel, pos)
-        {
-            pdm = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
-
-            pdm->dm_fnInitModel(pdm);
-        }
-    }
-#endif
     return u32Ret;
 }
 
 u32 finiDaModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm;
 
-    while (! jf_listhead_isEmpty(&ls_jlModel))
-    {
-        pdm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
-
-        pdm->dm_fnDestroyModel(&pdm);
-    }
+    u32Ret = removeDaModel(&ls_jlModel);
 
     return u32Ret;
 }

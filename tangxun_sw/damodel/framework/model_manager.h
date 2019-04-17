@@ -1,38 +1,33 @@
 /**
- *  @file roi.h
+ *  @file template.h
  *
- *  @brief Roi header file
+ *  @brief template header file
  *
  *  @author Min Zhang
  *
  *  @note
- *  
  */
 
-#ifndef TANGXUN_DAMODEL_ROI_H
-#define TANGXUN_DAMODEL_ROI_H
+#ifndef JIUFENG_TEMPLATE_H
+#define JIUFENG_TEMPLATE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-
-#include "damodel.h"
+#include "jf_listhead.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
-typedef struct da_model_roi_data
-{
-    u32 dmrd_u32Reserved[8];
-
-} da_model_roi_data_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 fillDaModel(da_model_t * pdm);
+u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir);
 
-#endif /*TANGXUN_DAMODEL_ROI_H*/
+u32 removeDaModel(jf_listhead_t * pjl);
+
+#endif /*JIUFENG_TEMPLATE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

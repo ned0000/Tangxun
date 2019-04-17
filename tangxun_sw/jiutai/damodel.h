@@ -17,6 +17,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
+#include "jf_dynlib.h"
 
 #include "stocklist.h"
 #include "parsedata.h"
@@ -36,7 +37,8 @@ typedef struct
 
 struct da_model;
 
-typedef u32 (* fnDestroyDaModel_t)(struct da_model ** ppdm);
+typedef u32 (* fnInitDaModel_t)(struct da_model * pdm);
+typedef u32 (* fnFiniDaModel_t)(struct da_model * pdm);
 typedef u32 (* fnCanBeTradedInDaModel_t)(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_day_summary_t * buffer, olint_t total);
@@ -49,11 +51,14 @@ typedef struct da_model
     olchar_t dm_strName[8];
     olchar_t dm_strLongName[64];
 
-    fnDestroyDaModel_t dm_fnDestroyModel;
+    fnInitDaModel_t dm_fnInitModel;
+    fnFiniDaModel_t dm_fnFiniModel;
     fnCanBeTradedInDaModel_t dm_fnCanBeTraded;
     fnTradeInDaModel_t dm_fnTrade;
 
     void * dm_pData;
+
+    jf_dynlib_t * dm_pjdLib;
 
     jf_listhead_t dm_jlList;
 } da_model_t;

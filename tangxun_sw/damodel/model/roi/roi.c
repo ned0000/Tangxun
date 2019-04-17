@@ -34,17 +34,27 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _destroyDaModelRoi(da_model_t ** ppdm)
+static u32 _initDaModelRoi(da_model_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = *ppdm;
+    da_model_roi_data_t * pdmrd = NULL;
+
+    u32Ret = jf_mem_calloc((void **)&pdmrd, sizeof(*pdmrd));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+
+        pdm->dm_pData = pdmrd;
+    }
+    
+    return u32Ret;
+}
+
+static u32 _finiDaModelRoi(da_model_t * pdm)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pdm->dm_pData != NULL)
         jf_mem_free((void **)&pdm->dm_pData);
-
-    jf_listhead_del(&pdm->dm_jlList);
-
-    jf_mem_free((void **)ppdm);
 
     return u32Ret;
 }
@@ -316,37 +326,17 @@ static u32 _tradeInRoi(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 createDaModel(jf_listhead_t * pjl)
+u32 fillDaModel(da_model_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = NULL;
-    da_model_roi_data_t * pdmrd = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&pdm, sizeof(*pdm));
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_strcpy(pdm->dm_strName, "ROI");
-        ol_strcpy(pdm->dm_strLongName, "rectangle_over_index");
-        pdm->dm_fnDestroyModel = _destroyDaModelRoi;
-        pdm->dm_fnCanBeTraded = _canBeTradedInRoi;
-        pdm->dm_fnTrade = _tradeInRoi;
+    ol_strcpy(pdm->dm_strName, "ROI");
+    ol_strcpy(pdm->dm_strLongName, "rectangle_over_index");
+    pdm->dm_fnInitModel = _initDaModelRoi;
+    pdm->dm_fnFiniModel = _finiDaModelRoi;
+    pdm->dm_fnCanBeTraded = _canBeTradedInRoi;
+    pdm->dm_fnTrade = _tradeInRoi;
 
-        jf_listhead_add(pjl, &pdm->dm_jlList);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_mem_calloc((void **)&pdmrd, sizeof(*pdmrd));
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-
-        pdm->dm_pData = pdmrd;
-    }
-    else if (pdm != NULL)
-    {
-        _destroyDaModelRoi(&pdm);
-    }
-    
     return u32Ret;
 }
 

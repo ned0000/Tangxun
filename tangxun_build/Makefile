@@ -15,6 +15,7 @@ TODAY_DATE := $(shell date +%Y%m%d)
 build_dir = ./tangxun
 build_dir_bin = $(build_dir)/bin
 build_dir_lib = $(build_dir)/lib
+build_dir_lib_model = $(build_dir)/lib/model
 build_dir_config = $(build_dir)/config
 build_dir_script = $(build_dir)/script
 build_dir_db = $(build_dir)/db
@@ -71,6 +72,7 @@ build_dir:
 	@mkdir -p $(build_dir)
 	@mkdir -p $(build_dir_bin)
 	@mkdir -p $(build_dir_lib)
+	@mkdir -p $(build_dir_lib_model)
 	@mkdir -p $(build_dir_config)
 	@mkdir -p $(build_dir_script)
 	@mkdir -p $(build_dir_db)
@@ -110,6 +112,9 @@ sw_build: sw_dirs .build_sw
     done
 	@for i in $(tangxun_sw_lib_dir)/*; do \
         cp -af $$i $(build_dir_lib); \
+    done
+	@for i in $(build_dir_lib)/libdamodel_*; do \
+        mv $$i $(build_dir_lib_model); \
     done
 	@echo "###### Completed coping Tangxun software ######"
 
