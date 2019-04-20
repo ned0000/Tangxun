@@ -100,9 +100,9 @@ typedef struct da_adxr
 	oldouble_t da_dbAdxr;
 	oldouble_t da_dbAdxrTrend;
 /*K Chart Pattern*/
-#define KCP_UNKNOWN     0
-#define KCP_TREND       1
-#define KCP_ANTI_TREND  2
+#define KCP_UNKNOWN              (0)
+#define KCP_TREND                (1)
+#define KCP_ANTI_TREND           (2)
     olint_t da_nKcp;
 } da_adxr_t;
 
@@ -115,9 +115,9 @@ typedef struct da_adxr
  *ADXR: Average Directional Movement Index Ratio*/
 typedef struct da_dmi_param
 {
-#define DEF_DMI_DAYS  14
-#define DEF_DMI_ADX_MA_DAYS    6
-#define DEF_DMI_ADXR_TREND   25.0  /*above this, use trend system*/
+#define DEF_DMI_DAYS             (14)
+#define DEF_DMI_ADX_MA_DAYS      (6)
+#define DEF_DMI_ADXR_TREND       (25.0)  /*above this, use trend system*/
 	olint_t ddp_nDmiDays;
 	olint_t ddp_nDmiAdxMaDays;
 	oldouble_t ddp_dbAdxrTrend;
@@ -138,9 +138,9 @@ typedef struct da_dmi
 /*Moving Average Convergence / Divergence*/
 typedef struct da_macd_param
 {
-#define DEF_MACD_SHORT_DAYS  12
-#define DEF_MACD_LONG_DAYS  26
-#define DEF_MACD_M_DAYS  9
+#define DEF_MACD_SHORT_DAYS    (12)
+#define DEF_MACD_LONG_DAYS     (26)
+#define DEF_MACD_M_DAYS        (9)
 	olint_t dmp_nMacdShortDays;
 	olint_t dmp_nMacdLongDays;
     olint_t dmp_nMacdMDays;
@@ -157,8 +157,8 @@ typedef struct da_macd
 
 typedef struct da_mtm_param
 {
-#define DEF_MTM_DAYS  12
-#define DEF_MTM_MA_DAYS  6
+#define DEF_MTM_DAYS           (12)
+#define DEF_MTM_MA_DAYS        (6)
 	olint_t dmp_nMtmDays;
 	olint_t dmp_nMtmMaDays;
 } da_mtm_param_t;
@@ -171,11 +171,11 @@ typedef struct da_mtm
 
 typedef struct da_rsi_param
 {
-#define DEF_RSI1_DAYS  6
-#define DEF_RSI2_DAYS  12
-#define DEF_RSI3_DAYS  24
-#define DEF_RSI_MAX_OPENING_1  15.0 //15.0
-#define DEF_RSI_MIN_CLOSEOUT_1 85.0
+#define DEF_RSI1_DAYS          (6)
+#define DEF_RSI2_DAYS          (12)
+#define DEF_RSI3_DAYS          (24)
+#define DEF_RSI_MAX_OPENING_1  (15.0) //15.0
+#define DEF_RSI_MIN_CLOSEOUT_1 (85.0)
 	olint_t drp_nRsi1Days;
 	olint_t drp_nRsi2Days;
 	olint_t drp_nRsi3Days;
@@ -199,11 +199,11 @@ typedef struct da_rsi
 
 typedef struct da_kdj_param
 {
-#define DEF_KDJ_N_DAYS   9
-#define DEF_KDJ_M1_DAYS  3
-#define DEF_KDJ_M2_DAYS  3
-#define DEF_KDJ_MAX_OPENING_D   30.0 //20.0
-#define DEF_KDJ_MIN_CLOSEOUT_J  100.0
+#define DEF_KDJ_N_DAYS          (9)
+#define DEF_KDJ_M1_DAYS         (3)
+#define DEF_KDJ_M2_DAYS         (3)
+#define DEF_KDJ_MAX_OPENING_D   (30.0) //20.0
+#define DEF_KDJ_MIN_CLOSEOUT_J  (100.0)
 	olint_t dkp_nKdjNDays;
 	olint_t dkp_nKdjM1Days;
 	olint_t dkp_nKdjM2Days;
@@ -223,7 +223,7 @@ typedef struct da_kdj
 
 typedef struct da_asi_param
 {
-#define DEF_ASI_MA_DAYS  6
+#define DEF_ASI_MA_DAYS          (6)
 	olint_t dap_nAsiMaDays;
 } da_asi_param_t;
 
@@ -236,8 +236,8 @@ typedef struct da_asi
 
 typedef struct da_atr_param
 {
-#define DEF_ATR_DAYS     14
-#define DEF_ATR_MA_DAYS  14
+#define DEF_ATR_DAYS             (14)
+#define DEF_ATR_MA_DAYS          (14)
 	olint_t dap_nAtrDays;
 	olint_t dap_nAtrMaDays;
 } da_atr_param_t;

@@ -19,11 +19,13 @@
 #include "jf_process.h"
 #include "jf_string.h"
 #include "jf_file.h"
-#include "darule.h"
 #include "jf_clieng.h"
 #include "jf_mem.h"
 #include "jf_jiukun.h"
+#include "jf_hashtable.h"
+
 #include "envvar.h"
+#include "darule.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -50,26 +52,30 @@ static u32 _fsMinHighLimitDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 static u32 _fsMinAbnormalVolRatioDay(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
-static u32 _fsIndicatorMacd(
+static u32 _fsIndicatorMacdDiffUpBreakDea(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
 static da_rule_t ls_drDaRules[] =
 {
-    {DA_RULE_N_DAYS_UP_IN_M_DAYS, "n_days_up_in_3_days", _fsNDaysUpInMDays},
-    {DA_RULE_HIGH_LIMIT_OF_LAST_DAY, "high_limit_of_last_day", _fsHighLimitOfLastDay},
-    {DA_RULE_LOW_LIMIT_OF_LAST_DAY, "low_limit_of_last_day", _fsLowLimitOfLastDay},
-    {DA_RULE_IN_BOTTOM_AREA, "in_bottom_area", _fsInBottomArea},
-    {DA_RULE_NOT_ST, "not_st", _fsNotSt},
-    {DA_RULE_MIN_NUM_OF_DAY_SUMMARY, "min_num_of_day_summary", _fsMinNumOfDaySummary},
-    {DA_RULE_RECTANGLE, "rectangle", _fsRectangle},
-    {DA_RULE_UP_RISE_TRIANGLE, "up_rise_triangle", _fsUpRiseTriangle},
-    {DA_RULE_MIN_RAMPING_DAY, "min_ramping_day", _fsMinRampingDay},
-    {DA_RULE_MIN_HIGH_LIMIT_DAY, "min_high_limit_day", _fsMinHighLimitDay},
-    {DA_RULE_MIN_ABNORMAL_VOL_RATIO_DAY, "min_abnormal_vol_ratio_day", _fsMinAbnormalVolRatioDay},
-    {DA_RULE_INDICATOR_MACD, "indicator_macd", _fsIndicatorMacd},
+    {"nDaysUpIn3Days", _fsNDaysUpInMDays},
+    {"highLimitOfLastDay", _fsHighLimitOfLastDay},
+    {"lowLimitOfLastDay", _fsLowLimitOfLastDay},
+    {"inBottomArea", _fsInBottomArea},
+    {"notSt", _fsNotSt},
+    {"minNumOfDaySummary", _fsMinNumOfDaySummary},
+    {"rectangle", _fsRectangle},
+    {"upRiseTriangle", _fsUpRiseTriangle},
+    {"minRampingDay", _fsMinRampingDay},
+    {"minHighLimitDay", _fsMinHighLimitDay},
+    {"minAbnormalVolRatioDay", _fsMinAbnormalVolRatioDay},
+    {"indicatorMacdDiffUpBreakDea", _fsIndicatorMacdDiffUpBreakDea},
 };
 
 static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);
+
+#define MAX_DA_RULE_IN_TABLE     (100)
+
+static jf_hashtable_t * ls_pjhDaRuleTable = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -325,11 +331,11 @@ static u32 _fsRectangle(
         return u32Ret;
 
     /* 1. find the right lower point*/
-    param->drrp_pddsRectangle[RIGHT_LOWER] = inp[nump - 2];
+    param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER] = inp[nump - 2];
 
     /* 2. find the left lower point*/
-    dbHigh = param->drrp_pddsRectangle[RIGHT_LOWER]->dds_dbClosingPrice; // * (1 + param->drrp_dbPointThreshold);
-    dbLow = param->drrp_pddsRectangle[RIGHT_LOWER]->dds_dbClosingPrice * (1 - param->drrp_dbPointThreshold);
+    dbHigh = param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER]->dds_dbClosingPrice; // * (1 + param->drrp_dbPointThreshold);
+    dbLow = param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER]->dds_dbClosingPrice * (1 - param->drrp_dbPointThreshold);
     index = nump - 4;
     while (index >= 0)
     {
@@ -340,36 +346,36 @@ static u32 _fsRectangle(
         }
         if (inp[index]->dds_dbClosingPrice <= dbHigh)
         {
-            if (param->drrp_pddsRectangle[LEFT_LOWER] == NULL)
+            if (param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER] == NULL)
             {
                 leftlower = index;
-                param->drrp_pddsRectangle[LEFT_LOWER] = inp[index];
+                param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER] = inp[index];
             }
-            else if (param->drrp_pddsRectangle[LEFT_LOWER]->dds_dbClosingPrice > inp[index]->dds_dbClosingPrice)
+            else if (param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]->dds_dbClosingPrice > inp[index]->dds_dbClosingPrice)
             {
                 leftlower = index;
-                param->drrp_pddsRectangle[LEFT_LOWER] = inp[index];
+                param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER] = inp[index];
             }
         }
 
         index -= 2;
     }
-    if (param->drrp_pddsRectangle[LEFT_LOWER] == NULL)
+    if (param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER] == NULL)
         return u32Ret;
 
     /* 3. find the righ upper point*/
-    param->drrp_pddsRectangle[RIGHT_UPPER] = inp[leftlower];
+    param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER] = inp[leftlower];
     for (index = leftlower; index < nump - 2; index ++)
     {
-        if (param->drrp_pddsRectangle[RIGHT_UPPER]->dds_dbClosingPrice < inp[index]->dds_dbClosingPrice)
+        if (param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_dbClosingPrice < inp[index]->dds_dbClosingPrice)
         {
-            param->drrp_pddsRectangle[RIGHT_UPPER] = inp[index];
+            param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER] = inp[index];
         }
     }
 
     /* 4. find the left upper point*/
-    dbHigh = param->drrp_pddsRectangle[RIGHT_UPPER]->dds_dbClosingPrice * (1 + param->drrp_dbPointThreshold);
-    dbLow = param->drrp_pddsRectangle[RIGHT_UPPER]->dds_dbClosingPrice * (1 - param->drrp_dbPointThreshold);
+    dbHigh = param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_dbClosingPrice * (1 + param->drrp_dbPointThreshold);
+    dbLow = param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_dbClosingPrice * (1 - param->drrp_dbPointThreshold);
     index = leftlower - 1;
     while (index > rectangle_start)
     {
@@ -378,17 +384,17 @@ static u32 _fsRectangle(
 
         if (inp[index]->dds_dbClosingPrice >= dbLow)
         {
-            param->drrp_pddsRectangle[LEFT_UPPER] = inp[index];
+            param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER] = inp[index];
             break;
         }
 
         index -= 2;
     }
-    if (param->drrp_pddsRectangle[LEFT_UPPER] == NULL)
+    if (param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER] == NULL)
         return u32Ret;
 
     /* 5. check the number of trading days*/
-    tradedays = inp[nump - 1] - param->drrp_pddsRectangle[LEFT_UPPER];
+    tradedays = inp[nump - 1] - param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER];
     if ((tradedays < param->drrp_u32MinDays) ||
         (tradedays > param->drrp_u32MaxDays))
         return u32Ret;
@@ -396,30 +402,30 @@ static u32 _fsRectangle(
     /* 6. check the edge */
     if (param->drrp_bCheckEdge)
     {
-        if ((param->drrp_pddsRectangle[RIGHT_LOWER] - param->drrp_pddsRectangle[RIGHT_UPPER]) >
-            (param->drrp_pddsRectangle[RIGHT_UPPER] - param->drrp_pddsRectangle[LEFT_LOWER]))
+        if ((param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER] - param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]) >
+            (param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER] - param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]))
             return u32Ret;
 
-        if ((param->drrp_pddsRectangle[LEFT_LOWER] - param->drrp_pddsRectangle[LEFT_UPPER]) >
-            (param->drrp_pddsRectangle[RIGHT_UPPER] - param->drrp_pddsRectangle[LEFT_LOWER]))
+        if ((param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER] - param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER]) >
+            (param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER] - param->drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]))
             return u32Ret;
     }
 
     /* 7. below pressure area */
     if (param->drrp_bBelowPressureArea)
     {
-        /*use the lower between LEFT_UPPER and RIGHT_UPPER*/
-        lower = param->drrp_pddsRectangle[LEFT_UPPER];
+        /*use the lower between RECTANGLE_LEFT_UPPER and RECTANGLE_RIGHT_UPPER*/
+        lower = param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER];
         if (lower->dds_dbClosingPrice >
-            param->drrp_pddsRectangle[RIGHT_UPPER]->dds_dbClosingPrice)
-            lower = param->drrp_pddsRectangle[RIGHT_UPPER];
+            param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_dbClosingPrice)
+            lower = param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER];
 
         dbLow = lower->dds_dbClosingPrice * (1 - param->drrp_dbPressureArea);
         end = buffer + total - 1;
         /*the last day may not be with the highest closing price*/
         high = getDaySummaryWithHighestClosingPrice(
-            param->drrp_pddsRectangle[RIGHT_LOWER],
-            end - param->drrp_pddsRectangle[RIGHT_LOWER] + 1);
+            param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER],
+            end - param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER] + 1);
         if (high->dds_dbClosingPrice >= dbLow)
             return u32Ret;
     }
@@ -457,17 +463,47 @@ static u32 _fsUpRiseTriangle(
     return u32Ret;
 }
 
-static u32 _fsIndicatorMacd(
+static u32 _fsIndicatorMacdDiffUpBreakDea(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_rule_indicator_macd_param_t * param = (da_rule_indicator_macd_param_t *)pdrp;
+    da_rule_indicator_macd_diff_up_break_dea_param_t * param =
+        (da_rule_indicator_macd_diff_up_break_dea_param_t *)pdrp;
 
     jf_logger_logInfoMsg("rule indi macd, %s", stockinfo->si_strCode);
 
-    if (total < param->drimp_nMacdLongDays)
+    if (total < param->drimdubdp_nMacdLongDays)
         return u32Ret;
 
+    return u32Ret;
+}
+
+static olint_t _fnDaRuleCmpKeys(void * pKey1, void * pKey2)
+{
+    olchar_t * pstrKey1 = (olchar_t *)pKey1;
+    olchar_t * pstrKey2 = (olchar_t *)pKey2;
+
+    return ol_strcmp(pstrKey1, pstrKey2);
+}
+
+static void * _fnDaRuleGetKeyFromEntry(void * pEntry)
+{
+    da_rule_t * rule = (da_rule_t *)pEntry;
+
+    return rule->dr_pstrName;
+}
+
+static u32 _addDaRule(jf_hashtable_t * pTable, da_rule_t * ls_drDaRules, u32 u32NumOfRules)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Index;
+
+    for (u32Index = 0; (u32Index < u32NumOfRules) && (u32Ret == JF_ERR_NO_ERROR); u32Index ++)
+    {
+        u32Ret = jf_hashtable_insertEntry(pTable, &ls_drDaRules[u32Index]);
+    }
+
+    
     return u32Ret;
 }
 
@@ -482,46 +518,15 @@ u32 getAllDaRules(da_rule_t ** ppRule)
     return u32Ret;
 }
 
-u32 getDaRule(da_ruld_id_t id, da_rule_t ** ppRule)
+u32 getDaRule(char * name, da_rule_t ** ppRule)
 {
-    u32 u32Ret = JF_ERR_NOT_FOUND;
-    u32 index = 0;
-    da_rule_t * pRule = ls_drDaRules;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    *ppRule = NULL;
-    for (index = 0; index < ls_u32NumOfRules; index ++)
-    {
-        if (pRule->dr_driId == id)
-        {
-            *ppRule = pRule;
-            u32Ret = JF_ERR_NO_ERROR;
-            break;
-        }
+    if (ls_pjhDaRuleTable == NULL)
+        u32Ret = JF_ERR_NOT_INITIALIZED;
 
-        pRule ++;
-    }
-
-    return u32Ret;    
-}
-
-u32 getDaRuleByDesc(char * desc, da_rule_t ** ppRule)
-{
-    u32 u32Ret = JF_ERR_NOT_FOUND;
-    u32 index = 0;
-    da_rule_t * pRule = ls_drDaRules;
-
-    *ppRule = NULL;
-    for (index = 0; index < ls_u32NumOfRules; index ++)
-    {
-        if (strcmp(pRule->dr_pstrDesc, desc) == 0)
-        {
-            *ppRule = pRule;
-            u32Ret = JF_ERR_NO_ERROR;
-            break;
-        }
-
-        pRule ++;
-    }
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_hashtable_getEntry(ls_pjhDaRuleTable, name, (void **)ppRule);
 
     return u32Ret;    
 }
@@ -529,6 +534,49 @@ u32 getDaRuleByDesc(char * desc, da_rule_t ** ppRule)
 u32 getNumOfDaRules(void)
 {
     return ls_u32NumOfRules;
+}
+
+da_rule_t * getFirstDaRule(void)
+{
+    return &ls_drDaRules[0];
+}
+
+da_rule_t * getNextDaRule(da_rule_t * pRule)
+{
+    if (pRule - ls_drDaRules + 1 < ls_u32NumOfRules)
+        return pRule + 1;
+
+    return NULL;
+}
+
+u32 initDaRule(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_hashtable_create_param_t jhcp;
+
+    ol_bzero(&jhcp, sizeof(jhcp));
+    jhcp.jhcp_u32MinSize = MAX_DA_RULE_IN_TABLE;
+    jhcp.jhcp_fnCmpKeys = _fnDaRuleCmpKeys;
+    jhcp.jhcp_fnHashKey = jf_hashtable_hashPJW;
+    jhcp.jhcp_fnGetKeyFromEntry = _fnDaRuleGetKeyFromEntry;
+    
+    u32Ret = jf_hashtable_create(&ls_pjhDaRuleTable, &jhcp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = _addDaRule(ls_pjhDaRuleTable, ls_drDaRules, ls_u32NumOfRules);
+    }
+
+    return u32Ret;
+}
+
+u32 finiDaRule(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_pjhDaRuleTable != NULL)
+        jf_hashtable_destroy(&ls_pjhDaRuleTable);
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

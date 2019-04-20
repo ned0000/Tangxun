@@ -217,7 +217,7 @@ typedef struct
     u8 crp_u8Action;
     boolean_t crp_bVerbose;
     u8 crp_u8Reserved[14];
-    u32 crp_u32RuleId;
+    olchar_t * crp_pstrRuleName;
 } cli_rule_param_t;
 
 typedef struct

@@ -15,27 +15,15 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
+
 #include "parsedata.h"
 #include "stocklist.h"
+#include "indicator.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
-typedef enum da_ruld_id
-{
-    DA_RULE_N_DAYS_UP_IN_M_DAYS = 0, /*n days up in m days*/
-    DA_RULE_HIGH_LIMIT_OF_LAST_DAY,
-    DA_RULE_LOW_LIMIT_OF_LAST_DAY,
-    DA_RULE_IN_BOTTOM_AREA,
-    DA_RULE_NOT_ST,
-    DA_RULE_MIN_NUM_OF_DAY_SUMMARY,
-    DA_RULE_RECTANGLE,
-    DA_RULE_UP_RISE_TRIANGLE,
-    DA_RULE_MIN_RAMPING_DAY,
-    DA_RULE_MIN_HIGH_LIMIT_DAY,
-    DA_RULE_MIN_ABNORMAL_VOL_RATIO_DAY,
-    DA_RULE_ONE_HIGH_HIGH_LIMIT_DAY,
-    DA_RULE_INDICATOR_MACD,
-} da_ruld_id_t;
+
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -103,10 +91,10 @@ typedef struct
 #define RECTANGLE_PRESSURE_AREA       (0.03)
     double drrp_dbPressureArea; /*rectangle pressure area*/
 /* OUT */
-#define LEFT_UPPER    (0)
-#define LEFT_LOWER    (1)
-#define RIGHT_UPPER   (2)
-#define RIGHT_LOWER   (3)
+#define RECTANGLE_LEFT_UPPER    (0)
+#define RECTANGLE_LEFT_LOWER    (1)
+#define RECTANGLE_RIGHT_UPPER   (2)
+#define RECTANGLE_RIGHT_LOWER   (3)
     da_day_summary_t * drrp_pddsRectangle[4];
 } da_rule_rectangle_param_t;
 
@@ -143,10 +131,13 @@ typedef struct
 
 typedef struct
 {
-    olint_t drimp_nMacdShortDays;
-    olint_t drimp_nMacdLongDays;
-    olint_t drimp_nMacdMDays;
-} da_rule_indicator_macd_param_t;
+#define INDICATOR_MACD_SHORT_DAYS   (DEF_MACD_SHORT_DAYS)
+    olint_t drimdubdp_nMacdShortDays;
+#define INDICATOR_MACD_LONG_DAYS    (DEF_MACD_LONG_DAYS)    
+    olint_t drimdubdp_nMacdLongDays;
+#define INDICATOR_MACD_M_DAYS       (DEF_MACD_M_DAYS)
+    olint_t drimdubdp_nMacdMDays;
+} da_rule_indicator_macd_diff_up_break_dea_param_t;
 
 typedef union
 {
@@ -161,7 +152,7 @@ typedef union
     da_rule_min_ramping_day_param_t drp_drmrdpMinRampingDay;
     da_rule_min_high_limit_day_param_t drp_drmhldpMinHighLimitDay;
     da_rule_min_abnormal_vol_ratio_day_param_t drp_drmavrdpAbnormalVolRatioDay;
-    da_rule_indicator_macd_param_t drp_drimpIndicatorMacd;
+    da_rule_indicator_macd_diff_up_break_dea_param_t drp_drimpdubdpIndicatorMacdDiffUpBreakDea;
 } da_rule_param_t;
 
 typedef u32 (* fnExecStocksRule_t)(
@@ -169,8 +160,7 @@ typedef u32 (* fnExecStocksRule_t)(
 
 typedef struct
 {
-    da_ruld_id_t dr_driId;
-    char * dr_pstrDesc;
+    char * dr_pstrName;
     fnExecStocksRule_t dr_fnExecRule;
 } da_rule_t;
 
@@ -180,11 +170,17 @@ u32 getNumOfDaRules(void);
 
 u32 getAllDaRules(da_rule_t ** ppRule);
 
-u32 getDaRule(da_ruld_id_t id, da_rule_t ** ppRule);
+da_rule_t * getFirstDaRule(void);
 
-u32 getDaRuleByDesc(char * desc, da_rule_t ** ppRule);
+da_rule_t * getNextDaRule(da_rule_t * pRule);
+
+u32 getDaRule(char * name, da_rule_t ** ppRule);
 
 void printDaRuleBrief(da_rule_t * pRule, u32 num);
+
+u32 initDaRule(void);
+
+u32 finiDaRule(void);
 
 #endif /*TANGXUN_DARULE_H*/
 

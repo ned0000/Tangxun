@@ -39,6 +39,7 @@
 #include "damodel.h"
 #include "clicmd.h"
 #include "main.h"
+#include "darule.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 da_master_t * ls_pdmMaster = NULL;
@@ -180,6 +181,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = initDaModelFramework();
 
         if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = initDaRule();
+
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = addDaCmd(ls_pdmMaster, &dcpParam);
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -189,6 +193,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         finiEnvPersistency();
         finiStockList();
         finiDaModelFramework();
+        finiDaRule();
         jf_jiukun_fini();
 
         jf_process_finiSocket();

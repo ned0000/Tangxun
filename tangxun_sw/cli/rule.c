@@ -31,13 +31,13 @@
 static jf_clieng_caption_t ls_ccDaRuleVerbose[] =
 {
     {"Id", JF_CLIENG_CAP_FULL_LINE},
-    {"Desc", JF_CLIENG_CAP_FULL_LINE},
+    {"Name", JF_CLIENG_CAP_FULL_LINE},
 };
 
 static jf_clieng_caption_t ls_ccDaRuleBrief[] =
 {
     {"Id", 4},
-    {"Desc", 50},
+    {"Name", 50},
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -47,8 +47,8 @@ static u32 _ruleHelp(da_master_t * pdm)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputRawLine2("\
-Manipulate basic fules\n\
-rule [-l rule-id] [-v] [-h]");
+Manipulate basic fules.\n\
+rule [-l name] [-v] [-h]");
     jf_clieng_outputRawLine2("\
   -l: list specified basic rule.");
     jf_clieng_outputRawLine2("\
@@ -59,7 +59,7 @@ rule [-l rule-id] [-v] [-h]");
     return u32Ret;
 }
 
-static void _printOneDaRuleBrief(da_rule_t * info)
+static void _printOneDaRuleBrief(u32 id, da_rule_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccDaRuleBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -67,12 +67,12 @@ static void _printOneDaRuleBrief(da_rule_t * info)
     strInfo[0] = '\0';
 
     /* Id */
-    ol_sprintf(strField, "%d", info->dr_driId);
+    ol_sprintf(strField, "%u", id);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
-    /* desc */
-    jf_clieng_appendBriefColumn(pcc, strInfo, info->dr_pstrDesc);
+    /* Name */
+    jf_clieng_appendBriefColumn(pcc, strInfo, info->dr_pstrName);
     pcc++;
 
     jf_clieng_outputLine(strInfo);
@@ -80,7 +80,7 @@ static void _printOneDaRuleBrief(da_rule_t * info)
 
 static void _printDaRuleBrief(da_rule_t * pRule, u32 num)
 {
-    u32 total = 0;
+    u32 index = 0;
     da_rule_t * pStart = pRule; 
 
     jf_clieng_printDivider();
@@ -89,9 +89,9 @@ static void _printDaRuleBrief(da_rule_t * pRule, u32 num)
         ls_ccDaRuleBrief,
         sizeof(ls_ccDaRuleBrief) / sizeof(jf_clieng_caption_t));
 
-    for (total = 0; total < num; total ++)
+    for (index = 0; index < num; index ++)
     {
-        _printOneDaRuleBrief(pStart);
+        _printOneDaRuleBrief(index + 1, pStart);
         pStart ++;
     }
 
@@ -99,7 +99,7 @@ static void _printDaRuleBrief(da_rule_t * pRule, u32 num)
     jf_clieng_outputLine("Total %u rules\n", num);
 }
 
-static void _printOneDaRuleVerbose(da_rule_t * rule)
+static void _printOneDaRuleVerbose(u32 id, da_rule_t * rule)
 {
     jf_clieng_caption_t * pcc = &ls_ccDaRuleVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -107,23 +107,23 @@ static void _printOneDaRuleVerbose(da_rule_t * rule)
     jf_clieng_printDivider();
 
     /*Id*/
-    ol_sprintf(strLeft, "%d", rule->dr_driId);
+    ol_sprintf(strLeft, "%u", id);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
-    /*Desc*/
-    jf_clieng_printOneFullLine(pcc, rule->dr_pstrDesc);
+    /*Name*/
+    jf_clieng_printOneFullLine(pcc, rule->dr_pstrName);
     pcc += 1;
 }
 
 static void _printDaRuleVerbose(da_rule_t * pRule, u32 num)
 {
-    u32 total = 0;
+    u32 index = 0;
     da_rule_t * pStart = pRule; 
 
-    for (total = 0; total < num; total ++)
+    for (index = 0; index < num; index ++)
     {
-        _printOneDaRuleVerbose(pStart);
+        _printOneDaRuleVerbose(index + 1, pStart);
         pStart ++;
     }
 
@@ -154,7 +154,7 @@ static u32 _listOneRule(cli_rule_param_t * pcrp, da_master_t * pdm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_rule_t * pRule;
 
-    u32Ret = getDaRule((da_ruld_id_t)pcrp->crp_u32RuleId, &pRule);
+    u32Ret = getDaRule(pcrp->crp_pstrRuleName, &pRule);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcrp->crp_bVerbose)
@@ -180,7 +180,7 @@ u32 processRule(void * pMaster, void * pParam)
         u32Ret = _listAllRules(pcrp, pdm);
     else if (pcrp->crp_u8Action == CLI_ACTION_RULE_LIST)
         u32Ret = _listOneRule(pcrp, pdm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (isNullEnvVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
@@ -219,13 +219,7 @@ u32 parseRule(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
         {
         case 'l':
             pcrp->crp_u8Action = CLI_ACTION_RULE_LIST;
-            u32Ret = jf_string_getU32FromString(
-                optarg, ol_strlen(optarg), &pcrp->crp_u32RuleId);
-            if (u32Ret != JF_ERR_NO_ERROR)
-            {
-                jf_clieng_reportInvalidOpt('l');
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            pcrp->crp_pstrRuleName = (char *)optarg; 
             break;
         case 'v':
             pcrp->crp_bVerbose = TRUE;

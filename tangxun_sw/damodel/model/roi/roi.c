@@ -70,7 +70,7 @@ static u32 _canBeTradedInRoi(
 
     jf_logger_logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->si_strCode, total);
 
-    u32Ret = getDaRule(DA_RULE_MIN_NUM_OF_DAY_SUMMARY, &rule);
+    u32Ret = getDaRule("minNumOfDaySummary", &rule);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bzero(&drp, sizeof(drp));
@@ -80,7 +80,7 @@ static u32 _canBeTradedInRoi(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getDaRule(DA_RULE_RECTANGLE, &rule);
+        u32Ret = getDaRule("rectangle", &rule);
 
         bzero(&drp, sizeof(drp));
         drp.drp_drrpRectangle.drrp_u32MinDays = RECTANGLE_MIN_DAYS;
@@ -101,13 +101,13 @@ static u32 _canBeTradedInRoi(
             ptps->tps_strModelParam, MAX_TRADE_MODEL_PARAM_LEN,
             "%s=%s,%s=%s,%s=%s,%s=%s",
             ROI_SETTING_NAME_LEFT_UPPER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[LEFT_UPPER]->dds_strDate,
+            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER]->dds_strDate,
             ROI_SETTING_NAME_LEFT_LOWER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[LEFT_LOWER]->dds_strDate,
+            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]->dds_strDate,
             ROI_SETTING_NAME_RIGHT_UPPER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RIGHT_UPPER]->dds_strDate,
+            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_strDate,
             ROI_SETTING_NAME_RIGHT_LOWER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RIGHT_LOWER]->dds_strDate);
+            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER]->dds_strDate);
         jf_logger_logInfoMsg(
             "can be traded in roi, setting string: %s", ptps->tps_strModelParam);
     }
