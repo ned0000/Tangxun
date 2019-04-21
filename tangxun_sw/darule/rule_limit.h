@@ -1,21 +1,23 @@
 /**
- *  @file model_manager.h
+ *  @file rule_limit.h
  *
- *  @brief The model manager header file
+ *  @brief Header file for rules related to limit
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_MANAGER_H
-#define TANGXUN_DAMODEL_MANAGER_H
+#ifndef TANGXUN_DARULE_LIMIT_H
+#define TANGXUN_DARULE_LIMIT_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_listhead.h"
+
+#include "darule.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -23,11 +25,19 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir);
+u32 daRuleHighLimitOfLastDay(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 removeDaModel(jf_listhead_t * pjl);
+u32 daRuleLowLimitOfLastDay(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-#endif /*TANGXUN_DAMODEL_MANAGER_H*/
+u32 daRuleMinHighLimitDay(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
+
+u32 daRuleNoHighHighLimitDay(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
+
+#endif /*TANGXUN_DARULE_LIMIT_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

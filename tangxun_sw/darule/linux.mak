@@ -15,7 +15,8 @@
 SONAME = darule
 
 # Source files
-SOURCES = darule.c
+SOURCES = rule_vol.c rule_vol.c rule_indi_macd.c rule_st.c rule_rectangle.c rule_limit.c \
+    rule_price.c rule_bottom.c rule_misc.c darule.c
 
 # Jiutai source files
 JIUTAI_SRCS =

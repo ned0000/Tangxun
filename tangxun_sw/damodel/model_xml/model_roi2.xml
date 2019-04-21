@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<modelSetting>
+  <name>ROI2</name>
+  <longName>rectangle_over_index_2</longName>
+  <version>1.0</version>
+  <buyRules>
+    <minNumOfDaySummary>
+      <minDays>80</minDays>
+    </minNumOfDaySummary>
+    <rectangle>
+      <minDays>40</minDays>
+      <maxDays>80</maxDays>
+      <checkEdge>true</checkEdge>
+      <belowPressureArea>true</belowPressureArea>
+      <noHighHighLimit>true</noHighHighLimit>
+      <pointThreshold>0.02</pointThreshold>
+      <pressureArea>0.03</pressureArea>
+    </rectangle>
+    <noHighHighLimitDay>
+    </noHighHighLimitDay>
+  </buyRules>
+  <sellRules>
+  </sellRules>
+</modelSetting>

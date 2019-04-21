@@ -1,21 +1,23 @@
 /**
- *  @file model_manager.h
+ *  @file rule_st.h
  *
- *  @brief The model manager header file
+ *  @brief Header file for rules related to st
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_MANAGER_H
-#define TANGXUN_DAMODEL_MANAGER_H
+#ifndef TANGXUN_DARULE_ST_H
+#define TANGXUN_DARULE_ST_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_listhead.h"
+
+#include "darule.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -23,11 +25,13 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir);
+u32 daRuleNotSt(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 removeDaModel(jf_listhead_t * pjl);
+u32 daRuleSt(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-#endif /*TANGXUN_DAMODEL_MANAGER_H*/
+#endif /*TANGXUN_DARULE_ST_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

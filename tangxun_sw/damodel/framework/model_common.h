@@ -1,21 +1,24 @@
 /**
- *  @file model_manager.h
+ *  @file model_common.h
  *
- *  @brief The model manager header file
+ *  @brief Header file for model common routines
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_MANAGER_H
-#define TANGXUN_DAMODEL_MANAGER_H
+#ifndef TANGXUN_DAMODEL_COMMON_H
+#define TANGXUN_DAMODEL_COMMON_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_listhead.h"
+
+#include "damodel.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -23,11 +26,13 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir);
+u32 destroyDaModel(da_model_t ** ppdm);
 
-u32 removeDaModel(jf_listhead_t * pjl);
+u32 createDaModel(da_model_t ** ppdm);
 
-#endif /*TANGXUN_DAMODEL_MANAGER_H*/
+u32 checkDaModelField(da_model_t * pdm);
+
+#endif /*TANGXUN_DAMODEL_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

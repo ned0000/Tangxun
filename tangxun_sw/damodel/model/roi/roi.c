@@ -75,22 +75,39 @@ static u32 _canBeTradedInRoi(
     {
         bzero(&drp, sizeof(drp));
         drp.drp_drmnodspMinDay.drmnodsp_u32MinDay = RECTANGLE_MAX_DAYS;
+
         u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = getDaRule("rectangle", &rule);
+    }
 
-        bzero(&drp, sizeof(drp));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drp, sizeof(drp));
         drp.drp_drrpRectangle.drrp_u32MinDays = RECTANGLE_MIN_DAYS;
         drp.drp_drrpRectangle.drrp_u32MaxDays = RECTANGLE_MAX_DAYS;
         drp.drp_drrpRectangle.drrp_bCheckEdge = TRUE;
         drp.drp_drrpRectangle.drrp_bBelowPressureArea = TRUE;
-        drp.drp_drrpRectangle.drrp_bNoHighHighLimit = TRUE;
         drp.drp_drrpRectangle.drrp_dbPointThreshold = RECTANGLE_POINT_THRESHOLD;
         drp.drp_drrpRectangle.drrp_dbPressureArea = RECTANGLE_PRESSURE_AREA;
+
         u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = getDaRule("noHighHighLimitDay", &rule);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drp, sizeof(drp));
+
+        u32Ret = rule->dr_fnExecRule(
+            stockinfo, end - RECTANGLE_MAX_DAYS + 1, RECTANGLE_MAX_DAYS, &drp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

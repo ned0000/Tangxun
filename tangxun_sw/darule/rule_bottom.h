@@ -1,21 +1,23 @@
 /**
- *  @file model_manager.h
+ *  @file rule_bottom.h
  *
- *  @brief The model manager header file
+ *  @brief Header file for rules related to bottom
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_MANAGER_H
-#define TANGXUN_DAMODEL_MANAGER_H
+#ifndef TANGXUN_DARULE_BOTTOM_H
+#define TANGXUN_DARULE_BOTTOM_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_listhead.h"
+
+#include "darule.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -23,11 +25,11 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir);
+u32 daRuleInBottomArea(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 removeDaModel(jf_listhead_t * pjl);
 
-#endif /*TANGXUN_DAMODEL_MANAGER_H*/
+#endif /*TANGXUN_DARULE_BOTTOM_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

@@ -15,7 +15,7 @@
 SONAME = damodel
 
 # Source files
-SOURCES = damodel.c model_manager.c
+SOURCES = model_common.c model_lib.c model_xml.c model_manager.c damodel.c
 
 # Jiutai source files
 JIUTAI_SRCS = stocktrade.c

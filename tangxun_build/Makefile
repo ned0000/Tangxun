@@ -37,6 +37,9 @@ tangxun_sw_config_files = servmgmt.setting StockList.txt
 tangxun_sw_config_sector_dir = $(tangxun_sw_config_dir)/sector
 tangxun_sw_dest_config_dir = $(build_dir_config)
 
+# Tangxun software model xml files
+tangxun_sw_model_xml_dir = $(tangxun_sw_src_dir)/damodel/model_xml/
+
 # Tangxun software db files
 tangxun_sw_db_dir = $(tangxun_sw_src_dir)/db
 tangxun_sw_db_files = tangxun.db trade.db
@@ -115,6 +118,9 @@ sw_build: sw_dirs .build_sw
     done
 	@for i in $(build_dir_lib)/libdamodel_*; do \
         mv $$i $(build_dir_lib_model); \
+    done
+	@for i in $(tangxun_sw_model_xml_dir)/model_*; do \
+        cp $$i $(build_dir_lib_model); \
     done
 	@echo "###### Completed coping Tangxun software ######"
 
