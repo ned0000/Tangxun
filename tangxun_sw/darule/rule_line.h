@@ -1,15 +1,15 @@
 /**
- *  @file rule_price.h
+ *  @file rule_line.h
  *
- *  @brief Header file for rules related to price
+ *  @brief Header file for rules related line
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef TANGXUN_DARULE_PRICE_H
-#define TANGXUN_DARULE_PRICE_H
+#ifndef TANGXUN_DARULE_LINE_H
+#define TANGXUN_DARULE_LINE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -25,19 +25,10 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 daRuleNDaysUpInMDays(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 daRuleMinRampingDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 daRuleNeedStopLoss(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
 
-u32 daRulePriceVolatility(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
-
-#endif /*TANGXUN_DARULE_PRICE_H*/
+#endif /*TANGXUN_DARULE_LINE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

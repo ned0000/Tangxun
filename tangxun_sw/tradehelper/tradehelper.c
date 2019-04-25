@@ -48,14 +48,12 @@ u32 setStockFirstTradeDate(const char * strStockPath)
     {
         ol_snprintf(
             strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-            strStockPath,
-            PATH_SEPARATOR, stockinfo->si_strCode);
+            strStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
         strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
         total = 10;
 
-        u32Ret = readTradeDaySummaryFromDate(
-            strFullname, NULL, buffer, &total);
+        u32Ret = readTradeDaySummaryFromDate(strFullname, NULL, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_strcpy(stockinfo->si_strFirstTradeDate, buffer->dds_strDate);

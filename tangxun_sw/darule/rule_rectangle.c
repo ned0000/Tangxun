@@ -36,12 +36,11 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _daRuleRectangle(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
+    da_rule_rectangle_param_t * param)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_rule_rectangle_param_t * param = (da_rule_rectangle_param_t *)pdrp;
     da_day_summary_t * inp[200];
-    da_day_summary_t * lower, * end, * high;
     int nump = 200;
     int index = 0, leftlower = 0, tradedays = 0;
     double dbHigh, dbLow;
@@ -140,25 +139,6 @@ static u32 _daRuleRectangle(
             return u32Ret;
     }
 
-    /* 7. below pressure area */
-    if (param->drrp_bBelowPressureArea)
-    {
-        /*use the lower between RECTANGLE_LEFT_UPPER and RECTANGLE_RIGHT_UPPER*/
-        lower = param->drrp_pddsRectangle[RECTANGLE_LEFT_UPPER];
-        if (lower->dds_dbClosingPrice >
-            param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_dbClosingPrice)
-            lower = param->drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER];
-
-        dbLow = lower->dds_dbClosingPrice * (1 - param->drrp_dbPressureArea);
-        end = buffer + total - 1;
-        /*the last day may not be with the highest closing price*/
-        high = getDaySummaryWithHighestClosingPrice(
-            param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER],
-            end - param->drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER] + 1);
-        if (high->dds_dbClosingPrice >= dbLow)
-            return u32Ret;
-    }
-
     jf_logger_logInfoMsg("rule rectangle is match, %s", stockinfo->si_strCode);
     return JF_ERR_NO_ERROR;
 }
@@ -169,8 +149,9 @@ u32 daRuleRectangle(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    da_rule_rectangle_param_t * param = (da_rule_rectangle_param_t *)pdrp;
 
-    u32Ret = _daRuleRectangle(stockinfo, buffer, total, pdrp);
+    u32Ret = _daRuleRectangle(stockinfo, buffer, total, param);
 
     return u32Ret;
 }

@@ -41,11 +41,11 @@ static u32 _fnHandleModelFile(
 
     if (isDaModelLibFile(strName))
     {
-        u32Ret = handleDaModelLibFile(pstrFullpath, pStat, pjl);
+        handleDaModelLibFile(pstrFullpath, pStat, pjl);
     }
     else if (isDaModelXmlFile(strName))
     {
-        u32Ret = handleDaModelXmlFile(pstrFullpath, pStat, pjl);
+        handleDaModelXmlFile(pstrFullpath, pStat, pjl);
     }
 
     return u32Ret;

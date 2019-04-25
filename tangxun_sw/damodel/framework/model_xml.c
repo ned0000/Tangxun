@@ -77,7 +77,7 @@ static u32 _handleDaModelXmlFile(
 
 boolean_t isDaModelXmlFile(const olchar_t * pstrName)
 {
-    return FALSE; //jf_file_isTypedFile(pstrName, MODEL_XML_FILE_PREFIX, MODEL_XML_FILE_EXT);
+    return jf_file_isTypedFile(pstrName, MODEL_XML_FILE_PREFIX, MODEL_XML_FILE_EXT);
 }
 
 u32 handleDaModelXmlFile(

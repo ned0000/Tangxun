@@ -57,6 +57,8 @@ static da_rule_t ls_drDaRules[] =
 /* price */
     {"nDaysUpInMDays", daRuleNDaysUpInMDays},
     {"minRampingDay", daRuleMinRampingDay},
+    {"needStopLoss", daRuleNeedStopLoss},
+    {"priceVolatility", daRulePriceVolatility},
 /* vol */
     {"minAbnormalVolRatioDay", daRuleMinAbnormalVolRatioDay},
 /* indi macd */

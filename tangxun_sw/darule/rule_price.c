@@ -110,6 +110,51 @@ u32 daRuleMinRampingDay(
     return JF_ERR_NO_ERROR;
 }
 
+u32 daRuleNeedStopLoss(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+{
+    u32 u32Ret = JF_ERR_NOT_MATCH;
+    da_rule_need_stop_loss_param_t * pdrnslp = (da_rule_need_stop_loss_param_t *)pdrp;
+    da_day_summary_t * end = buffer + total - 1;
+    oldouble_t dbPrice;
+
+    dbPrice = pdrnslp->drnslp_dbBuyPrice * (1 - pdrnslp->drnslp_dbRatio);
+    if (end->dds_dbLowPrice < dbPrice)
+    {
+        u32Ret = JF_ERR_NO_ERROR;
+        pdrnslp->drnslp_dbStopLossPrice = dbPrice;
+    }
+
+    return u32Ret;
+}
+
+u32 daRulePriceVolatility(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+{
+    u32 u32Ret = JF_ERR_NOT_MATCH;
+    da_rule_price_volatility_param_t * param = (da_rule_price_volatility_param_t *)pdrp; 
+    oldouble_t dbRatio;
+    da_day_summary_t * high, * low;
+
+    high = getDaySummaryWithHighestClosingPrice(buffer, total);
+    low = getDaySummaryWithLowestClosingPrice(buffer, total);
+
+    dbRatio = (high->dds_dbClosingPrice - low->dds_dbClosingPrice) / low->dds_dbClosingPrice;
+
+    if (param->drpvp_u8Condition == PRICE_VOLATILITY_CONDITION_GREATER_EQUAL)
+    {
+        if (dbRatio >= param->drpvp_dbVolatility)
+            u32Ret = JF_ERR_NO_ERROR;
+    }
+    else if (param->drpvp_u8Condition == PRICE_VOLATILITY_CONDITION_LESSER_EQUAL)
+    {
+        if (dbRatio <= param->drpvp_dbVolatility)
+            u32Ret = JF_ERR_NO_ERROR;
+    }
+        
+    return u32Ret;
+}
+
 /*------------------------------------------------------------------------------------------------*/
 
 

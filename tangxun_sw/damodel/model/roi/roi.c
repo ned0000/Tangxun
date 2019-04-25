@@ -66,6 +66,7 @@ static u32 _canBeTradedInRoi(
     u32 u32Ret = JF_ERR_NOT_READY;
     da_rule_t * rule;
     da_rule_param_t drp;
+    da_rule_rectangle_param_t drrp;
     da_day_summary_t * end = buffer + total - 1;
 
     jf_logger_logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->si_strCode, total);
@@ -81,24 +82,6 @@ static u32 _canBeTradedInRoi(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getDaRule("rectangle", &rule);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_bzero(&drp, sizeof(drp));
-        drp.drp_drrpRectangle.drrp_u32MinDays = RECTANGLE_MIN_DAYS;
-        drp.drp_drrpRectangle.drrp_u32MaxDays = RECTANGLE_MAX_DAYS;
-        drp.drp_drrpRectangle.drrp_bCheckEdge = TRUE;
-        drp.drp_drrpRectangle.drrp_bBelowPressureArea = TRUE;
-        drp.drp_drrpRectangle.drrp_dbPointThreshold = RECTANGLE_POINT_THRESHOLD;
-        drp.drp_drrpRectangle.drrp_dbPressureArea = RECTANGLE_PRESSURE_AREA;
-
-        u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
         u32Ret = getDaRule("noHighHighLimitDay", &rule);
     }
 
@@ -108,6 +91,38 @@ static u32 _canBeTradedInRoi(
 
         u32Ret = rule->dr_fnExecRule(
             stockinfo, end - RECTANGLE_MAX_DAYS + 1, RECTANGLE_MAX_DAYS, &drp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = getDaRule("rectangle", &rule);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drrp, sizeof(drrp));
+        drrp.drrp_u32MinDays = RECTANGLE_MIN_DAYS;
+        drrp.drrp_u32MaxDays = RECTANGLE_MAX_DAYS;
+        drrp.drrp_bCheckEdge = TRUE;
+        drrp.drrp_dbPointThreshold = RECTANGLE_POINT_THRESHOLD;
+
+        u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, (da_rule_param_t *)&drrp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = getDaRule("priceVolatility", &rule);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drp, sizeof(drp));
+        drp.drp_drpvpPriceVolatility.drpvp_u8Condition = PRICE_VOLATILITY_CONDITION_GREATER_EQUAL;
+        drp.drp_drpvpPriceVolatility.drpvp_dbVolatility = PRICE_VOLATILITY_RATIO;
+
+        u32Ret = rule->dr_fnExecRule(
+            stockinfo, drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER],
+            end - drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER] + 1, &drp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -232,46 +247,6 @@ static u32 _getRoiRectanglePoint(
     return u32Ret;
 }
 
-static boolean_t _isInPressureAreaInRoi(
-    da_day_summary_t * buffer, int total,
-    da_day_summary_t * pLeftUpper, da_day_summary_t * pRightUpper, oldouble_t * pdbPrice)
-{
-    boolean_t bRet = FALSE;
-    da_day_summary_t * highest = pLeftUpper;
-    oldouble_t dbPrice;
-    da_day_summary_t * end = buffer + total - 1;
-
-    if (highest->dds_dbClosingPrice < pRightUpper->dds_dbClosingPrice)
-        highest = pRightUpper;
-
-#define ROI_PRESSURE_THRESHOLD   (0.01)
-    dbPrice = highest->dds_dbClosingPrice * (1 - ROI_PRESSURE_THRESHOLD);
-    if (end->dds_dbHighPrice > dbPrice)
-    {
-        bRet = TRUE;
-        *pdbPrice = dbPrice;
-    }
-
-    return bRet;
-}
-
-static boolean_t _isStopLossInRoi(
-    da_day_summary_t * buffer, int total, oldouble_t dbBuyPrice, oldouble_t * pdbPrice)
-{
-    boolean_t bRet = FALSE;
-    oldouble_t dbPrice;
-    da_day_summary_t * end = buffer + total - 1;
-
-    dbPrice = dbBuyPrice * (1 - STRAIGHT_LINE_MOTION);
-    if (end->dds_dbLowPrice < dbPrice)
-    {
-        bRet = TRUE;
-        *pdbPrice = dbPrice;
-    }
-
-    return bRet;
-}
-
 static u32 _tradeTrySellInRoi(
     struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
@@ -279,7 +254,9 @@ static u32 _tradeTrySellInRoi(
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * pLeftUpper, * pLeftLower, * pRightUpper, * pRightLower;
     da_day_summary_t * end = buffer + total - 1;
+    da_rule_param_t drp;
     oldouble_t dbPrice;
+    da_rule_t * rule;
     boolean_t bSell = FALSE;
 
     jf_logger_logDebugMsg("try sell in roi, %s", stockinfo->si_strCode);
@@ -294,17 +271,47 @@ static u32 _tradeTrySellInRoi(
         ptps, buffer, total, &pLeftUpper, &pLeftLower, &pRightUpper, &pRightLower);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (_isInPressureAreaInRoi(buffer, total, pLeftUpper, pRightUpper, &dbPrice))
+        u32Ret = getDaRule("nearPressureLine", &rule);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drp, sizeof(drp));
+        drp.drp_drnplpNearPressureLine.drnplp_pddsUpperLeft = pLeftUpper;
+        drp.drp_drnplpNearPressureLine.drnplp_pddsUpperRight = pRightUpper;
+        drp.drp_drnplpNearPressureLine.drnplp_dbRatio = NEAR_PRESSURE_LINE_RATIO;
+
+        u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        dbPrice = drp.drp_drnplpNearPressureLine.drnplp_dbPrice;
+        bSell = TRUE;
+        strcpy(ptps->tps_strOpRemark, "sell out");
+    }
+    else
+    {
+        u32Ret = getDaRule("needStopLoss", &rule);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            bSell = TRUE;
-            strcpy(ptps->tps_strOpRemark, "sell out");
+            ol_bzero(&drp, sizeof(drp));
+            drp.drp_drnslpNeedStopLoss.drnslp_dbBuyPrice = ptps->tps_dbPrice;
+            drp.drp_drnslpNeedStopLoss.drnslp_dbRatio = NEED_STOP_LOSS_RATIO;
+
+            u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
         }
-        else if (_isStopLossInRoi(buffer, total, ptps->tps_dbPrice, &dbPrice))
+
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
+            dbPrice = drp.drp_drnslpNeedStopLoss.drnslp_dbStopLossPrice;
             bSell = TRUE;
             strcpy(ptps->tps_strOpRemark, "stop loss");
         }
+    }
 
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
         if (bSell)
         {
             /*sell stock*/

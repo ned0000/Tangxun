@@ -92,16 +92,15 @@ typedef struct
     u32 drrp_u32MinDays;
 #define RECTANGLE_MAX_DAYS           (2 * RECTANGLE_MIN_DAYS)
     u32 drrp_u32MaxDays;
-    boolean_t drrp_bCheckEdge; /**< check the edge, the trading days in rising edge
-                                  should be more than days in falling edge */
-    boolean_t drrp_bBelowPressureArea; /**< make sure it's below pressure area*/
-    u8 drrp_u8Reserved[5];
+    /** check the edge, the trading days in rising edge should be more than days in falling edge */
+    boolean_t drrp_bCheckEdge;
+
+    u8 drrp_u8Reserved[7];
     u32 drrp_u32Reserved[4];
+    /** rectangle point threshold, the points are treated as in the line between this threshold */
 #define RECTANGLE_POINT_THRESHOLD     (0.02)
-    double drrp_dbPointThreshold; /**< rectangle point threshold, the points are treated as
-                                    in the line between this threshold*/
-#define RECTANGLE_PRESSURE_AREA       (0.03)
-    double drrp_dbPressureArea; /*rectangle pressure area*/
+    oldouble_t drrp_dbPointThreshold;
+
 /* OUT */
 #define RECTANGLE_LEFT_UPPER    (0)
 #define RECTANGLE_LEFT_LOWER    (1)
@@ -126,17 +125,43 @@ typedef struct
     boolean_t drmrdp_bHighPrice;
     boolean_t drmrdp_bClosePrice;
     u8 drmrdp_u8Reserved[6];
-    double drmrdp_dbHighPriceRate;
-    double drmrdp_dbClosePriceRate;
+    oldouble_t drmrdp_dbHighPriceRate;
+    oldouble_t drmrdp_dbClosePriceRate;
     u32 drmrdp_u32MinHighPriceDay;
     u32 drmrdp_u32MinClosePriceDay;
 } da_rule_min_ramping_day_param_t;
+
+/** Parameter for rule "needStopLoss"
+ */
+typedef struct
+{
+/* IN */
+    oldouble_t drnslp_dbBuyPrice;
+#define NEED_STOP_LOSS_RATIO    (0.03)
+    oldouble_t drnslp_dbRatio;
+/* OUT */
+    oldouble_t drnslp_dbStopLossPrice;
+} da_rule_need_stop_loss_param_t;
+
+/** Parameter for rule "priceVolatility"
+ */
+typedef struct
+{
+    /** >= */
+#define PRICE_VOLATILITY_CONDITION_GREATER_EQUAL   (0x0)
+    /** <= */
+#define PRICE_VOLATILITY_CONDITION_LESSER_EQUAL    (0x1)
+    u8 drpvp_u8Condition;
+    u8 drpvp_u8Reserved[7];
+#define PRICE_VOLATILITY_RATIO   (0.1)
+    oldouble_t drpvp_dbVolatility;
+} da_rule_price_volatility_param_t;
 
 /** Parameter for rule "minAbnormalVolRatioDay"
  */
 typedef struct
 {
-    double drmavrdp_dbRatio;
+    oldouble_t drmavrdp_dbRatio;
     u32 drmavrdp_u32MinDay;
 } da_rule_min_abnormal_vol_ratio_day_param_t;
 
@@ -151,6 +176,19 @@ typedef struct
 #define INDI_MACD_M_DAYS       (DEF_MACD_M_DAYS)
     olint_t drimdubdp_nMacdMDays;
 } da_rule_indi_macd_diff_up_break_dea_param_t;
+
+/** Parameter for rule "nearPressureLine"
+ */
+typedef struct
+{
+/* IN */
+    da_day_summary_t * drnplp_pddsUpperLeft;
+    da_day_summary_t * drnplp_pddsUpperRight;
+#define NEAR_PRESSURE_LINE_RATIO   (0.01)
+    oldouble_t drnplp_dbRatio;
+/* OUT */
+    oldouble_t drnplp_dbPrice;
+} da_rule_near_pressure_line_param_t;
 
 typedef union
 {
@@ -170,10 +208,14 @@ typedef union
 /* price */
     da_rule_n_days_up_in_m_days_param_t drp_drnduimdpNDaysUp;
     da_rule_min_ramping_day_param_t drp_drmrdpMinRampingDay;
+    da_rule_need_stop_loss_param_t drp_drnslpNeedStopLoss;
+    da_rule_price_volatility_param_t drp_drpvpPriceVolatility;
 /* vol */
     da_rule_min_abnormal_vol_ratio_day_param_t drp_drmavrdpAbnormalVolRatioDay;
 /* indi macd */
     da_rule_indi_macd_diff_up_break_dea_param_t drp_drimpdubdpIndiMacdDiffUpBreakDea;
+/* line */
+    da_rule_near_pressure_line_param_t drp_drnplpNearPressureLine;
 } da_rule_param_t;
 
 typedef u32 (* fnExecStocksRule_t)(
