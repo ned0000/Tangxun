@@ -119,6 +119,8 @@ u32 daRuleNoHighHighLimitDay(
     {
         if (start->dds_bHighHighLimit)
             return u32Ret;
+
+        start ++;
     }
 
     return JF_ERR_NO_ERROR;

@@ -50,7 +50,7 @@ static u32 _isNearPressureLine(
     dbPrice = highest->dds_dbClosingPrice * (1 - pdrplp->drplp_dbRatio);
     if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_NEAR)
     {
-        if (end->dds_dbHighPrice > dbPrice)
+        if (end->dds_dbClosingPrice > dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
             pdrplp->drplp_dbPrice = dbPrice;
@@ -58,7 +58,7 @@ static u32 _isNearPressureLine(
     }
     else if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_FAR)
     {
-        if (end->dds_dbHighPrice < dbPrice)
+        if (end->dds_dbClosingPrice < dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
             pdrplp->drplp_dbPrice = dbPrice;

@@ -173,7 +173,7 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
 
     u32Ret = backtestingModel(&bp, &br);
 
-//    if (u32Ret == JF_ERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _printBacktestingResult(&br);
     }
@@ -191,7 +191,7 @@ u32 processBacktest(void * pMaster, void * pParam)
 
     if (pcbp->cbp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _backtestHelp(pdm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (isNullEnvVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

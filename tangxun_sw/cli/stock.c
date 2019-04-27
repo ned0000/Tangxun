@@ -23,31 +23,40 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
+#include "jf_jiukun.h"
+
 #include "stocklist.h"
 #include "indicator.h"
 #include "statarbitrage.h"
-#include "jf_jiukun.h"
+#include "clicmd.h"
 #include "damethod.h"
 #include "envvar.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-static jf_clieng_caption_t ls_ccStockInfoAdditionalVerbose[] =
+static jf_clieng_caption_t ls_jccStockInfoAdditionalVerbose[] =
 {
     {"CorrelationWithIndex", JF_CLIENG_CAP_HALF_LINE}, {"CorrelationWithSmeIndex", JF_CLIENG_CAP_HALF_LINE},
 };
 
-static jf_clieng_caption_t ls_ccIndustryInfoBrief[] =
+static jf_clieng_caption_t ls_jccIndustryInfoBrief[] =
 {
     {"Id", 4},
     {"Desc", 30},
     {"NumOfStock", 11},
 };
 
-static jf_clieng_caption_t ls_ccIndustryInfoVerbose[] =
+static jf_clieng_caption_t ls_jccStockInfoBrief[] =
+{
+    {"Id", 5},
+    {"Code", 10},
+    {"GeneralCapital", 16},
+    {"TradableShare", 16},
+};
+
+static jf_clieng_caption_t ls_jccIndustryInfoVerbose[] =
 {
     {"Id", JF_CLIENG_CAP_FULL_LINE},
     {"Desc", JF_CLIENG_CAP_FULL_LINE},
@@ -55,10 +64,11 @@ static jf_clieng_caption_t ls_ccIndustryInfoVerbose[] =
     {"Stock", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static jf_clieng_caption_t ls_ccStockInfoVerbose[] =
+static jf_clieng_caption_t ls_jccStockInfoVerbose[] =
 {
-    {"Name", JF_CLIENG_CAP_FULL_LINE},
+    {"Id", JF_CLIENG_CAP_HALF_LINE}, {"Code", JF_CLIENG_CAP_HALF_LINE},
     {"GeneralCapital", JF_CLIENG_CAP_HALF_LINE}, {"TradableShare", JF_CLIENG_CAP_HALF_LINE},
+    {"Industry", JF_CLIENG_CAP_FULL_LINE},
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -74,7 +84,8 @@ stock [-s stock] [-i] [-v]");
   -s: list the specified stock.\n\
   -i: show industry information.");
     jf_clieng_outputRawLine2("\
-  -v: verbose.");
+  -v: verbose.\n\
+  All stocks are listed if no parameter is specified");
     jf_clieng_outputLine("");
 
     return u32Ret;
@@ -82,7 +93,7 @@ stock [-s stock] [-i] [-v]");
 
 static void _printStockInfoAdditionalVerbose(stock_info_t * info)
 {
-    jf_clieng_caption_t * pcc = &ls_ccStockInfoAdditionalVerbose[0];
+    jf_clieng_caption_t * pcc = &ls_jccStockInfoAdditionalVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     jf_clieng_printDivider();
@@ -96,25 +107,26 @@ static void _printStockInfoAdditionalVerbose(stock_info_t * info)
     jf_clieng_outputLine("");
 }
 
-static void _printStockInfoVerbose(stock_info_t * info)
+static void _printStockInfoVerbose(u32 u32Id, stock_info_t * info)
 {
-    jf_clieng_caption_t * pcc = &ls_ccStockInfoVerbose[0];
+    jf_clieng_caption_t * pcc = &ls_jccStockInfoVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     jf_clieng_printDivider();
 
-    /*Name*/
-    ol_sprintf(strLeft, "%s", info->si_strCode);
-    jf_clieng_printOneFullLine(pcc, strLeft);
-    pcc += 1;
+    /* Id, Code */
+    ol_sprintf(strLeft, "%u", u32Id);
+    ol_sprintf(strRight, "%s", info->si_strCode);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
+    pcc += 2;
 
-    /*GeneralCapital*/
+    /* GeneralCapital, TradableShare */
     ol_sprintf(strLeft, "%lld", info->si_u64GeneralCapital);
     ol_sprintf(strRight, "%lld", info->si_u64TradableShare);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
-    /*Industry*/
+    /* Industry */
     ol_sprintf(strLeft, "%s", getStringIndustry(info->si_nIndustry));
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
@@ -130,7 +142,7 @@ static u32 _printStockVerbose(cli_stock_param_t * pcsp)
     u32Ret = getStockInfo(pcsp->csp_pstrStock, &info);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        _printStockInfoVerbose(info);
+        _printStockInfoVerbose(1, info);
         _printStockInfoAdditionalVerbose(info);
     }
 
@@ -139,7 +151,7 @@ static u32 _printStockVerbose(cli_stock_param_t * pcsp)
 
 static void _printOneIndustryInfoBrief(stock_indu_info_t * info)
 {
-    jf_clieng_caption_t * pcc = &ls_ccIndustryInfoBrief[0];
+    jf_clieng_caption_t * pcc = &ls_jccIndustryInfoBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
@@ -163,7 +175,7 @@ static void _printOneIndustryInfoBrief(stock_indu_info_t * info)
 
 static void _printOneIndustryInfoVerbose(stock_indu_info_t * info)
 {
-    jf_clieng_caption_t * pcc = &ls_ccIndustryInfoVerbose[0];
+    jf_clieng_caption_t * pcc = &ls_jccIndustryInfoVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
     olint_t n, j, r, len;
     olchar_t line[80];
@@ -215,8 +227,8 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
     {
         jf_clieng_printDivider();
         jf_clieng_printHeader(
-            ls_ccIndustryInfoBrief,
-            sizeof(ls_ccIndustryInfoBrief) / sizeof(jf_clieng_caption_t));
+            ls_jccIndustryInfoBrief,
+            sizeof(ls_jccIndustryInfoBrief) / sizeof(jf_clieng_caption_t));
     }
 
     info = getFirstIndustryInfo();
@@ -239,7 +251,91 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
     return u32Ret;
 }
 
+static void _printOneStockInfoBrief(u32 u32Id, stock_info_t * info)
+{
+    jf_clieng_caption_t * pcc = &ls_jccStockInfoBrief[0];
+    olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+
+    strInfo[0] = '\0';
+
+    /* Id */
+    ol_sprintf(strField, "%u", u32Id);
+    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
+    pcc++;
+
+    /* code */
+    jf_clieng_appendBriefColumn(pcc, strInfo, info->si_strCode);
+    pcc++;
+
+    /* GeneralCapital */
+    ol_sprintf(strField, "%llu", info->si_u64GeneralCapital);
+    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
+    pcc++;
+
+    /* TradableShare */
+    ol_sprintf(strField, "%llu", info->si_u64TradableShare);
+    jf_clieng_appendBriefColumn(pcc, strInfo, strField);
+    pcc++;
+
+    jf_clieng_outputLine(strInfo);
+}
+
+static void _printStocksBrief(cli_stock_param_t * pcsp)
+{
+    stock_info_t * info;
+    u32 u32Id = 0;
+
+    jf_clieng_printDivider();
+    jf_clieng_printHeader(
+        ls_jccStockInfoBrief, sizeof(ls_jccStockInfoBrief) / sizeof(jf_clieng_caption_t));
+
+    info = getFirstStockInfo();
+    while (info != NULL)
+    {
+        _printOneStockInfoBrief(u32Id + 1, info);
+        u32Id ++;
+
+        info = getNextStockInfo(info);
+    }
+
+    jf_clieng_outputLine("\nTotal %u stocks\n", u32Id);
+}
+
+static void _printStocksVerbose(cli_stock_param_t * pcsp)
+{
+    stock_info_t * info;
+    u32 u32Id = 0;
+
+    info = getFirstStockInfo();
+    while (info != NULL)
+    {
+        _printStockInfoVerbose(u32Id + 1, info);
+        u32Id ++;
+
+        info = getNextStockInfo(info);
+    }
+
+    jf_clieng_outputLine("\nTotal %u stocks\n", u32Id);
+}
+
+static u32 _printAllStocks(cli_stock_param_t * pcsp)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (pcsp->csp_bVerbose)
+    {
+        _printStocksVerbose(pcsp);
+    }
+    else
+    {
+        _printStocksBrief(pcsp);
+    }
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 processStock(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -257,6 +353,8 @@ u32 processStock(void * pMaster, void * pParam)
     }
     else if (pcsp->csp_u8Action == CLI_ACTION_LIST_STOCK)
         u32Ret = _printStockVerbose(pcsp);
+    else if (pcsp->csp_u8Action == CLI_ACTION_LIST_ALL_STOCKS)
+        u32Ret = _printAllStocks(pcsp);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 
@@ -270,7 +368,7 @@ u32 setDefaultParamStock(void * pMaster, void * pParam)
 
     memset(pcsp, 0, sizeof(*pcsp));
 
-    pcsp->csp_u8Action = CLI_ACTION_LIST_STOCK;
+    pcsp->csp_u8Action = CLI_ACTION_LIST_ALL_STOCKS;
 
     return u32Ret;
 }

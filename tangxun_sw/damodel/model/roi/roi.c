@@ -127,19 +127,39 @@ static u32 _canBeTradedInRoi(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        u32Ret = getDaRule("pressureLine", &rule);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&drp, sizeof(drp));
+        drp.drp_drplpPressureLine.drplp_pddsUpperLeft =
+            drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER];
+        drp.drp_drplpPressureLine.drplp_pddsUpperRight =
+            drrp.drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER];
+        drp.drp_drplpPressureLine.drplp_u8Condition = PRESSURE_LINE_CONDITION_FAR;
+        drp.drp_drplpPressureLine.drplp_dbRatio = PRICE_VOLATILITY_RATIO * 2 / 3;
+
+        u32Ret = rule->dr_fnExecRule(
+            stockinfo, drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER],
+            end - drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER] + 1, &drp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
         initTradePoolStock(ptps, stockinfo->si_strCode, pdm->dm_strName);
         strcpy(ptps->tps_strAddDate, end->dds_strDate);
         snprintf(
             ptps->tps_strModelParam, MAX_TRADE_MODEL_PARAM_LEN,
             "%s=%s,%s=%s,%s=%s,%s=%s",
             ROI_SETTING_NAME_LEFT_UPPER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER]->dds_strDate,
+            drrp.drrp_pddsRectangle[RECTANGLE_LEFT_UPPER]->dds_strDate,
             ROI_SETTING_NAME_LEFT_LOWER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]->dds_strDate,
+            drrp.drrp_pddsRectangle[RECTANGLE_LEFT_LOWER]->dds_strDate,
             ROI_SETTING_NAME_RIGHT_UPPER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_strDate,
+            drrp.drrp_pddsRectangle[RECTANGLE_RIGHT_UPPER]->dds_strDate,
             ROI_SETTING_NAME_RIGHT_LOWER,
-            drp.drp_drrpRectangle.drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER]->dds_strDate);
+            drrp.drrp_pddsRectangle[RECTANGLE_RIGHT_LOWER]->dds_strDate);
         jf_logger_logInfoMsg(
             "can be traded in roi, setting string: %s", ptps->tps_strModelParam);
     }

@@ -41,14 +41,14 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_ANALYSIS_STOCK            0x80
-#define CLI_ACTION_ANALYSIS_STOCK_POOL       0x81
-#define CLI_ACTION_ANALYSIS_INDEX_STOCKS     0x82
-#define CLI_ACTION_ANALYSIS_STOCK_STAT_ARBI  0x83
-#define CLI_ACTION_ANALYSIS_STOCK_LIMIT      0x84
-#define CLI_ACTION_ANALYSIS_SECTOR           0x85
-#define CLI_ACTION_ANALYSIS_STOCK_TOUGH      0x86
-#define CLI_ACTION_ANALYSIS_STOCK_QUOTATION  0x87
+#define CLI_ACTION_ANALYSIS_STOCK            (0x80)
+#define CLI_ACTION_ANALYSIS_STOCK_POOL       (0x81)
+#define CLI_ACTION_ANALYSIS_INDEX_STOCKS     (0x82)
+#define CLI_ACTION_ANALYSIS_STOCK_STAT_ARBI  (0x83)
+#define CLI_ACTION_ANALYSIS_STOCK_LIMIT      (0x84)
+#define CLI_ACTION_ANALYSIS_SECTOR           (0x85)
+#define CLI_ACTION_ANALYSIS_STOCK_TOUGH      (0x86)
+#define CLI_ACTION_ANALYSIS_STOCK_QUOTATION  (0x87)
     u8 cap_u8Action;
     boolean_t cap_bVerbose;
     u8 cap_u8Reserved[14];
@@ -62,7 +62,7 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_CREATE_EXDR_FILE  0x80
+#define CLI_ACTION_CREATE_EXDR_FILE          (0x80)
     u8 cmp_u8Action;
     boolean_t cmp_bVerbose;
     u8 cmp_u8Reserved[14];
@@ -71,8 +71,8 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_MODEL_LIST_ALL  0x80
-#define CLI_ACTION_MODEL_LIST      0x81
+#define CLI_ACTION_MODEL_LIST_ALL            (0x80)
+#define CLI_ACTION_MODEL_LIST                (0x81)
     u8 cmp_u8Action;
     boolean_t cmp_bVerbose;
     u8 cmp_u8Reserved[14];
@@ -82,12 +82,12 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_INFLEXION_POINT    0x80
-#define CLI_ACTION_STAT_AMOUNT        0x81
-#define CLI_ACTION_DESCRIPTIVE_STAT   0x82
-#define CLI_ACTION_STAT_ARBI_INDUSTRY 0x83
-#define CLI_ACTION_STAT_ARBI_FIND     0x85
-#define CLI_ACTION_INFLEXION_POINT_2  0x86
+#define CLI_ACTION_INFLEXION_POINT           (0x80)
+#define CLI_ACTION_STAT_AMOUNT               (0x81)
+#define CLI_ACTION_DESCRIPTIVE_STAT          (0x82)
+#define CLI_ACTION_STAT_ARBI_INDUSTRY        (0x83)
+#define CLI_ACTION_STAT_ARBI_FIND            (0x85)
+#define CLI_ACTION_INFLEXION_POINT_2         (0x86)
     u8 csp_u8Action;
     boolean_t csp_bVerbose;
     u8 csp_u8Reserved[14];
@@ -99,10 +99,10 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_ENV_LIST_ALL   0x80
-#define CLI_ACTION_ENV_LIST       0x81
-#define CLI_ACTION_ENV_SET        0x82
-#define CLI_ACTION_ENV_CLEAR      0x83
+#define CLI_ACTION_ENV_LIST_ALL              (0x80)
+#define CLI_ACTION_ENV_LIST                  (0x81)
+#define CLI_ACTION_ENV_SET                   (0x82)
+#define CLI_ACTION_ENV_CLEAR                 (0x83)
     u8 cep_u8Action;
     u8 cep_u8Reserved[15];
     olchar_t * cep_pstrData;
@@ -111,7 +111,7 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_FIX_FILE  0x80
+#define CLI_ACTION_FIX_FILE  (0x80)
     u8 cfp_u8Action;
     boolean_t cfp_bVerbose;
     boolean_t cfp_bOverwrite;
@@ -122,10 +122,10 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_DOWNLOAD_TRADE_SUMMARY     0x80
-#define CLI_ACTION_DOWNLOAD_TRADE_DETAIL      0x81
-#define CLI_ACTION_DOWNLOAD_EXDR              0x82
-#define CLI_ACTION_DOWNLOAD_STOCK_INFO_INDEX  0x83
+#define CLI_ACTION_DOWNLOAD_TRADE_SUMMARY     (0x80)
+#define CLI_ACTION_DOWNLOAD_TRADE_DETAIL      (0x81)
+#define CLI_ACTION_DOWNLOAD_EXDR              (0x82)
+#define CLI_ACTION_DOWNLOAD_STOCK_INFO_INDEX  (0x83)
     u8 cdp_u8Action;
     boolean_t cdp_bVerbose;
     boolean_t cdp_bOverwrite;
@@ -141,11 +141,11 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_FIND_STOCK                0x80
-#define CLI_ACTION_FIND_STOCK_IN_PERIOD      0x81
-#define CLI_ACTION_FIND_LIST_POOL            0x82
-#define CLI_ACTION_FIND_LIST_POOL_BY_MODEL   0x83
-#define CLI_ACTION_CLEAN_STOCK_POOL          0x84
+#define CLI_ACTION_FIND_STOCK                (0x80)
+#define CLI_ACTION_FIND_STOCK_IN_PERIOD      (0x81)
+#define CLI_ACTION_FIND_LIST_POOL            (0x82)
+#define CLI_ACTION_FIND_LIST_POOL_BY_MODEL   (0x83)
+#define CLI_ACTION_CLEAN_STOCK_POOL          (0x84)
     u8 cfp_u8Action;
     boolean_t cfp_bVerbose;
     boolean_t cfp_bAllStocks;
@@ -156,9 +156,9 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_TRADE_STOCK         0x80
-#define CLI_ACTION_TRADE_LIST          0x81
-#define CLI_ACTION_TRADE_LIST_RECORD   0x82
+#define CLI_ACTION_TRADE_STOCK               (0x80)
+#define CLI_ACTION_TRADE_LIST                (0x81)
+#define CLI_ACTION_TRADE_LIST_RECORD         (0x82)
     u8 ctp_u8Action;
     boolean_t ctp_bVerbose;
     u8 ctp_u8Reserved[14];
@@ -167,8 +167,9 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_LIST_STOCK     0x80
-#define CLI_ACTION_LIST_INDUSTRY  0x81
+#define CLI_ACTION_LIST_STOCK                (0x80)
+#define CLI_ACTION_LIST_INDUSTRY             (0x81)
+#define CLI_ACTION_LIST_ALL_STOCKS           (0x82)
     u8 csp_u8Action;
     boolean_t csp_bVerbose;
     u8 csp_u8Reserved[14];
@@ -178,9 +179,9 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_PARSE_TRADE_SUMMARY  0x80
-#define CLI_ACTION_PARSE_TRADE_DETAIL   0x81
-#define CLI_ACTION_PARSE_QUOTATION      0x82
+#define CLI_ACTION_PARSE_TRADE_SUMMARY       (0x80)
+#define CLI_ACTION_PARSE_TRADE_DETAIL        (0x81)
+#define CLI_ACTION_PARSE_QUOTATION           (0x82)
     u8 cpp_u8Action;
     boolean_t cpp_bVerbose;
 	boolean_t cpp_bFRoR;
@@ -196,9 +197,9 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_INDI_LIST       0x80
-#define CLI_ACTION_INDI_TEST       0x82
-#define CLI_ACTION_INDI_ADXR       0x85
+#define CLI_ACTION_INDI_LIST                 (0x80)
+#define CLI_ACTION_INDI_TEST                 (0x82)
+#define CLI_ACTION_INDI_ADXR                 (0x85)
     u8 cip_u8Action;
     boolean_t cip_bVerbose;
     boolean_t cip_bPrintData;
@@ -212,8 +213,8 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_RULE_LIST_ALL  0x80
-#define CLI_ACTION_RULE_LIST      0x81
+#define CLI_ACTION_RULE_LIST_ALL             (0x80)
+#define CLI_ACTION_RULE_LIST                 (0x81)
     u8 crp_u8Action;
     boolean_t crp_bVerbose;
     u8 crp_u8Reserved[14];
@@ -222,8 +223,8 @@ typedef struct
 
 typedef struct
 {
-#define CLI_ACTION_BACKTEST_ALL              0x80
-#define CLI_ACTION_BACKTEST_MODEL            0x81
+#define CLI_ACTION_BACKTEST_ALL              (0x80)
+#define CLI_ACTION_BACKTEST_MODEL            (0x81)
     u8 cbp_u8Action;
     boolean_t cbp_bVerbose;
     boolean_t cbp_bStockByStock;

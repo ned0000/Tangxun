@@ -46,7 +46,7 @@ static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
     jf_listhead_forEach(&ls_jlModel, pos)
     {
         pdm = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
-        if (strncmp(pdm->dm_strName, name, ol_strlen(pdm->dm_strName)) == 0)
+        if (ol_strncasecmp(pdm->dm_strName, name, ol_strlen(pdm->dm_strName)) == 0)
         {
             *model = pdm;
             break;
