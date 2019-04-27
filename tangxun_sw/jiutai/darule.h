@@ -147,9 +147,9 @@ typedef struct
  */
 typedef struct
 {
-    /** >= */
+    /** The volatility >= expected */
 #define PRICE_VOLATILITY_CONDITION_GREATER_EQUAL   (0x0)
-    /** <= */
+    /** The volatility <= expected */
 #define PRICE_VOLATILITY_CONDITION_LESSER_EQUAL    (0x1)
     u8 drpvp_u8Condition;
     u8 drpvp_u8Reserved[7];
@@ -177,18 +177,24 @@ typedef struct
     olint_t drimdubdp_nMacdMDays;
 } da_rule_indi_macd_diff_up_break_dea_param_t;
 
-/** Parameter for rule "nearPressureLine"
+/** Parameter for rule "pressureLine"
  */
 typedef struct
 {
 /* IN */
-    da_day_summary_t * drnplp_pddsUpperLeft;
-    da_day_summary_t * drnplp_pddsUpperRight;
-#define NEAR_PRESSURE_LINE_RATIO   (0.01)
-    oldouble_t drnplp_dbRatio;
+    da_day_summary_t * drplp_pddsUpperLeft;
+    da_day_summary_t * drplp_pddsUpperRight;
+    /** Check if the last day is near pressure line */
+#define PRESSURE_LINE_CONDITION_NEAR    (0x0)
+    /** Check if the last day is far from pressure line */
+#define PRESSURE_LINE_CONDITION_FAR     (0x1)
+    u8 drplp_u8Condition;
+    u8 drplp_u8Reserved[7];
+#define PRESSURE_LINE_RATIO             (0.01)
+    oldouble_t drplp_dbRatio;
 /* OUT */
-    oldouble_t drnplp_dbPrice;
-} da_rule_near_pressure_line_param_t;
+    oldouble_t drplp_dbPrice;
+} da_rule_pressure_line_param_t;
 
 typedef union
 {
@@ -215,7 +221,7 @@ typedef union
 /* indi macd */
     da_rule_indi_macd_diff_up_break_dea_param_t drp_drimpdubdpIndiMacdDiffUpBreakDea;
 /* line */
-    da_rule_near_pressure_line_param_t drp_drnplpNearPressureLine;
+    da_rule_pressure_line_param_t drp_drplpPressureLine;
 } da_rule_param_t;
 
 typedef u32 (* fnExecStocksRule_t)(

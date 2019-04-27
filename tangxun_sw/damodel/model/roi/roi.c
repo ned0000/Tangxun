@@ -271,22 +271,23 @@ static u32 _tradeTrySellInRoi(
         ptps, buffer, total, &pLeftUpper, &pLeftLower, &pRightUpper, &pRightLower);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getDaRule("nearPressureLine", &rule);
+        u32Ret = getDaRule("pressureLine", &rule);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&drp, sizeof(drp));
-        drp.drp_drnplpNearPressureLine.drnplp_pddsUpperLeft = pLeftUpper;
-        drp.drp_drnplpNearPressureLine.drnplp_pddsUpperRight = pRightUpper;
-        drp.drp_drnplpNearPressureLine.drnplp_dbRatio = NEAR_PRESSURE_LINE_RATIO;
+        drp.drp_drplpPressureLine.drplp_pddsUpperLeft = pLeftUpper;
+        drp.drp_drplpPressureLine.drplp_pddsUpperRight = pRightUpper;
+        drp.drp_drplpPressureLine.drplp_u8Condition = PRESSURE_LINE_CONDITION_NEAR;
+        drp.drp_drplpPressureLine.drplp_dbRatio = PRESSURE_LINE_RATIO;
 
         u32Ret = rule->dr_fnExecRule(stockinfo, buffer, total, &drp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        dbPrice = drp.drp_drnplpNearPressureLine.drnplp_dbPrice;
+        dbPrice = drp.drp_drplpPressureLine.drplp_dbPrice;
         bSell = TRUE;
         strcpy(ptps->tps_strOpRemark, "sell out");
     }

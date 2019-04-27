@@ -482,7 +482,7 @@ static u32 _backtestingFindStockInModelDayByDay(
     while (model != NULL)
     {
         if ((pbp->bp_pstrModel != NULL) &&
-            ol_strcmp(model->dm_strName, pbp->bp_pstrModel) != 0)
+            ol_strcasecmp(model->dm_strName, pbp->bp_pstrModel) != 0)
         {
             model = getNextDaModel(model);
             continue;
@@ -549,8 +549,7 @@ static u32 _backtestingFindStockDayByDay(
             strFullname, pstrBacktestDate, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _backtestingFindStockInModelDayByDay(
-                pbp, stockinfo, buffer, total);
+            u32Ret = _backtestingFindStockInModelDayByDay(pbp, stockinfo, buffer, total);
         }
 
         stockinfo = getNextStockInfo(stockinfo);
@@ -872,12 +871,10 @@ static u32 _startBacktestingModelDayByDay(
         jf_date_getStringDate2(strBacktestDate, lyear, lmonth, lday);
         jf_logger_logDebugMsg("backtesting model day by day, %s", strBacktestDate);
 
-        u32Ret = _backtestingFindStockDayByDay(
-            pbp, strBacktestDate, buffer, total);
+        u32Ret = _backtestingFindStockDayByDay(pbp, strBacktestDate, buffer, total);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _backtestingTradeStockDayByDay(
-                pbp, pbre, strBacktestDate, buffer, total);
+            u32Ret = _backtestingTradeStockDayByDay(pbp, pbre, strBacktestDate, buffer, total);
         }
 
         ldays ++;

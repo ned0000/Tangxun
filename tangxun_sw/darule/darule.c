@@ -36,6 +36,7 @@
 #include "rule_misc.h"
 #include "rule_bottom.h"
 #include "rule_price.h"
+#include "rule_line.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -63,6 +64,8 @@ static da_rule_t ls_drDaRules[] =
     {"minAbnormalVolRatioDay", daRuleMinAbnormalVolRatioDay},
 /* indi macd */
     {"indiMacdDiffUpBreakDea", daRuleIndiMacdDiffUpBreakDea},
+/* line */
+    {"pressureLine", daRulePressureLine},
 };
 
 static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);

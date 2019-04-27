@@ -35,23 +35,34 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _isInPressureArea(
+static u32 _isNearPressureLine(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
-    da_rule_near_pressure_line_param_t * pdrnplp)
+    da_rule_pressure_line_param_t * pdrplp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * highest = pdrnplp->drnplp_pddsUpperLeft;
+    da_day_summary_t * highest = pdrplp->drplp_pddsUpperLeft;
     oldouble_t dbPrice;
     da_day_summary_t * end = buffer + total - 1;
 
-    if (highest->dds_dbClosingPrice < pdrnplp->drnplp_pddsUpperRight->dds_dbClosingPrice)
-        highest = pdrnplp->drnplp_pddsUpperRight;
+    if (highest->dds_dbClosingPrice < pdrplp->drplp_pddsUpperRight->dds_dbClosingPrice)
+        highest = pdrplp->drplp_pddsUpperRight;
 
-    dbPrice = highest->dds_dbClosingPrice * (1 - pdrnplp->drnplp_dbRatio);
-    if (end->dds_dbHighPrice > dbPrice)
+    dbPrice = highest->dds_dbClosingPrice * (1 - pdrplp->drplp_dbRatio);
+    if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_NEAR)
     {
-        u32Ret = JF_ERR_NO_ERROR;
-        pdrnplp->drnplp_dbPrice = dbPrice;
+        if (end->dds_dbHighPrice > dbPrice)
+        {
+            u32Ret = JF_ERR_NO_ERROR;
+            pdrplp->drplp_dbPrice = dbPrice;
+        }
+    }
+    else if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_FAR)
+    {
+        if (end->dds_dbHighPrice < dbPrice)
+        {
+            u32Ret = JF_ERR_NO_ERROR;
+            pdrplp->drplp_dbPrice = dbPrice;
+        }
     }
 
     return u32Ret;
@@ -59,14 +70,14 @@ static u32 _isInPressureArea(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleNearPressureLine(
+u32 daRulePressureLine(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    da_rule_near_pressure_line_param_t * pdrnplp = (da_rule_near_pressure_line_param_t *)pdrp;
+    u32 u32Ret = JF_ERR_NOT_MATCH;
+    da_rule_pressure_line_param_t * pdrplp = (da_rule_pressure_line_param_t *)pdrp;
 
-    u32Ret = _isInPressureArea(stockinfo, buffer, total, pdrnplp);
-
+    u32Ret = _isNearPressureLine(stockinfo, buffer, total, pdrplp);
+        
     return u32Ret;
 }
 
