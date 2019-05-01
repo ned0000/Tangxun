@@ -38,16 +38,20 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleNotSt(
+u32 daRuleNotStRelated(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * cur = buffer + total - 1;
+    da_day_summary_t * start = buffer;
+    da_day_summary_t * end = buffer + total - 1;
 
-    if (cur->dds_bS)
-        return u32Ret;
-    if (buffer->dds_bS)
-        return u32Ret;
+    while (start <= end)
+    {
+        if ((start->dds_bSt) || (start->dds_bStDelisting))
+            return u32Ret;
+
+        start ++;
+    }
 
     return JF_ERR_NO_ERROR;
 }
@@ -56,12 +60,34 @@ u32 daRuleSt(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_day_summary_t * cur = buffer + total - 1;
+    da_day_summary_t * start = buffer;
+    da_day_summary_t * end = buffer + total - 1;
 
-    if (cur->dds_bS)
-        return u32Ret;
-    if (buffer->dds_bS)
-        return u32Ret;
+    while (start <= end)
+    {
+        if (start->dds_bSt)
+            return u32Ret;
+
+        start ++;
+    }
+
+    return JF_ERR_NOT_MATCH;
+}
+
+u32 daRuleStDelisting(
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    da_day_summary_t * start = buffer;
+    da_day_summary_t * end = buffer + total - 1;
+
+    while (start <= end)
+    {
+        if (start->dds_bStDelisting)
+            return u32Ret;
+
+        start ++;
+    }
 
     return JF_ERR_NOT_MATCH;
 }

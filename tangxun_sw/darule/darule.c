@@ -50,7 +50,9 @@ static da_rule_t ls_drDaRules[] =
 /* bottom */
     {"inBottomArea", daRuleInBottomArea},
 /* st */
-    {"notSt", daRuleNotSt},
+    {"notStRelated", daRuleNotStRelated},
+    {"St", daRuleSt},
+    {"StDelisting", daRuleStDelisting},
 /* misc */
     {"minNumOfDaySummary", daRuleMinNumOfDaySummary},
 /* rectangle */

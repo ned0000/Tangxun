@@ -22,18 +22,19 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
+#include "jf_clieng.h"
+#include "jf_matrix.h"
+#include "jf_jiukun.h"
+
 #include "parsedata.h"
 #include "datastat.h"
-#include "jf_clieng.h"
+#include "clicmd.h"
 #include "regression.h"
 #include "damodel.h"
 #include "stocklist.h"
-#include "jf_matrix.h"
-#include "jf_jiukun.h"
 #include "envvar.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -61,9 +62,9 @@ static jf_clieng_caption_t ls_ccTradeDaySummaryBrief[] =
     {"HighP", 7},
     {"LowP", 7},
     {"Close", 6},
-    {"Capital", 9},
-    {"Share", 9},
-	{"Status", 7},
+    {"GeneralCapital", 15},
+    {"TradableShare", 14},
+	{"Status", 10},
 };
 
 static jf_clieng_caption_t ls_ccQuoEntryBrief[] =
@@ -155,29 +156,33 @@ static u32 _parseHelp(da_master_t * pdm)
 
     jf_clieng_outputRawLine2("\
 Parse stock data.\n\
-parse [-s stock] [-f] [-u] [-d date] [-o] \n\
-      [-e stock] [-t threshold] \n\
-      [-q stock] \n\
-      [-d start-date] [-l count] [-h] [-v]");
+parse [Trade summary file options] [Quotation file options] [Trade detail file options]\n\
+  [Common options] ");
     jf_clieng_outputRawLine2("\
-  -s: parse trade summary files.\n\
-  -f: parse files from specified date, return NULL if the date is not found\n\
-      in the file. If '-d' is not specified, the date will be the first day\n\
-      in the file.\n\
-  -u: parse files until specified date, return NULL if the date is not found\n\
-      in the file. If '-d' is not specified, the date will be the last day \n\
-      in the file.\n\
-  -o: forward restoration of right, used with '-s'.");
-    jf_clieng_outputRawLine2("\
-  -q: parse quotation files, use '-f' to specify the date, use last day if\n\
-      '-f' is not specified.");
-    jf_clieng_outputRawLine2("\
-  -e: parse trade detail files.\n\
-  -t: specify the threshold, used with '-e'.");
-    jf_clieng_outputRawLine2("\
+Common options.\n\
+parse [-l count] [-d yyyy-mm-dd] [-v] [-h] \n\
   -l: read last N days.\n\
   -d: the start date.\n\
+  -h: print the usage.\n\
   -v: verbose.");
+    jf_clieng_outputRawLine2("\
+Trade summary file options.\n\
+parse [-s stock] [-f] [-u] [-o] \n\
+  -s: parse trade summary file.\n\
+  -f: parse files from specified date, return NULL if the date is not found in the file.\n\
+      If '-d' is not specified, the date will be the first day in the file.\n\
+  -u: parse files until specified date, return NULL if the date is not found in the file.\n\
+      If '-d' is not specified, the date will be the last day in the file.\n\
+  -o: forward restoration of right.");
+    jf_clieng_outputRawLine2("\
+Quotation file options.\n\
+parse [-q stock] [-f] \n\
+  -q: parse quotation files, use '-f' to specify the date, use last day if '-f' is not specified.");
+    jf_clieng_outputRawLine2("\
+Trade detail file options.\n\
+parse [-e stock] [-t threshold] \n\
+  -e: parse trade detail files.\n\
+  -t: specify the threshold.");
     jf_clieng_outputLine("");
 
     return u32Ret;
@@ -539,12 +544,12 @@ static void _printTradeDaySummaryBrief(da_day_summary_t * cur)
     pcc++;
 
     /* GeneralCapital */
-    ol_sprintf(strField, "%lld", cur->dds_u64GeneralCapital / 10000);
+    ol_sprintf(strField, "%lld", cur->dds_u64GeneralCapital);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* TradableShare */
-    ol_sprintf(strField, "%lld", cur->dds_u64TradableShare / 10000);
+    ol_sprintf(strField, "%lld", cur->dds_u64TradableShare);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -968,7 +973,7 @@ u32 processParse(void * pMaster, void * pParam)
 
     if (pcpp->cpp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _parseHelp(pdm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (isNullEnvVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

@@ -145,60 +145,72 @@ struct da_obv;
 
 typedef struct
 {
-    /*index*/
+    /**Index*/
     olint_t dds_nIndex;  /* index of a series of result */
     olchar_t dds_strDate[16];
 
-    /*price*/
+    /**Price*/
     oldouble_t dds_dbOpeningPrice;
     oldouble_t dds_dbClosingPrice;
     oldouble_t dds_dbHighPrice;
     oldouble_t dds_dbLowPrice;
 
-	oldouble_t dds_dbLastClosingPrice; /*exlude right*/
+    oldouble_t dds_dbLastClosingPrice; /*exlude right*/
 
     oldouble_t dds_dbClosingPriceRate;
     oldouble_t dds_dbHighPriceRate;
 
-    boolean_t dds_bCloseHighLimit; /*close price reach high limit*/
-    boolean_t dds_bCloseLowLimit; /*close price reach low limit*/
-    boolean_t dds_bHighHighLimit; /*high price reach high limit*/
-    boolean_t dds_bLowLowLimit; /*low price reach low limit*/
+    /**close price reach high limit*/
+    boolean_t dds_bCloseHighLimit;
+    /**close price reach low limit*/
+    boolean_t dds_bCloseLowLimit;
+    /**high price reach high limit*/
+    boolean_t dds_bHighHighLimit;
+    /**low price reach low limit*/
+    boolean_t dds_bLowLowLimit;
+    /**gap between 2 days*/
     boolean_t dds_bGap;
     u8 dds_u8Reserved[3];
 
-    /*volume*/
+    /**Volume*/
     u64 dds_u64All;
     oldouble_t dds_dbVolumeRatio;
     oldouble_t dds_dbTurnoverRate;
 
-    /*amount*/
+    /**Amount*/
     u64 dds_u64AllA;
 
-    /*upper shadow, lower shadow*/
+    /**Upper shadow, lower shadow*/
     oldouble_t dds_dbUpperShadowRatio;
     oldouble_t dds_dbLowerShadowRatio;
 
-	/*stock information*/
-	u64 dds_u64GeneralCapital;
-	u64 dds_u64TradableShare;
-	boolean_t dds_bXR;
-	boolean_t dds_bXD;
-	boolean_t dds_bDR;
-	boolean_t dds_bS;
-    u8 dds_u8Reserved2[4];
+    /**general captial of the stock*/
+    u64 dds_u64GeneralCapital;
+    /*tradable share of the stock*/
+    u64 dds_u64TradableShare;
+    /**exclude right*/
+    boolean_t dds_bXR;
+    /**exclude divident*/
+    boolean_t dds_bXD;
+    /**exclude divident and right*/
+    boolean_t dds_bDR;
+    /**special treatment*/
+    boolean_t dds_bSt;
+    /**special treatment, delisting*/
+    boolean_t dds_bStDelisting;
+    u8 dds_u8Reserved2[3];
 
-	da_day_result_t * dds_ddrResult;
+    da_day_result_t * dds_ddrResult;
 
     struct da_adxr * dds_pdaAdxr;
-	struct da_dmi * dds_pddDmi;
+    struct da_dmi * dds_pddDmi;
     struct da_macd * dds_pdmMacd;
     struct da_mtm * dds_pdmMtm;
     struct da_rsi * dds_pdrRsi;
     struct da_kdj * dds_pdkKdj;
     struct da_asi * dds_pdaAsi;
-	struct da_atr * dds_pdaAtr;
-	struct da_obv * dds_pdoObv;
+    struct da_atr * dds_pdaAtr;
+    struct da_obv * dds_pdoObv;
 } da_day_summary_t;
 
 typedef struct

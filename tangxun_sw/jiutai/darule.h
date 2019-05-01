@@ -69,12 +69,26 @@ typedef struct
     u8 dribap_u8Reserved[15];
 } da_rule_in_bottom_area_param_t;
 
-/** Parameter for rule "notSt"
+/** Parameter for rule "notStRelated"
  */
 typedef struct
 {
-    u8 drnsp_u8Reserved[32];
-} da_rule_not_st_param_t;
+    u8 drnsrp_u8Reserved[32];
+} da_rule_not_st_related_param_t;
+
+/** Parameter for rule "st"
+ */
+typedef struct
+{
+    u8 drsp_u8Reserved[32];
+} da_rule_st_param_t;
+
+/** Parameter for rule "stDelisting"
+ */
+typedef struct
+{
+    u8 drsdp_u8Reserved[32];
+} da_rule_st_delisting_param_t;
 
 /** Parameter for rule "minNumOfDaySummary"
  */
@@ -206,7 +220,9 @@ typedef union
 /* bottom */
     da_rule_in_bottom_area_param_t drp_dribapBottom;
 /* st */
-    da_rule_not_st_param_t drp_drnspNotSt;
+    da_rule_not_st_related_param_t drp_drnsrpNotStRelated;
+    da_rule_st_param_t drp_drspSt;
+    da_rule_st_delisting_param_t drp_drsdpStDelisting;
 /* misc */
     da_rule_min_num_of_day_summary_param_t drp_drmnodspMinDay;
 /* rectangle */

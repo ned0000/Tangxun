@@ -777,7 +777,6 @@ static u32 _parseTradeSummaryFileOneLine(
             }
             else if (index == 3)
             {
-#if 0
                 if (field->jsprf_pstrData[0] == 'X')
                 {
                     if (field->jsprf_pstrData[1] == 'R')
@@ -785,14 +784,12 @@ static u32 _parseTradeSummaryFileOneLine(
                     else if (field->jsprf_pstrData[1] == 'D')
                         cur->dds_bXD = TRUE;
                 }
-                else if (field->jsprf_pstrData[0] == 'D')
+                else if ((field->jsprf_pstrData[0] == 'D') && (field->jsprf_pstrData[1] == 'R'))
                     cur->dds_bDR = TRUE;
-#endif
-                if (field->jsprf_pstrData[0] == 'S')
-                    cur->dds_bS = TRUE;
-                else if ((field->jsprf_pstrData[0] == '*') &&
-                         (field->jsprf_pstrData[1] == 'S'))
-                    cur->dds_bS = TRUE;
+                else if ((field->jsprf_pstrData[0] == 'S') && (field->jsprf_pstrData[1] == 'T'))
+                    cur->dds_bSt = TRUE;
+                else if ((field->jsprf_pstrData[0] == '*') && (field->jsprf_pstrData[1] == 'S'))
+                    cur->dds_bStDelisting = TRUE;
             }
             else if (index == 4)
             {
@@ -2262,14 +2259,10 @@ void getStringDaySummaryStatus(da_day_summary_t * summary, olchar_t * pstr)
         ol_strcpy(pstr, "XD");
     else if (summary->dds_bDR)
         ol_strcpy(pstr, "DR");
-
-    if (summary->dds_bS)
-    {
-        if (pstr[0] == '\0')
-            ol_strcat(pstr, "ST");
-        else
-            ol_strcat(pstr, ",ST");
-    }
+    else if (summary->dds_bSt)
+        ol_strcpy(pstr, "ST");
+    else if (summary->dds_bStDelisting)
+        ol_strcpy(pstr, "ST, Delisting");
 }
 
 quo_entry_t * getQuoEntryWithHighestPrice(

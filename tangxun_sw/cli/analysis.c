@@ -560,7 +560,7 @@ static u32 _analysisStockGraph(
     *pbTough = TRUE;
 
     end = buffer + total - 1;
-    if (end->dds_bS)
+    if (end->dds_bSt)
     {
         *pbTough = FALSE;
         return u32Ret;
