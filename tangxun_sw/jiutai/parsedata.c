@@ -933,9 +933,10 @@ static void _calcTradeDaySummary(
             if (result->dds_dbHighPrice < prev->dds_dbLowPrice)
                 result->dds_bGap = TRUE;
         }
-        result->dds_dbClosingPriceRate =
-            (result->dds_dbClosingPrice - prev->dds_dbClosingPrice) * 100 /
-            prev->dds_dbClosingPrice;
+        /*closing price is read from summary file*/
+//        result->dds_dbClosingPriceRate =
+//            (result->dds_dbClosingPrice - prev->dds_dbClosingPrice) * 100 /
+//            prev->dds_dbClosingPrice;
         result->dds_dbHighPriceRate =
             (result->dds_dbHighPrice - prev->dds_dbClosingPrice) * 100 /
             prev->dds_dbClosingPrice;
@@ -1024,22 +1025,14 @@ static void _restoreDaySummary(
     cur = start;
     while (cur < end)
     {
-        cur->dds_dbOpeningPrice = (cur->dds_dbOpeningPrice + offset) / (1 + rate);
-        cur->dds_dbClosingPrice = (cur->dds_dbClosingPrice + offset) / (1 + rate);
-        cur->dds_dbHighPrice = (cur->dds_dbHighPrice + offset) / (1 + rate);
-        cur->dds_dbLowPrice = (cur->dds_dbLowPrice + offset) / (1 + rate);
+        cur->dds_dbOpeningPrice = (cur->dds_dbOpeningPrice - offset) / rate;
+        cur->dds_dbClosingPrice = (cur->dds_dbClosingPrice - offset) / rate;
+        cur->dds_dbHighPrice = (cur->dds_dbHighPrice - offset) / rate;
+        cur->dds_dbLowPrice = (cur->dds_dbLowPrice - offset) / rate;
 
         cur ++;
     }
 
-}
-
-static boolean_t _isExcludeRight(u64 u64R1, u64 u64R2)
-{
-    if (u64R1 / 10000 == u64R2 / 10000)
-        return FALSE;
-
-    return TRUE;
 }
 
 static u32 _forwardRestorationOfRight(
@@ -1057,21 +1050,10 @@ static u32 _forwardRestorationOfRight(
     {
         if (prev->dds_dbClosingPrice != cur->dds_dbLastClosingPrice)
         {
-            rate = (oldouble_t)cur->dds_u64TradableShare - (oldouble_t)prev->dds_u64TradableShare;
-            rate /= prev->dds_u64TradableShare;
+            rate = (oldouble_t)cur->dds_u64GeneralCapital / 100;
+            rate /= prev->dds_u64GeneralCapital / 100;
 
-            offset = cur->dds_dbLastClosingPrice * (1 + rate) - prev->dds_dbClosingPrice;
-
-            if (_isExcludeRight(cur->dds_u64TradableShare, prev->dds_u64TradableShare) &&
-                (offset != 0))
-                cur->dds_bDR = TRUE;
-            else if (_isExcludeRight(cur->dds_u64TradableShare, prev->dds_u64TradableShare))
-                cur->dds_bXR = TRUE;
-            else if (offset != 0)
-                cur->dds_bXD = TRUE;
-
-//          jf_clieng_outputLine(
-//              "%s: offset %.3f, rate %.3f", cur->dds_strDate, offset, rate);
+            offset = prev->dds_dbClosingPrice - cur->dds_dbLastClosingPrice * rate;
 
             _restoreDaySummary(buffer, cur, offset, rate);
         }
@@ -1084,8 +1066,9 @@ static u32 _forwardRestorationOfRight(
     cur = buffer + 1;
     for (i = 1; i < num; i ++)
     {
-        cur->dds_dbClosingPriceRate =
-            (cur->dds_dbClosingPrice - prev->dds_dbClosingPrice) * 100 / prev->dds_dbClosingPrice;
+        /*closing price is read from summary file*/
+//        cur->dds_dbClosingPriceRate =
+//            (cur->dds_dbClosingPrice - prev->dds_dbClosingPrice) * 100 / prev->dds_dbClosingPrice;
 
         cur->dds_bGap = FALSE;
         if (cur->dds_dbClosingPrice > prev->dds_dbClosingPrice)
