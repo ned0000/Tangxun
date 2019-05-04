@@ -15,13 +15,14 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "parsedata.h"
 #include "jf_time.h"
+
 #include "damodel.h"
 #include "trade_persistency.h"
-
+#include "parsedata.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -34,8 +35,9 @@ u32 setStockFirstTradeDate(const char * strStockPath);
 boolean_t isAfterStockFirstTradeDate(
     const stock_info_t * stockinfo, const olchar_t * pstrDate);
 
-boolean_t isHoliday(olint_t year, olint_t mon, olint_t day);
+boolean_t isHoliday(olint_t days);
 
+u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext);
 
 #endif /*TANGXUN_TRADEHELPER_H*/
 

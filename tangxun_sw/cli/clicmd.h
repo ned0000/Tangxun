@@ -192,6 +192,7 @@ typedef struct
     olchar_t * cpp_pstrDate;
     olint_t cpp_nLastCount;
     olint_t cpp_nThres;
+    u32 cpp_u32Count;
     u32 cpp_u32Reserved[6];
 } cli_parse_param_t;
 

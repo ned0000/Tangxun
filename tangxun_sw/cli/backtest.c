@@ -39,6 +39,7 @@ static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
 {
     {"NumOfTrade", JF_CLIENG_CAP_FULL_LINE},
     {"NumOfTradeProfit", JF_CLIENG_CAP_HALF_LINE}, {"NumOfTradeLoss", JF_CLIENG_CAP_HALF_LINE},
+    {"StartDate", JF_CLIENG_CAP_HALF_LINE}, {"EndDate", JF_CLIENG_CAP_HALF_LINE},
     {"MaxDrawdown", JF_CLIENG_CAP_HALF_LINE}, {"RateOfReturn", JF_CLIENG_CAP_HALF_LINE},
     {"InitialFund", JF_CLIENG_CAP_HALF_LINE}, {"Fund", JF_CLIENG_CAP_HALF_LINE},
     {"MinAsset", JF_CLIENG_CAP_HALF_LINE}, {"MaxAsset", JF_CLIENG_CAP_HALF_LINE},
@@ -77,9 +78,15 @@ static void _printBacktestingResultVerbose(backtesting_result_t * pbr)
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
-    /*NumOfTrade*/
+    /*NumOfTradeProfit*/
     ol_sprintf(strLeft, "%u", pbr->br_u32NumOfTradeProfit);
     ol_sprintf(strRight, "%u", pbr->br_u32NumOfTradeLoss);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
+    pcc += 2;
+
+    /*StartDate*/
+    ol_sprintf(strLeft, "%s", pbr->br_strStartDate);
+    ol_sprintf(strRight, "%s", pbr->br_strEndDate);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 

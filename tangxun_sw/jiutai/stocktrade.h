@@ -98,16 +98,12 @@ void setTradeTradingRecord(
 boolean_t isTradeTradingRecordOpBuy(trade_trading_record_t * pttr);
 boolean_t isTradeTradingRecordOpSell(trade_trading_record_t * pttr);
 
-u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext);
-
-
 char * getStringStockPosition(u8 u8Pos);
 char * getStringStockOperation(u8 u8Op);
 
 u32 filterPoolStockByOp(
     trade_pool_stock_t * ptps, olint_t count, u8 u8Op,
     trade_pool_stock_t ** ppFilterStock, olint_t * pnFilterCount);
-
 
 #endif /*TANGXUN_JIUTAI_STOCKTRADE_H*/
 

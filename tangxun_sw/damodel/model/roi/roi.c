@@ -23,7 +23,7 @@
 #include "darule.h"
 #include "roi.h"
 #include "damodel.h"
-#include "stocktrade.h"
+#include "tradehelper.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

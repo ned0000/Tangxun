@@ -43,9 +43,12 @@ typedef struct
     oldouble_t br_dbMinAsset; /*Fund + Stock*/
     oldouble_t br_dbMaxAsset; /*Fund + Stock*/
     /*stat*/
+    olchar_t br_strStartDate[16];
+    olchar_t br_strEndDate[16];
     u32 br_u32NumOfTrade;
     u32 br_u32NumOfTradeProfit;
     u32 br_u32NumOfTradeLoss;
+    u32 br_u32Reserved[5];
     oldouble_t br_dbMaxDrawdown;
     oldouble_t br_dbRateOfReturn;
 } backtesting_result_t;

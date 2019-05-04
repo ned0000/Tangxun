@@ -283,6 +283,7 @@ da_day_summary_t * getDaySummaryWithLowestLowPrice(
     da_day_summary_t * buffer, olint_t num);
 da_day_summary_t * getDaySummaryWithHighestHighPrice(
     da_day_summary_t * buffer, olint_t num);
+
 /*return NULL if the date has no trade*/
 u32 getDaySummaryWithDate(
     da_day_summary_t * buffer, olint_t num, olchar_t * strdate, da_day_summary_t ** ret);
@@ -307,26 +308,41 @@ void locateInflexionPointRegion(
 da_day_summary_t * getInflexionPointWithHighestClosingPrice(
     da_day_summary_t ** ppp, olint_t nump);
 
+/** Read trade day summary until the last trading day
+ */
 u32 readTradeDaySummary(
     olchar_t * pstrDataDir, da_day_summary_t * buffer, olint_t * numofresult);
 u32 readTradeDaySummaryWithFRoR(
     olchar_t * pstrDataDir, da_day_summary_t * buffer, olint_t * numofresult);
+
+/** Read trade day summary from specified date, if pstrDateFrom is NULL, read the first trading day
+ */
 u32 readTradeDaySummaryFromDate(
     olchar_t * pstrDataDir, olchar_t * pstrDateFrom, da_day_summary_t * buffer,
     olint_t * numofresult);
 u32 readTradeDaySummaryFromDateWithFRoR(
     olchar_t * pstrDataDir, olchar_t * pstrDateFrom, da_day_summary_t * buffer,
     olint_t * numofresult);
+
+/** Read trade day summary until end date.
+ *  
+ *  @note Read maximum u32Count trading day after end date, so buy and sell operation are in
+ *   the same page for DR.
+ *  @note pstrEndDate cannot be NULL.
+ */
 u32 readTradeDaySummaryUntilDate(
-    olchar_t * pstrDataDir, olchar_t * pstrEndDate, da_day_summary_t * buffer,
+    olchar_t * pstrDataDir, olchar_t * pstrEndDate, u32 u32Count, da_day_summary_t * buffer,
     olint_t * numofresult);
 u32 readTradeDaySummaryUntilDateWithFRoR(
-    olchar_t * pstrDataDir, olchar_t * pstrEndDate, da_day_summary_t * buffer,
+    olchar_t * pstrDataDir, olchar_t * pstrEndDate, u32 u32Count, da_day_summary_t * buffer,
     olint_t * numofresult);
+
 olint_t daySummaryEndDataCount(
     da_day_summary_t * buffer, olint_t num, olchar_t * pstrEndDate);
+
 boolean_t isStraightLineMotion(
     da_day_summary_t * buffer, olint_t total, olint_t ndays);
+
 boolean_t isStraightHighLimitDay(da_day_summary_t * pdds);
 
 void getStringDaySummaryStatus(da_day_summary_t * summary, olchar_t * pstr);

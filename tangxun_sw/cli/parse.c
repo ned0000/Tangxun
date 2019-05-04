@@ -167,12 +167,14 @@ parse [-l count] [-d yyyy-mm-dd] [-v] [-h] \n\
   -v: verbose.");
     jf_clieng_outputRawLine2("\
 Trade summary file options.\n\
-parse [-s stock] [-f] [-u] [-o] \n\
+parse [-s stock] [-f] [-u] [-o] [-c count] \n\
   -s: parse trade summary file.\n\
   -f: parse files from specified date, return NULL if the date is not found in the file.\n\
       If '-d' is not specified, the date will be the first day in the file.\n\
   -u: parse files until specified date, return NULL if the date is not found in the file.\n\
       If '-d' is not specified, the date will be the last day in the file.\n\
+  -c: read maximum count trading days after specified date of option '-u'. The count is 0 if not\n\
+      specifed.\n\
   -o: forward restoration of right.");
     jf_clieng_outputRawLine2("\
 Quotation file options.\n\
@@ -700,7 +702,7 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, da_master_t * pdm)
                 dirpath, pcpp->cpp_pstrDate, buffer, &total);
         else if (pcpp->cpp_bEndDate)
             u32Ret = readTradeDaySummaryUntilDateWithFRoR(
-                dirpath, pcpp->cpp_pstrDate, buffer, &total);
+                dirpath, pcpp->cpp_pstrDate, pcpp->cpp_u32Count, buffer, &total);
         else
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     }
@@ -711,7 +713,7 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, da_master_t * pdm)
                 dirpath, pcpp->cpp_pstrDate, buffer, &total);
         else if (pcpp->cpp_bEndDate)
             u32Ret = readTradeDaySummaryUntilDate(
-                dirpath, pcpp->cpp_pstrDate, buffer, &total);
+                dirpath, pcpp->cpp_pstrDate, pcpp->cpp_u32Count, buffer, &total);
         else
             u32Ret = readTradeDaySummary(dirpath, buffer, &total);
     }
@@ -1013,7 +1015,7 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "s:e:t:d:fuq:l:ohv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+        "s:e:c:t:d:fuq:l:ohv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -1041,6 +1043,15 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             if ((u32Ret == JF_ERR_NO_ERROR) && (pcpp->cpp_nThres <= 0))
             {
                 jf_clieng_reportInvalidOpt('t');
+                u32Ret = JF_ERR_INVALID_PARAM;
+            }
+            break;
+        case 'c':
+            u32Ret = jf_string_getU32FromString(
+                optarg, ol_strlen(optarg), &pcpp->cpp_u32Count);
+            if (u32Ret != JF_ERR_NO_ERROR)
+            {
+                jf_clieng_reportInvalidOpt('c');
                 u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;

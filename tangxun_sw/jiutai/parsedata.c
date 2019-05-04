@@ -1435,7 +1435,7 @@ static u32 _fillTradeDaySummaryFromDate(
         }
         else
         {
-            return JF_ERR_INVALID_PARAM;
+            return JF_ERR_NOT_FOUND;
         }
     }
 
@@ -2091,7 +2091,8 @@ u32 readTradeDaySummaryFromDateWithFRoR(
 }
 
 u32 readTradeDaySummaryUntilDate(
-    olchar_t * pstrDataDir, olchar_t * pstrEndDate, da_day_summary_t * buffer, olint_t * numofresult)
+    olchar_t * pstrDataDir, olchar_t * pstrEndDate, u32 u32Count, da_day_summary_t * buffer,
+    olint_t * numofresult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
@@ -2099,8 +2100,9 @@ u32 readTradeDaySummaryUntilDate(
     olsize_t sbuf = 1024 * 1024;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olchar_t * start;
+    u32 u32Line = 0;
 
-    if (*numofresult == 0)
+    if ((*numofresult == 0) || (pstrEndDate == NULL))
         return JF_ERR_INVALID_PARAM;
     
     ol_snprintf(
@@ -2118,18 +2120,32 @@ u32 readTradeDaySummaryUntilDate(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         start = buf;
-        if (pstrEndDate != NULL)
+
+        u32Ret = jf_string_locateSubString(buf, pstrEndDate, &start);
+        if (u32Ret != JF_ERR_NO_ERROR)
+            u32Ret = JF_ERR_NOT_FOUND;
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Read maximum u32Count trading day after end date*/
+        if ((start > buf) && (u32Count > 0))
         {
-            u32Ret = jf_string_locateSubString(buf, pstrEndDate, &start);
-            if (u32Ret == JF_ERR_NO_ERROR)
+            start -= 2;
+            u32Line = 0;
+            while ((u32Line < u32Count) && (start != buf))
             {
-                sbuf -= start - buf;
+                if (*start == '\n')
+                    u32Line ++;
+
+                start --;
             }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+
+            if (start != buf)
+                start ++;
         }
+
+        sbuf -= start - buf;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -2152,12 +2168,13 @@ u32 readTradeDaySummaryUntilDate(
 }
 
 u32 readTradeDaySummaryUntilDateWithFRoR(
-    olchar_t * pstrDataDir, olchar_t * pstrEndDate, da_day_summary_t * buffer, olint_t * numofresult)
+    olchar_t * pstrDataDir, olchar_t * pstrEndDate, u32 u32Count, da_day_summary_t * buffer,
+    olint_t * numofresult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = readTradeDaySummaryUntilDate(
-        pstrDataDir, pstrEndDate, buffer, numofresult);
+        pstrDataDir, pstrEndDate, u32Count, buffer, numofresult);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("read dds until date %s, total %d days", pstrEndDate, *numofresult);

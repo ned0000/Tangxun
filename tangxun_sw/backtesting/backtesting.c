@@ -235,15 +235,13 @@ static u32 _backtestingFindAndTradeStock(
 
     while (ldays <= enddays)
     {
-        jf_date_convertDaysFrom1970ToDate(ldays, &lyear, &lmonth, &lday);
-        if (jf_date_isWeekendForDate(lyear, lmonth, lday) ||
-            isHoliday(lyear, lmonth, lday))
+        if (isHoliday(ldays))
         {
             ldays ++;
             continue;
         }
 
-        jf_date_getStringDate2(strDate, lyear, lmonth, lday);
+        jf_date_getStringDate2ForDaysFrom1970(strDate, ldays);
 
         total = daySummaryEndDataCount(buffer, num, strDate);
         if (total == 0)
@@ -468,8 +466,7 @@ static u32 _startBacktestingModel(
 }
 
 static u32 _backtestingFindStockInModelDayByDay(
-    backtesting_param_t * pbp,
-    stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    backtesting_param_t * pbp, stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_model_t * model = NULL;
@@ -488,28 +485,50 @@ static u32 _backtestingFindStockInModelDayByDay(
             continue;
         }
 
+        initTradePoolStock(&tps, stockinfo->si_strCode, model->dm_strName);
+
+        u32Ret = getPoolStockInTradePersistency(&tps);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            initTradePoolStock(&tps, stockinfo->si_strCode, model->dm_strName);
-
-            u32Ret = getPoolStockInTradePersistency(&tps);
+            /*the stock is in pool*/
+            jf_logger_logInfoMsg("%s is already in pool", stockinfo->si_strCode);
+        }
+        else
+        {
+            /* The stock is not in pool */
+            u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                /*the stock is in pool*/
-                jf_logger_logInfoMsg("%s is already in pool", stockinfo->si_strCode);
-            }
-            else
-            {
-                /* The stock is not in pool */
-                u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
-                if (u32Ret == JF_ERR_NO_ERROR)
-                {
-                    u32Ret = insertPoolStockIntoTradePersistency(&tps);
-                }
+                u32Ret = insertPoolStockIntoTradePersistency(&tps);
             }
         }
 
         model = getNextDaModel(model);
+    }
+
+    return u32Ret;
+}
+
+/** Read trade summary for backtesting
+ * 
+ */
+static u32 _readTradeSummaryForBacktesting(
+    olchar_t * pstrFullname, olchar_t * pstrBacktestDate, da_day_summary_t * buffer,
+    olint_t * numofresult)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    da_day_summary_t * pdds;
+#define BACKTESTING_MAX_COUNT_AFTER_END_DATE    (100)    
+    u32Ret = readTradeDaySummaryUntilDateWithFRoR(
+        pstrFullname, pstrBacktestDate, BACKTESTING_MAX_COUNT_AFTER_END_DATE, buffer, numofresult);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = getDaySummaryWithDate(buffer, *numofresult, pstrBacktestDate, &pdds);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        *numofresult = pdds - buffer + 1;
     }
 
     return u32Ret;
@@ -540,12 +559,11 @@ static u32 _backtestingFindStockDayByDay(
 
         ol_snprintf(
             strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-            pbp->bp_pstrStockPath,
-            PATH_SEPARATOR, stockinfo->si_strCode);
+            pbp->bp_pstrStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
         strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
         total = num;
 
-        u32Ret = readTradeDaySummaryUntilDateWithFRoR(
+        u32Ret = _readTradeSummaryForBacktesting(
             strFullname, pstrBacktestDate, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -642,7 +660,7 @@ static u32 _backtestingSellStockDayByDay(
             strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
             total = num;
 
-            u32Ret = readTradeDaySummaryUntilDateWithFRoR(
+            u32Ret = _readTradeSummaryForBacktesting(
                 strFullname, pstrBacktestDate, buffer, &total);
         }
             
@@ -682,7 +700,7 @@ static u32 _backtestingBuyOneStockDayByDay(
     ol_bzero(&dmtd, sizeof(dmtd));
     
     /*ToDo: determine fund which can be used for one stock*/
-#define MAX_PERCENT_OF_FUND_FOR_ONE_STOCK     (0.2)
+#define MAX_PERCENT_OF_FUND_FOR_ONE_STOCK     (0.5)
 #define MAX_FUND_FOR_ONE_STOCK                (10000)
     dmtd.dmtd_dbFund = pbr->br_dbFund;
     maxfund = pbr->br_dbInitialFund * MAX_PERCENT_OF_FUND_FOR_ONE_STOCK;
@@ -755,7 +773,7 @@ static u32 _backtestingBuyStockDayByDay(
             strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
             total = num;
 
-            u32Ret = readTradeDaySummaryUntilDateWithFRoR(
+            u32Ret = _readTradeSummaryForBacktesting(
                 strFullname, pstrBacktestDate, buffer, &total);
         }
             
@@ -846,12 +864,12 @@ static u32 _startBacktestingModelDayByDay(
 
     jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
 
-    jf_date_getDate2FromString(
-        ls_pstrBacktestingStartDateDayByDay, &lyear, &lmonth, &lday);
+    jf_date_getDate2FromString(ls_pstrBacktestingStartDateDayByDay, &lyear, &lmonth, &lday);
     ldays = jf_date_convertDateToDaysFrom1970(lyear, lmonth, lday);
+    ol_strcpy(pbre->bre_pbrResult->br_strStartDate, ls_pstrBacktestingStartDateDayByDay);
 
-    jf_date_getDateToday(&lyear, &lmonth, &lday);
-    enddays = jf_date_convertDateToDaysFrom1970(lyear, lmonth, lday);
+    enddays = jf_date_convertTodayToDaysFrom1970();
+    jf_date_getStringDate2ForDaysFrom1970(pbre->bre_pbrResult->br_strEndDate, enddays);
 
     pbre->bre_dbAsset = pbre->bre_pbrResult->br_dbInitialFund;
     pbre->bre_nStock = 0;
@@ -860,15 +878,13 @@ static u32 _startBacktestingModelDayByDay(
     while (ldays <= enddays)
     {
         /*determine the start date for reading day summary*/
-        jf_date_convertDaysFrom1970ToDate(ldays, &lyear, &lmonth, &lday);
-        if (jf_date_isWeekendForDate(lyear, lmonth, lday) ||
-            isHoliday(lyear, lmonth, lday))
+        if (isHoliday(ldays))
         {
             ldays ++;
             continue;
         }
 
-        jf_date_getStringDate2(strBacktestDate, lyear, lmonth, lday);
+        jf_date_getStringDate2ForDaysFrom1970(strBacktestDate, ldays);
         jf_logger_logDebugMsg("backtesting model day by day, %s", strBacktestDate);
 
         u32Ret = _backtestingFindStockDayByDay(pbp, strBacktestDate, buffer, total);
