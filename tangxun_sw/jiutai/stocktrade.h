@@ -47,30 +47,54 @@
 
 typedef struct trade_pool_stock
 {
-    olchar_t tps_strStock[MAX_TRADE_FIELD_LEN];  /*!< The name of the stock. */
-    olchar_t tps_strModel[MAX_TRADE_FIELD_LEN];  /*!< The name of the model. */
-    olchar_t tps_strModelParam[MAX_TRADE_MODEL_PARAM_LEN]; /*!< The parameter of the model. */
-    olchar_t tps_strAddDate[MAX_TRADE_FIELD_LEN];  /*!< The date to add this stock. */
-    olchar_t tps_strOp[MAX_TRADE_FIELD_LEN];  /*!< The operation of the trading. */
-    olchar_t tps_strOpRemark[MAX_TRADE_OP_REMARK_LEN];  /*!< The operation remark of the trading. */
-    olchar_t tps_strTradeDate[MAX_TRADE_FIELD_LEN];  /*!< The date to trade this stock. */
-    olchar_t tps_strPosition[MAX_TRADE_FIELD_LEN]; /*!< The position of the trading. */
-    int32_t tps_nVolume; /*!< The volume of the trading. */
-    oldouble_t tps_dbPrice;  /*!< The price of the trading. */
+    /** The name of the stock */
+    olchar_t tps_strStock[MAX_TRADE_FIELD_LEN];
+    /** The name of the model */
+    olchar_t tps_strModel[MAX_TRADE_FIELD_LEN];
+    /** The parameter of the model */
+    olchar_t tps_strModelParam[MAX_TRADE_MODEL_PARAM_LEN];
+    /** The date to add this stock */
+    olchar_t tps_strAddDate[MAX_TRADE_FIELD_LEN];
+    /** The start date of the day summary */
+    olchar_t tps_strStartDateOfDaySummary[MAX_TRADE_FIELD_LEN];
+    /** Number of day summary */
+    olint_t tps_nNumOfDaySummary;
+    /** The operation of the trading */
+    olchar_t tps_strOp[MAX_TRADE_FIELD_LEN];
+    /** The operation remark of the trading */
+    olchar_t tps_strOpRemark[MAX_TRADE_OP_REMARK_LEN];
+    /** The date to trade this stock */
+    olchar_t tps_strTradeDate[MAX_TRADE_FIELD_LEN];
+    /** The position of the trading */
+    olchar_t tps_strPosition[MAX_TRADE_FIELD_LEN];
+    /** The volume of the trading */
+    olint_t tps_nVolume;
+    /** The price of the trading */
+    oldouble_t tps_dbPrice;
 } trade_pool_stock_t;
 
 typedef struct trade_trading_record
 {
-    olchar_t ttr_strStock[MAX_TRADE_FIELD_LEN];  /*!< The name of the stock. */
-    olchar_t ttr_strModel[MAX_TRADE_FIELD_LEN];  /*!< The name of the model. */
-    olchar_t ttr_strModelParam[MAX_TRADE_MODEL_PARAM_LEN]; /*!< The parameter of the model. */
-    olchar_t ttr_strAddDate[MAX_TRADE_FIELD_LEN];  /*!< The date to add this stock. */
-    olchar_t ttr_strOp[MAX_TRADE_FIELD_LEN];  /*!< The operation of the trading. */
-    olchar_t ttr_strOpRemark[MAX_TRADE_OP_REMARK_LEN];  /*!< The operation remark of the trading. */
-    olchar_t ttr_strTradeDate[MAX_TRADE_FIELD_LEN];  /*!< The date to the trading. */
-    olchar_t ttr_strPosition[MAX_TRADE_FIELD_LEN]; /*!< The position of the trading. */
-    int32_t ttr_nVolume; /*!< The volume of the trading. */
-    oldouble_t ttr_dbPrice;  /*!< The price of the trading. */
+    /** The name of the stock */
+    olchar_t ttr_strStock[MAX_TRADE_FIELD_LEN];
+    /** The name of the model */
+    olchar_t ttr_strModel[MAX_TRADE_FIELD_LEN];
+    /** The parameter of the model */
+    olchar_t ttr_strModelParam[MAX_TRADE_MODEL_PARAM_LEN];
+    /** The date to add this stock */
+    olchar_t ttr_strAddDate[MAX_TRADE_FIELD_LEN];
+    /** The operation of the trading */
+    olchar_t ttr_strOp[MAX_TRADE_FIELD_LEN];
+    /** The operation remark of the trading */
+    olchar_t ttr_strOpRemark[MAX_TRADE_OP_REMARK_LEN];
+    /** The date to the trading */
+    olchar_t ttr_strTradeDate[MAX_TRADE_FIELD_LEN];
+    /** The position of the trading */
+    olchar_t ttr_strPosition[MAX_TRADE_FIELD_LEN];
+    /** The volume of the trading */
+    olint_t ttr_nVolume;
+    /** The price of the trading */
+    oldouble_t ttr_dbPrice;
 } trade_trading_record_t;
 
 

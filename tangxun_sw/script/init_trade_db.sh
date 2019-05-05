@@ -16,7 +16,8 @@ $SQL $DATABASE "DROP TABLE $TABLE_POOL;"
 
 echo "==================Creating table $TABLE_POOL=================="
 $SQL $DATABASE "CREATE TABLE $TABLE_POOL(stock TEXT, model TEXT, modelParam TEXT, addDate TEXT,\
- op TEXT, opRemark TEXT, tradeDate TEXT, position TEXT, volume INTEGER, price REAL, PRIMARY KEY(stock, model));"
+ startDateOfDaySummary TEXT, numOfDaySummary INTEGER, op TEXT, opRemark TEXT, tradeDate TEXT,\
+ position TEXT, volume INTEGER, price REAL, PRIMARY KEY(stock, model));"
 
 echo "==================Adding parameters to $TABLE_POOL================"
 
