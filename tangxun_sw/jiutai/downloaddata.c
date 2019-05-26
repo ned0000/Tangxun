@@ -666,42 +666,50 @@ static u32 _saveOneCsv(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pjhph->jhph_nStatusCode != 200)
+        {
             u32Ret = JF_ERR_HTTP_STATUS_NOT_OK;
+        }
         else
         {
-            if (jf_httpparser_getHeaderLine(
-                    pjhph, pstrEncoding, ol_strlen(pstrEncoding), &pjhphf) ==
-                JF_ERR_NO_ERROR)
+            u32Ret = jf_httpparser_getHeaderLine(
+                pjhph, pstrEncoding, ol_strlen(pstrEncoding), &pjhphf);
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
-                if (ol_strcmp(pjhphf->jhphf_pstrData, "chunked") == 0)
+                if (ol_strncmp(pjhphf->jhphf_pstrData, "chunked", 7) == 0)
                     bChunked = TRUE;
             }
-            else if (jf_httpparser_getHeaderLine(
-                         pjhph, pstrContentLength,
-                         ol_strlen(pstrContentLength), &pjhphf) ==
-                     JF_ERR_NO_ERROR)
+            else
             {
-                u32Ret = jf_string_getS32FromString(
-                    pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, &nContentLength);
+                u32Ret = jf_httpparser_getHeaderLine(
+                    pjhph, pstrContentLength, ol_strlen(pstrContentLength), &pjhphf);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    if (nContentLength <= 10) /*can't be so little data*/
+                    u32Ret = jf_string_getS32FromString(
+                        pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, &nContentLength);
+                    if (u32Ret == JF_ERR_NO_ERROR)
                     {
-                        u32Ret = JF_ERR_INVALID_DATA;
+                        if (nContentLength <= 10) /*can't be so little data*/
+                        {
+                            u32Ret = JF_ERR_INVALID_DATA;
+                            jf_logger_logErrMsg(
+                                u32Ret, "Invalid data for %s, stock %s", fname, stock);
+                        }
+                    }
+                    else
+                    {
                         jf_logger_logErrMsg(
-                            u32Ret, "Invalid data for %s, stock %s",
-                            fname, stock);
+                            u32Ret, "Invalid HTTP header for %s, stock %s", fname, stock);
                     }
                 }
-                else
+            }
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                if ((! bChunked) && (nContentLength == 0))
                 {
-                    jf_logger_logErrMsg(
-                        u32Ret, "Invalid HTTP header for %s, stock %s",
-                        fname, stock);
+                    u32Ret = JF_ERR_INVALID_DATA;
                 }
             }
-            else
-                u32Ret = JF_ERR_INVALID_DATA;
         }
     }
 
@@ -715,8 +723,7 @@ static u32 _saveOneCsv(
         if (_cvsDataReady(bChunked, nContentLength, pBody, sbody) > 0)
         {
             u32Ret = jf_file_openWithMode(
-                filepath, O_WRONLY | O_CREAT | O_TRUNC,
-                JF_FILE_DEFAULT_CREATE_MODE, &fd);
+                filepath, O_WRONLY | O_CREAT | O_TRUNC, JF_FILE_DEFAULT_CREATE_MODE, &fd);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 if (bChunked)

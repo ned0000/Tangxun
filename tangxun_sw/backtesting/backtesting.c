@@ -697,7 +697,7 @@ static u32 _backtestingBuyOneStockDayByDay(
     ol_bzero(&dmtd, sizeof(dmtd));
     
     /*ToDo: determine fund which can be used for one stock*/
-#define MAX_PERCENT_OF_FUND_FOR_ONE_STOCK     (0.5)
+#define MAX_PERCENT_OF_FUND_FOR_ONE_STOCK     (0.2)
 #define MAX_FUND_FOR_ONE_STOCK                (10000)
     dmtd.dmtd_dbFund = pbr->br_dbFund;
     maxfund = pbr->br_dbInitialFund * MAX_PERCENT_OF_FUND_FOR_ONE_STOCK;
