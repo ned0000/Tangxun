@@ -25,12 +25,14 @@
 #include "jf_logger.h"
 #include "jf_process.h"
 #include "jf_file.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_network.h"
 
 #include "dabgad.h"
 
 /* --- private data structures ------------------------------------------------------------------ */
+
+#define DABGAD_NAME       "dabgad"
 
 typedef struct
 {
@@ -44,7 +46,7 @@ typedef struct
 } internal_dabgad_t;
 
 /*10 minutes*/
-#define DOWNLOAD_TIMER_INTERVAL  600
+#define DOWNLOAD_TIMER_INTERVAL       (600)
 
 /* --- private routine section ------------------------------------------------------------------ */
 static u32 _startDownload(void * pData)
@@ -89,7 +91,7 @@ u32 createDabgad(dabgad_t ** ppDabgad, dabgad_param_t * pdp)
 
     jf_logger_logInfoMsg("create dabgad");
 
-    u32Ret = jf_mem_calloc((void **)&pid, sizeof(internal_dabgad_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pid, sizeof(internal_dabgad_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pid->id_pstrSettingFile = pdp->dp_pstrSettingFile;
@@ -104,7 +106,7 @@ u32 createDabgad(dabgad_t ** ppDabgad, dabgad_param_t * pdp)
         u32Ret = jf_network_createChain(&pid->id_pjncChain);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_network_createUtimer(pid->id_pjncChain, &(pid->id_putUtimer));
+        u32Ret = jf_network_createUtimer(pid->id_pjncChain, &pid->id_putUtimer, DABGAD_NAME);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_addUtimerItem(
@@ -130,7 +132,7 @@ u32 destroyDabgad(dabgad_t ** ppDabgad)
     if (pid->id_pjncChain != NULL)
         jf_network_destroyChain(&pid->id_pjncChain);
 
-    jf_mem_free(ppDabgad);
+    jf_jiukun_freeMemory(ppDabgad);
 
     return u32Ret;
 }

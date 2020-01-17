@@ -1,7 +1,7 @@
 /**
  *  @file parsedata.c
  *
- *  @brief routine for parsing data, the data from files or ...
+ *  @brief Routine for parsing data, the data from files.
  *
  *  @author Min Zhang
  *
@@ -663,7 +663,7 @@ static u32 _parseDataFile(
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&data, MAX_DATAFILE_SIZE, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&data, MAX_DATAFILE_SIZE);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         sread = MAX_DATAFILE_SIZE;
@@ -1375,7 +1375,7 @@ static u32 _parseQuotationFile(
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&data, MAX_DATAFILE_SIZE, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&data, MAX_DATAFILE_SIZE);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         sread = MAX_DATAFILE_SIZE;
@@ -1498,10 +1498,11 @@ u32 readTradeDayDetail(olchar_t * dirpath, parse_param_t * ppp,
     da_day_result_t * result, * prev = NULL;
 
     u32Ret = jf_jiukun_allocMemory(
-        (void **)&entrylist, sizeof(jf_dir_entry_t) * total,
-        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
+        (void **)&entrylist, sizeof(jf_dir_entry_t) * total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(entrylist, sizeof(jf_dir_entry_t) * total);
+
         u32Ret = jf_dir_scan(
             dirpath, entrylist, &total, _filterDirEntry, jf_dir_compareDirEntry);
     }
@@ -1991,7 +1992,7 @@ u32 readTradeDaySummary(
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
         pstrDataDir, PATH_SEPARATOR, ls_pstrTradeSummaryFile);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_filestream_open(strFullname, "r", &fp);
@@ -2047,7 +2048,7 @@ u32 readTradeDaySummaryFromDate(
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
         pstrDataDir, PATH_SEPARATOR, ls_pstrTradeSummaryFile);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_filestream_open(strFullname, "r", &fp);
@@ -2109,7 +2110,7 @@ u32 readTradeDaySummaryUntilDate(
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
         pstrDataDir, PATH_SEPARATOR, ls_pstrTradeSummaryFile);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&buf, sbuf);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_filestream_open(strFullname, "r", &fp);
@@ -2617,10 +2618,11 @@ u32 readStockQuotationFile(
     olchar_t file[JF_LIMIT_MAX_PATH_LEN * 2];
 
     u32Ret = jf_jiukun_allocMemory(
-        (void **)&entrylist, sizeof(jf_dir_entry_t) * total,
-        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
+        (void **)&entrylist, sizeof(jf_dir_entry_t) * total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(entrylist, sizeof(jf_dir_entry_t) * total);
+
         u32Ret = jf_dir_scan(
             pstrDataDir, entrylist, &total, _filterQuotationFileEntry, jf_dir_compareDirEntry);
     }
@@ -2678,7 +2680,7 @@ u32 parseSectorDir(
     tsf.maxsector = *numofsector;
     tsf.sdata = MAX_SECTOR_FILE_SIZE;
 
-    jf_jiukun_allocMemory((void **)&tsf.data, tsf.sdata, 0);
+    jf_jiukun_allocMemory((void **)&tsf.data, tsf.sdata);
 
     u32Ret = jf_dir_parse(pstrDir, _handleSectorFile, &tsf);
     if (u32Ret == JF_ERR_NO_ERROR)

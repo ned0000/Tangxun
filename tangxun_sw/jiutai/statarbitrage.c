@@ -598,8 +598,8 @@ oldouble_t getSaStockInfoCorrelation(
     u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t * pdba = NULL, * pdbb = NULL;
 
-    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * nDaySummary, 0);
-    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * nDaySummary, 0);
+    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * nDaySummary);
+    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * nDaySummary);
 
     u32Ret = _getClosingPricePair(
         &sastock[0], &sastock[1], pdba, pdbb, nDaySummary);

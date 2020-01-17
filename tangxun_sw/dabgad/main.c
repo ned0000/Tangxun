@@ -155,18 +155,24 @@ static u32 _initDabgad(olint_t argc, olchar_t ** argv)
     u32Ret = _parseDabgadCmdLineParam(argc, argv, &dp, &ehpParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_init(&ehpParam);
+        if (! ls_bForeground)
+            u32Ret = jf_process_switchToDaemon();
+    }        
 
-        jf_file_getFileName(strExecutable, 100, argv[0]);
-
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
         if (jf_process_isAlreadyRunning(strExecutable))
         {
             fprintf(stderr, "another %s is ruuning\n", strExecutable);
             exit(-1);
         }
+    }        
 
-        if (! ls_bForeground)
-            u32Ret = jf_process_switchToDaemon(strExecutable);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_logger_init(&ehpParam);
+
+        jf_file_getFileName(strExecutable, 100, argv[0]);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

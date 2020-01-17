@@ -851,8 +851,8 @@ static void _analysisStockQuo(
     olint_t i, j, max;
     quo_entry_t * start;
 
-    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry, 0);
-    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry, 0);
+    jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry);
+    jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry);
 
     for (i = 1; i < total; i ++)
     {
@@ -940,7 +940,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, da_master_t * pdm)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         total = stockquo.sq_nNumOfEntry;
-        jf_jiukun_allocMemory((void **)&pqe, sizeof(quo_entry_t *) * total, 0);
+        jf_jiukun_allocMemory((void **)&pqe, sizeof(quo_entry_t *) * total);
         jf_clieng_outputLine("");
         getQuoEntryInflexionPoint(
             stockquo.sq_pqeEntry, stockquo.sq_nNumOfEntry, pqe, &total);

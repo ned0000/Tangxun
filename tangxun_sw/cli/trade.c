@@ -159,7 +159,7 @@ static u32 _startTradeInStockPool(cli_trade_param_t * pctp, da_master_t * pdm)
     da_day_summary_t * buffer = NULL;
     stock_info_t * stockinfo;
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     stockinfo = getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -250,7 +250,7 @@ static u32 _listTradingStock(cli_trade_param_t * pctp, da_master_t * pdm)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&ptps, count * sizeof(trade_pool_stock_t), 0);
+        (void **)&ptps, count * sizeof(trade_pool_stock_t));
 
     u32Ret = getAllPoolStockInTradePersistency(ptps, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
@@ -340,6 +340,9 @@ static void _printTradingRecordVerbose(olint_t id, trade_trading_record_t * info
     jf_clieng_caption_t * pcc = &ls_ccTradingRecordVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
+    strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
+    strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
+
     jf_clieng_printDivider();
 
     /*Id*/
@@ -354,7 +357,7 @@ static void _printTradingRecordVerbose(olint_t id, trade_trading_record_t * info
     pcc += 2;
 
     /*ModelParam*/
-    ol_sprintf(strLeft, "%s", info->ttr_strModelParam);
+    ol_snprintf(strLeft, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->ttr_strModelParam);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
@@ -397,7 +400,7 @@ static u32 _listTradingRecord(cli_trade_param_t * pctp, da_master_t * pdm)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&ptrr, count * sizeof(trade_trading_record_t), 0);
+        (void **)&ptrr, count * sizeof(trade_trading_record_t));
 
     u32Ret = getAllTradingRecordInTradePersistency(ptrr, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))

@@ -1,7 +1,7 @@
 #
-#  @file Makefile linux.mak
+#  @file linux.mak
 #
-#  @brief The Makefile for cli utility
+#  @brief The Makefile for cli utility.
 #
 #  @author Min Zhang
 #
@@ -12,22 +12,21 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the executable file
-EXE = cli
+EXE = tx_cli
 
 # Source files
-SOURCES = env.c indi.c model.c stat.c fix.c download.c rule.c \
-	find.c parse.c backtest.c \
+SOURCES = env.c indi.c model.c stat.c fix.c download.c rule.c find.c parse.c backtest.c \
     analysis.c stock.c misc.c trade.c clicmd.c main.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocklist.c parsedata.c fixdata.c datastat.c regression.c \
-    downloaddata.c indicator.c statarbitrage.c damethod.c envvar.c
-
+JIUTAI_SRCS = stocklist.c parsedata.c fixdata.c datastat.c regression.c downloaddata.c \
+    indicator.c statarbitrage.c damethod.c envvar.c
 
 # For code complile
 EXTRA_CFLAGS =
 EXTRA_INC_DIR = -I$(TOPDIR)/jtk/inc
-EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_mem.o $(TOPDIR)/jtk/inc/jf_time.o
+EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_mem.o $(TOPDIR)/jtk/inc/jf_time.o \
+    $(TOPDIR)/jtk/inc/jf_option.o
 
 # For executable file build 
 EXTRA_LDFLAGS = 

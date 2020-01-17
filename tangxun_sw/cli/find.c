@@ -185,7 +185,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, da_master_t * pdm)
 
     _cleanTradeStockFromPool();
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     stockinfo = getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -289,7 +289,7 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, da_master_t *
     if (strlen(pcfp->cfp_pstrPeriod) != 21)
         return JF_ERR_INVALID_PARAM;
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     stockinfo = getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -345,6 +345,7 @@ static void _printStockPoolBrief(olint_t id, trade_pool_stock_t * info)
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
+    strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
 
     /*id*/
     ol_sprintf(strField, "%d", id);
@@ -362,7 +363,7 @@ static void _printStockPoolBrief(olint_t id, trade_pool_stock_t * info)
     pcc++;
 
     /*ModelParam*/
-    ol_sprintf(strField, "%s", info->tps_strModelParam);
+    ol_snprintf(strField, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->tps_strModelParam);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -387,7 +388,7 @@ static u32 _listStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&stockinpool, count * sizeof(trade_pool_stock_t), 0);
+        (void **)&stockinpool, count * sizeof(trade_pool_stock_t));
 
     u32Ret = getAllPoolStockInTradePersistency(stockinpool, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))

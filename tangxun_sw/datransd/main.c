@@ -140,7 +140,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     memset(&ehpParam, 0, sizeof(jf_logger_init_param_t));
     ehpParam.jlip_pstrCallerName = "DATRANSD";
-    ehpParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    ehpParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
     ehpParam.jlip_bLogToStdout = TRUE;
     ehpParam.jlip_bLogToFile = TRUE;
     ehpParam.jlip_pstrLogFilePath = "datransd.log";

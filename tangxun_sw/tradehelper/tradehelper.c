@@ -1,7 +1,7 @@
 /**
  *  @file tradehelper.c
  *
- *  @brief Provide some helper routine for stock trade
+ *  @brief Provide some helper routine for stock trade.
  *
  *  @author Min Zhang
  *
@@ -59,7 +59,7 @@ u32 setStockFirstTradeDate(const char * strStockPath)
 
     jf_logger_logInfoMsg("set stock first trade date, %s", strStockPath);
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     stockinfo = getFirstStockInfo();
     while (stockinfo != NULL)

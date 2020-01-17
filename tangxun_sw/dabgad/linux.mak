@@ -28,7 +28,7 @@ EXTRA_CFLAGS =
 EXTRA_LDFLAGS = 
 EXTRA_OBJECTS = ../jtk/inc/jf_process.o
 EXTRA_LIB_DIR = -L../jtk/lib 
-EXTRA_LIBS = -ljf_logger -ljf_files -ljf_ifmgmt -ljf_network -ljf_string -lpthread
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_ifmgmt -ljf_network -ljf_string -lpthread -ljf_jiukun
 
 include $(TOPDIR)/mak/lnxexe.mak
 

@@ -46,7 +46,11 @@
 
 /* --- private data structures ------------------------------------------------------------------ */
 
-#define DATRANSD_FAKE_DATA  0 /*For testing purpose*/
+#define DATRANSD_NAME                  "datransd"
+
+/** For testing purpose.
+ */
+#define DATRANSD_FAKE_DATA             (0)
 
 #define STOCK_OPEN_POSITION_FILE_NAME  "StockOpenPosition.txt"
 #define STOCK_TRANS_FILE_NAME  "StockTrans.txt"
@@ -169,8 +173,8 @@ static void _copyRawQuo(u8 * pu8Body, olsize_t sBody)
 }
 
 static u32 _quoOnResponse(
-    jf_network_asocket_t * pAsocket, olint_t InterruptFlag,
-    jf_httpparser_packet_header_t * header, void * user, boolean_t * pbPause)
+    jf_network_asocket_t * pAsocket, jf_webclient_event_t InterruptFlag,
+    jf_httpparser_packet_header_t * header, void * user)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * buf = NULL;
@@ -179,7 +183,7 @@ static u32 _quoOnResponse(
 
     jf_logger_logInfoMsg("quo on response, InterruptFlag %d", InterruptFlag);
 
-    if (InterruptFlag == JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED)
+    if (InterruptFlag != JF_WEBCLIENT_EVENT_INCOMING_DATA)
     {
         jf_logger_logInfoMsg("quo on response, web data obj is destroyed");
         return u32Ret;
@@ -265,9 +269,8 @@ static u32 _getSinaQuotation(internal_datransd_t * pid)
         "Connection: keep-alive\r\n"
         "\r\n", strStockList, ls_pstrQuotationServer);
 
-    u32Ret = jf_webclient_pipelineWebRequestEx(
-        pid->id_pjwWebclient, &pid->id_jiServerAddr, 80, buffer, len, FALSE, NULL, 0,
-        FALSE, _quoOnResponse, pid);
+    u32Ret = jf_webclient_sendHttpHeaderAndBody(
+        pid->id_pjwWebclient, &pid->id_jiServerAddr, 80, buffer, len, NULL, 0, _quoOnResponse, pid);
 
     return u32Ret;
 }
@@ -1553,7 +1556,7 @@ static u32 _addStockStatArbi(
     jf_listhead_t * listhead;
 
     memset(code, 0, sizeof(code));
-    jf_jiukun_allocMemory((void **)&buf, size, 0);
+    jf_jiukun_allocMemory((void **)&buf, size);
 
     u32Ret = jf_file_open(filename, O_RDONLY, &fd);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1781,12 +1784,12 @@ u32 createDatransd(datransd_t ** ppDatransd, datransd_param_t * pdp)
         u32Ret = jf_network_createChain(&pid->id_pjncChain);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_network_createUtimer(pid->id_pjncChain, &pid->id_pjnuUtimer);
+        u32Ret = jf_network_createUtimer(pid->id_pjncChain, &pid->id_pjnuUtimer, DATRANSD_NAME);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jwcp, 0, sizeof(jwcp));
-        jwcp.jwcp_nPoolSize = 5;
+        jwcp.jwcp_u32PoolSize = 5;
         jwcp.jwcp_sBuffer = ALIGN(ls_sRawQuoDataMalloc, 1024); //4096;
         jf_logger_logInfoMsg(
             "create datransd, buffer size for webclient %d", jwcp.jwcp_sBuffer);

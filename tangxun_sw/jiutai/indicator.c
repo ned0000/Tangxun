@@ -107,8 +107,8 @@ static void _newAdxr(
         return;
 
     jf_jiukun_allocMemory(
-        (void **)&end->dds_pdaAdxr, sizeof(da_adxr_t),
-        JF_FLAG_MASK(JF_JIUKUN_MEM_ALLOC_FLAG_ZERO));
+        (void **)&end->dds_pdaAdxr, sizeof(da_adxr_t));
+    ol_bzero(end->dds_pdaAdxr, sizeof(da_adxr_t));
 
     adxr = end->dds_pdaAdxr;
     dbt = dbp = dbn = 0;
@@ -245,7 +245,7 @@ static void _getAdxrTrend(da_day_summary_t * first, olint_t num)
 
     estiratio = _getAdxrTrendRatio(first, num);
 
-    jf_jiukun_allocMemory((void **)&sort, sizeof(da_day_summary_t *) * num, 0);
+    jf_jiukun_allocMemory((void **)&sort, sizeof(da_day_summary_t *) * num);
     for (i = 0; i <= num; i ++)
     {
         sort[i] = &first[i];

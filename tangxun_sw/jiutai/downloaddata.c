@@ -288,7 +288,7 @@ static u32 _downloadOneXls(
     olint_t i, retry_count = 3;
     jf_network_socket_t * sock = NULL;
     olsize_t srecv;
-    olchar_t strDate[64], strFile[64], strServer[64];
+    olchar_t strDate[64], strFile[96], strServer[64];
     olint_t syear, smonth, sday, eyear, emonth, eday;
     olint_t sdays, edays;
     olint_t dw;
@@ -364,7 +364,7 @@ static u32 _downloadOneXls(
             jf_network_destroySocket(&sock);
 
         sdays ++;
-        jf_time_msleep(500); /*sleep 0.5 second or the server hate you, maybe*/
+        jf_time_milliSleep(500); /*sleep 0.5 second or the server hate you, maybe*/
     }
 
     return u32Ret;
@@ -384,7 +384,7 @@ static u32 _downloadSinaXls(download_data_param_t * param)
     {
         jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
 //        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
-        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -914,8 +914,8 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
     {
         jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
 //        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
-        jf_jiukun_allocMemory((void **)&origcsv, sorig, 0);
-        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
+        jf_jiukun_allocMemory((void **)&origcsv, sorig);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -932,7 +932,7 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
                         ls_pstrDataFileNetease, origcsv, sorig,
                         recvdata, srecv, param);
 
-                jf_time_msleep(500);
+                jf_time_milliSleep(500);
 
                 stockinfo = getNextStockInfo(stockinfo);
             }
@@ -1001,8 +1001,8 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
     {
         jf_ipaddr_setIpV4Addr(&serveraddr, *(long *) (servp->h_addr));
 //        getIpAddrFromString("58.63.237.237", JF_IPADDR_TYPE_V4, &serveraddr);
-        jf_jiukun_allocMemory((void **)&origcsv, sorig, 0);
-        jf_jiukun_allocMemory((void **)&recvdata, srecv, 0);
+        jf_jiukun_allocMemory((void **)&origcsv, sorig);
+        jf_jiukun_allocMemory((void **)&recvdata, srecv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1017,7 +1017,7 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
                     ls_pstrDataFileNetease, origcsv, sorig,
                     recvdata, srecv, param);
 
-            jf_time_msleep(500);
+            jf_time_milliSleep(500);
 
             stockinfo = getNextStockInfoIndex(stockinfo);
         }

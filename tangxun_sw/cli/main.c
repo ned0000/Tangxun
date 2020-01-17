@@ -32,6 +32,7 @@
 #include "jf_mem.h"
 #include "jf_network.h"
 #include "jf_process.h"
+#include "jf_option.h"
 
 #include "stocklist.h"
 #include "envvar.h"
@@ -42,14 +43,16 @@
 #include "darule.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-da_master_t * ls_pdmMaster = NULL;
 
-static const olchar_t * ls_pstrProgramName = "oldata-analysis";
-static const olchar_t * ls_pstrVersion = "1.0.0";
-static const olchar_t * ls_pstrBuildData = "7/21/2018";
+static da_master_t * ls_pdmMaster = NULL;
+
+static const olchar_t * ls_pstrTxCliProgramName = "tx_cli";
+static const olchar_t * ls_pstrTxCliVersion = "1.0.0";
+static const olchar_t * ls_pstrTxCliBuildData = "7/21/2019";
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printTxCliUsage(void)
 {
     ol_printf("\
 Usage: %s [logger options] \n\
@@ -57,11 +60,10 @@ logger options:\n\
     -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_pstrProgramName);
+           ls_pstrTxCliProgramName);
 
     ol_printf("\n");
 
-    exit(0);
 }
 
 static u32 _parseCmdLineParam(
@@ -69,22 +71,19 @@ static u32 _parseCmdLineParam(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
-    while (((nOpt = getopt(argc, argv,
-        "T:F:S:Oh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "T:F:S:Oh")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printTxCliUsage();
+            exit(0);
             break;
         case 'T':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -94,10 +93,7 @@ static u32 _parseCmdLineParam(
             pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_sLogFile = u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -113,9 +109,8 @@ static u32 _printShellGreeting(void * pMaster)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputLine("-------------------------------------------------------------");
-    jf_clieng_outputLine("Data Analysis Command Line Interface (CLI) Utility");
-    jf_clieng_outputLine("Version: %s Build Date: %s",
-                     ls_pstrVersion, ls_pstrBuildData);
+    jf_clieng_outputLine("Tangxun Command Line Interface (CLI) Utility");
+    jf_clieng_outputLine("Version: %s Build Date: %s", ls_pstrTxCliVersion, ls_pstrTxCliBuildData);
     jf_clieng_outputLine("All rights reserved.");
     jf_clieng_outputLine("-------------------------------------------------------------");
 
@@ -139,7 +134,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jlipParam.jlip_pstrCallerName = "DA";
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_bLogToFile = TRUE;
-        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
         jlipParam.jlip_pstrLogFilePath = "cli.log";
 
         ol_memset(&jcip, 0, sizeof(jf_clieng_init_param_t));

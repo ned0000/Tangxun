@@ -1,7 +1,7 @@
 /**
  *  @file backtesting.c
  *
- *  @brief Backtesting module
+ *  @brief Backtesting module.
  *
  *  @author Min Zhang
  *
@@ -281,7 +281,7 @@ static u32 _summaryBacktestingResult(backtesting_result_t * pbr)
     jf_logger_logInfoMsg("summary backtesting result, %d record.", count);
 
     jf_jiukun_allocMemory(
-        (void **)&traderecord, count * sizeof(trade_trading_record_t), 0);
+        (void **)&traderecord, count * sizeof(trade_trading_record_t));
 
     u32Ret = getAllTradingRecordInTradePersistency(traderecord, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
@@ -350,7 +350,7 @@ static u32 _wrapupPoolStock(backtesting_result_t * pbr)
     jf_logger_logInfoMsg("wrapup pool stock, %d stocks", count);
 
     jf_jiukun_allocMemory(
-        (void **)&stockinpool, count * sizeof(trade_pool_stock_t), 0);
+        (void **)&stockinpool, count * sizeof(trade_pool_stock_t));
 
     u32Ret = getAllPoolStockInTradePersistency(stockinpool, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
@@ -396,7 +396,7 @@ static u32 _startBacktestingModel(
     clearDataInTradePersistency();
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     stockinfo = getFirstStockInfo();
     while (stockinfo != NULL)
@@ -813,13 +813,13 @@ static u32 _backtestingTradeStockDayByDay(
         "backtesting trade stock day by day, count: %d", count);
 
     jf_jiukun_allocMemory(
-        (void **)&ptps, count * sizeof(trade_pool_stock_t), 0);
+        (void **)&ptps, count * sizeof(trade_pool_stock_t));
 
     u32Ret = getAllPoolStockInTradePersistency(ptps, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
     {
         opCount = count;
-        jf_jiukun_allocMemory((void **)&ptpsOp, opCount * sizeof(trade_pool_stock_t *), 0);
+        jf_jiukun_allocMemory((void **)&ptpsOp, opCount * sizeof(trade_pool_stock_t *));
         /*1. try to buy stock*/
         filterPoolStockByOp(ptps, count, STOCK_OP_NONE, ptpsOp, &opCount);
         sortPoolStockForBuyOp(pbp, ptpsOp, opCount, pstrBacktestDate, buffer, num);
@@ -864,7 +864,7 @@ static u32 _startBacktestingModelDayByDay(
     jf_logger_logInfoMsg("backtesting model day by day");
     clearDataInTradePersistency();
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total, 0);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
     jf_date_getDate2FromString(ls_pstrBacktestingStartDateDayByDay, &lyear, &lmonth, &lday);
     ldays = jf_date_convertDateToDaysFrom1970(lyear, lmonth, lday);
