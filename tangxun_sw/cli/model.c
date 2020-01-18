@@ -1,7 +1,7 @@
 /**
  *  @file model.c
  *
- *  @brief The model command
+ *  @brief The model command implementation.
  *
  *  @author Min Zhang
  *
@@ -35,7 +35,7 @@ static jf_clieng_caption_t ls_jccDaModelBrief[] =
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _modelHelp(da_master_t * pdm)
+static u32 _modelHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -142,10 +142,10 @@ u32 processModel(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_model_param_t * pcmp = (cli_model_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcmp->cmp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _modelHelp(pdm);
+        u32Ret = _modelHelp(ptcm);
     else if (pcmp->cmp_u8Action == CLI_ACTION_MODEL_LIST_ALL)
     {
         u32Ret = _printAllDaModel(pcmp);

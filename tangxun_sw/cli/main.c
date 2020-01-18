@@ -1,7 +1,7 @@
 /**
  *  @file main.c
  *
- *  @brief The main file of CLI utility
+ *  @brief The main file of CLI utility.
  *
  *  @author Min Zhang
  *  
@@ -44,7 +44,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static da_master_t * ls_pdmMaster = NULL;
+static tx_cli_master_t ls_tcmCliMaster;
 
 static const olchar_t * ls_pstrTxCliProgramName = "tx_cli";
 static const olchar_t * ls_pstrTxCliVersion = "1.0.0";
@@ -117,51 +117,12 @@ static u32 _printShellGreeting(void * pMaster)
     return u32Ret;
 }
 
-/* --- public routine section ------------------------------------------------------------------- */
-
-olint_t main(olint_t argc, olchar_t ** argv)
+static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_clieng_init_param_t jcip;
-    jf_logger_init_param_t jlipParam;
     da_cli_param_t dcpParam;
-    jf_jiukun_init_param_t jjip;
 
-    u32Ret = jf_mem_calloc((void **)&ls_pdmMaster, sizeof(da_master_t));
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
-        jlipParam.jlip_pstrCallerName = "DA";
-        jlipParam.jlip_bLogToStdout = TRUE;
-        jlipParam.jlip_bLogToFile = TRUE;
-        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
-        jlipParam.jlip_pstrLogFilePath = "cli.log";
-
-        ol_memset(&jcip, 0, sizeof(jf_clieng_init_param_t));
-
-        jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
-        jcip.jcip_sCmdHistroyBuf = 20;
-        ol_strcpy(jcip.jcip_strCliName, "TANGXUN-CLI");
-        jcip.jcip_pstrNewLine = "\n";
-        jcip.jcip_pMaster = ls_pdmMaster;
-        jcip.jcip_fnPrintGreeting = _printShellGreeting;
-
-        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        jf_logger_init(&jlipParam);
-        jf_process_initSocket();
-
-        ol_memset(&jjip, 0, sizeof(jf_jiukun_init_param_t));
-        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
-        jjip.jjip_bNoGrow = FALSE;
-
-        u32Ret = jf_jiukun_init(&jjip);
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_clieng_init(&jcip);
+        u32Ret = jf_clieng_init(pjcip);
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initStockList();
@@ -179,7 +140,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = initDaRule();
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = addDaCmd(ls_pdmMaster, &dcpParam);
+            u32Ret = addDaCmd(ptcmCli, &dcpParam);
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_clieng_run();
@@ -189,14 +150,59 @@ olint_t main(olint_t argc, olchar_t ** argv)
         finiStockList();
         finiDaModelFramework();
         finiDaRule();
-        jf_jiukun_fini();
 
-        jf_process_finiSocket();
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
+
+olint_t main(olint_t argc, olchar_t ** argv)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_clieng_init_param_t jcip;
+    jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
+
+    ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "TX_CLI";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToFile = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
+    jlipParam.jlip_pstrLogFilePath = "tx_cli.log";
+
+    ol_bzero(&jjip, sizeof(jf_jiukun_init_param_t));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    ol_bzero(&jcip, sizeof(jf_clieng_init_param_t));
+    jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
+    jcip.jcip_sCmdHistroyBuf = 20;
+    ol_strcpy(jcip.jcip_strCliName, "Tangxun CLI");
+    jcip.jcip_pstrNewLine = "\n";
+    jcip.jcip_pMaster = &ls_tcmCliMaster;
+    jcip.jcip_fnPrintGreeting = _printShellGreeting;
+
+    u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_logger_init(&jlipParam);
+
+        u32Ret = jf_process_initSocket();
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = jf_jiukun_init(&jjip);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = _initAndRunTxCli(&ls_tcmCliMaster, &jcip);
+
+                jf_jiukun_fini();
+            }
+
+            jf_process_finiSocket();
+        }
+
         jf_logger_fini();
     }
-
-    if (ls_pdmMaster != NULL)
-        jf_mem_free((void **)&ls_pdmMaster);
 
     return u32Ret;
 }

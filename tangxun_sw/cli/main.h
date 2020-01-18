@@ -1,7 +1,7 @@
 /**
  *  @file main.h
  *
- *  @brief Cli main header file
+ *  @brief Cli main header file.
  *
  *  @author Min Zhang
  *  
@@ -21,10 +21,11 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct
 {
-    u32 dm_u32Reserved[32];
-} da_master_t;
+    u32 tcm_u32Reserved[32];
+} tx_cli_master_t;
 
 
 

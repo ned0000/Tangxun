@@ -1,7 +1,7 @@
 /**
  *  @file find.c
  *
- *  @brief The find command
+ *  @brief The find command implementation.
  *
  *  @author Min Zhang
  *
@@ -45,7 +45,7 @@ static jf_clieng_caption_t ls_ccStockPoolBrief[] =
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _findHelp(da_master_t * pdm)
+static u32 _findHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -155,8 +155,7 @@ static u32 _findStocks(
     u32Ret = readTradeDaySummaryWithFRoR(pstrDataDir, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (! pcfp->cfp_bAllStocks &&
-            _isSuspendedStock(stockinfo, buffer, total))
+        if (! pcfp->cfp_bAllStocks && _isSuspendedStock(stockinfo, buffer, total))
             return u32Ret;
 
         u32Ret = _throwStockIntoModel(stockinfo, buffer, total);
@@ -175,7 +174,7 @@ static u32 _cleanTradeStockFromPool(void)
     return u32Ret;
 }
 
-static u32 _startFindForStockList(cli_find_param_t * pcfp, da_master_t * pdm)
+static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -194,12 +193,10 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, da_master_t * pdm)
         {
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
-                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH),
+                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
                 PATH_SEPARATOR, stockinfo->si_strCode);
 
-            u32Ret = _findStocks(
-                pcfp, strFullname, stockinfo, buffer, total);
+            u32Ret = _findStocks(pcfp, strFullname, stockinfo, buffer, total);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -278,7 +275,7 @@ static u32 _startFindStockInPeriod(
     return u32Ret;
 }
 
-static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, da_master_t * pdm)
+static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -305,12 +302,10 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, da_master_t *
         {
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
-                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH),
+                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
                 PATH_SEPARATOR, stockinfo->si_strCode);
 
-            u32Ret = _startFindStockInPeriod(
-                pcfp, strFullname, stockinfo, buffer, total);
+            u32Ret = _startFindStockInPeriod(pcfp, strFullname, stockinfo, buffer, total);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -375,7 +370,7 @@ static void _printStockPoolBrief(olint_t id, trade_pool_stock_t * info)
     jf_clieng_outputLine(strInfo);
 }
 
-static u32 _listStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
+static u32 _listStocksInPool(cli_find_param_t * pcfp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
@@ -404,8 +399,7 @@ static u32 _listStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
         {
             jf_clieng_printDivider();
             jf_clieng_printHeader(
-                ls_ccStockPoolBrief,
-                sizeof(ls_ccStockPoolBrief) / sizeof(jf_clieng_caption_t));
+                ls_ccStockPoolBrief, sizeof(ls_ccStockPoolBrief) / sizeof(jf_clieng_caption_t));
             pStock = stockinpool;
             for (index = 0; index < count; index ++)
             {
@@ -421,7 +415,7 @@ static u32 _listStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _cleanStocksInPool(cli_find_param_t * pcfp, da_master_t * pdm)
+static u32 _cleanStocksInPool(cli_find_param_t * pcfp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -435,25 +429,25 @@ u32 processFind(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_find_param_t * pcfp = (cli_find_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcfp->cfp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _findHelp(pdm);
+        u32Ret = _findHelp(ptcm);
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIND_LIST_POOL)
-        u32Ret = _listStocksInPool(pcfp, pdm);
+        u32Ret = _listStocksInPool(pcfp, ptcm);
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIND_LIST_POOL_BY_MODEL)
-        u32Ret = _listStocksInPool(pcfp, pdm);
+        u32Ret = _listStocksInPool(pcfp, ptcm);
     else if (pcfp->cfp_u8Action == CLI_ACTION_CLEAN_STOCK_POOL)
-        u32Ret = _cleanStocksInPool(pcfp, pdm);
+        u32Ret = _cleanStocksInPool(pcfp, ptcm);
     else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIND_STOCK)
-        u32Ret = _startFindForStockList(pcfp, pdm);
+        u32Ret = _startFindForStockList(pcfp, ptcm);
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIND_STOCK_IN_PERIOD)
-        u32Ret = _startFindForStockListInPeriod(pcfp, pdm);
+        u32Ret = _startFindForStockListInPeriod(pcfp, ptcm);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 

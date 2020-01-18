@@ -1,7 +1,7 @@
 /**
  *  @file trade.c
  *
- *  @brief The trade command
+ *  @brief The trade command implementation.
  *
  *  @author Min Zhang
  *
@@ -71,7 +71,7 @@ static jf_clieng_caption_t ls_ccTradingRecordVerbose[] =
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _tradeHelp(da_master_t * pdm)
+static u32 _tradeHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -151,7 +151,7 @@ static u32 _tradeStocks(
     return u32Ret;
 }
 
-static u32 _startTradeInStockPool(cli_trade_param_t * pctp, da_master_t * pdm)
+static u32 _startTradeInStockPool(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -237,7 +237,7 @@ static void _printTradingStockBrief(olint_t id, trade_pool_stock_t * info)
     jf_clieng_outputLine(strInfo);
 }
 
-static u32 _listTradingStock(cli_trade_param_t * pctp, da_master_t * pdm)
+static u32 _listTradingStock(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
@@ -387,7 +387,7 @@ static void _printTradingRecordVerbose(olint_t id, trade_trading_record_t * info
     jf_clieng_outputLine("");
 }
 
-static u32 _listTradingRecord(cli_trade_param_t * pctp, da_master_t * pdm)
+static u32 _listTradingRecord(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
@@ -442,21 +442,21 @@ u32 processTrade(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_trade_param_t * pctp = (cli_trade_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pctp->ctp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _tradeHelp(pdm);
+        u32Ret = _tradeHelp(ptcm);
     else if (pctp->ctp_u8Action == CLI_ACTION_TRADE_LIST)
-        u32Ret = _listTradingStock(pctp, pdm);
+        u32Ret = _listTradingStock(pctp, ptcm);
     else if (pctp->ctp_u8Action == CLI_ACTION_TRADE_LIST_RECORD)
-        u32Ret = _listTradingRecord(pctp, pdm);
+        u32Ret = _listTradingRecord(pctp, ptcm);
     else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
     }
     else if (pctp->ctp_u8Action == CLI_ACTION_TRADE_STOCK)
-        u32Ret = _startTradeInStockPool(pctp, pdm);
+        u32Ret = _startTradeInStockPool(pctp, ptcm);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 

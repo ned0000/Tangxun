@@ -1,7 +1,7 @@
 /**
  *  @file stat.c
  *
- *  @brief Stat command
+ *  @brief The stat command implementation.
  *
  *  @author Min Zhang
  *
@@ -120,7 +120,7 @@ static jf_clieng_caption_t ls_jccFrequencyBrief[] =
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _statHelp(da_master_t * pdm)
+static u32 _statHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -633,7 +633,7 @@ static void _printResultBrief(da_day_summary_t * buffer, olint_t total)
     }
 }
 
-static u32 _statAmount(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _statAmount(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_NUM_OF_RESULT;
@@ -667,7 +667,7 @@ static u32 _statAmount(cli_stat_param_t * pcsp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _parseDirInflexionPoint(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _parseDirInflexionPoint(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 60; //MAX_NUM_OF_RESULT;
@@ -711,7 +711,7 @@ static u32 _parseDirInflexionPoint(cli_stat_param_t * pcsp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _parseDirInflexionPoint2(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _parseDirInflexionPoint2(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 20; //MAX_NUM_OF_RESULT;
@@ -747,7 +747,7 @@ static u32 _parseDirInflexionPoint2(cli_stat_param_t * pcsp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _descStat(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _descStat(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t dbva[10] = {38, 56, 59, 64, 74};
@@ -806,7 +806,7 @@ static u32 _saveStatArbiStocks(
     return u32Ret;
 }
 
-static u32 _statArbiIndustry(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _statArbiIndustry(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     stat_arbi_indu_param_t saip;
@@ -854,7 +854,7 @@ static u32 _statArbiIndustry(cli_stat_param_t * pcsp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _statArbiFind(cli_stat_param_t * pcsp, da_master_t * pdm)
+static u32 _statArbiFind(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -870,22 +870,22 @@ u32 processStat(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_stat_param_t * pcsp = (cli_stat_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcsp->csp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _statHelp(pdm);
+        u32Ret = _statHelp(ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_INFLEXION_POINT)
-        u32Ret = _parseDirInflexionPoint(pcsp, pdm);
+        u32Ret = _parseDirInflexionPoint(pcsp, ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_INFLEXION_POINT_2)
-        u32Ret = _parseDirInflexionPoint2(pcsp, pdm);
+        u32Ret = _parseDirInflexionPoint2(pcsp, ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_DESCRIPTIVE_STAT)
-        u32Ret = _descStat(pcsp, pdm);
+        u32Ret = _descStat(pcsp, ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_STAT_AMOUNT)
-        u32Ret = _statAmount(pcsp, pdm);
+        u32Ret = _statAmount(pcsp, ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_STAT_ARBI_INDUSTRY)
-        u32Ret = _statArbiIndustry(pcsp, pdm);
+        u32Ret = _statArbiIndustry(pcsp, ptcm);
 	else if (pcsp->csp_u8Action == CLI_ACTION_STAT_ARBI_FIND)
-		u32Ret = _statArbiFind(pcsp, pdm);
+		u32Ret = _statArbiFind(pcsp, ptcm);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 

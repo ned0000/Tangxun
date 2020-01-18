@@ -256,7 +256,7 @@ typedef union
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 addDaCmd(da_master_t * pdm, da_cli_param_t * dcp);
+u32 addDaCmd(tx_cli_master_t * ptcm, da_cli_param_t * dcp);
 
 u32 parseAnalysis(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam);
 u32 setDefaultParamAnalysis(void * pMaster, void * pParam);

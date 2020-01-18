@@ -1,7 +1,7 @@
 /**
  *  @file download.c
  *
- *  @brief The download command
+ *  @brief The download command implementation.
  *
  *  @author Min Zhang
  *
@@ -33,7 +33,7 @@
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _downloadHelp(da_master_t * pdm)
+static u32 _downloadHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -163,10 +163,10 @@ u32 processDownload(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_download_param_t * pcdp = (cli_download_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcdp->cdp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _downloadHelp(pdm);
+        u32Ret = _downloadHelp(ptcm);
     else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
     {
         jf_clieng_outputLine("Data path is not set.");

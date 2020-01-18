@@ -1,7 +1,7 @@
 /**
  *  @file fix.c
  *
- *  @brief The fix command
+ *  @brief The fix command implementation.
  *
  *  @author Min Zhang
  *
@@ -27,7 +27,7 @@
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _fixHelp(da_master_t * pdm)
+static u32 _fixHelp(tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -53,12 +53,14 @@ u32 processFix(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * pdm = (tx_cli_master_t *)pMaster;
     fix_param_t fixp;
     fix_result_t fixresult;
 
     if (pcfp->cfp_u8Action == CLI_ACTION_SHOW_HELP)
+    {
         u32Ret = _fixHelp(pdm);
+    }
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIX_FILE)
     {
         memset(&fixp, 0, sizeof(fixp));
@@ -74,12 +76,13 @@ u32 processFix(void * pMaster, void * pParam)
         else
         {
             jf_clieng_outputLine(
-                "Cannot fix data file %s, correct the error by hand",
-                pcfp->cfp_pstrData);
+                "Cannot fix data file %s, correct the error by hand", pcfp->cfp_pstrData);
         }
     }
     else
+    {
         u32Ret = JF_ERR_MISSING_PARAM;
+    }
 
     return u32Ret;
 }
@@ -104,8 +107,7 @@ u32 parseFix(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "f:ovh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "f:ovh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {

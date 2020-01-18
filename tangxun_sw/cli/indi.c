@@ -1,7 +1,7 @@
 /**
  *  @file indi.c
  *
- *  @brief The indi command
+ *  @brief The indi command implementation.
  *
  *  @author Min Zhang
  *
@@ -31,7 +31,7 @@
 #define MAX_INDI_DAY_SUMMARY (TOTAL_OPTIMIZE_INDI_DAY_SUMMARY + 8 * OPTIMIZE_INDI_DAY_SUMMARY)
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _indiHelp(da_master_t * pdm)
+static u32 _indiHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -54,7 +54,7 @@ indi [-l] [-i indicator] [-p param] [-d]\n\
     return u32Ret;
 }
 
-static u32 _listAllIndicators(cli_indi_param_t * pcip, da_master_t * pdm)
+static u32 _listAllIndicators(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    da_indicator_desc_t * indi;
@@ -133,7 +133,7 @@ static u32 _indiAdxrOneStock(
     return u32Ret;
 }
 
-static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
+static u32 _indiAdxr(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
@@ -174,7 +174,7 @@ static u32 _indiAdxr(cli_indi_param_t * pcip, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _indiTest(cli_indi_param_t * pcip, da_master_t * pdm)
+static u32 _indiTest(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -187,16 +187,16 @@ u32 processIndi(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_indi_param_t * pcip = (cli_indi_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcip->cip_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _indiHelp(pdm);
+        u32Ret = _indiHelp(ptcm);
     else if (pcip->cip_u8Action == CLI_ACTION_INDI_LIST)
-        u32Ret = _listAllIndicators(pcip, pdm);
+        u32Ret = _listAllIndicators(pcip, ptcm);
     else if (pcip->cip_u8Action == CLI_ACTION_INDI_TEST)
-        u32Ret = _indiTest(pcip, pdm);
+        u32Ret = _indiTest(pcip, ptcm);
     else if (pcip->cip_u8Action == CLI_ACTION_INDI_ADXR)
-        u32Ret = _indiAdxr(pcip, pdm);
+        u32Ret = _indiAdxr(pcip, ptcm);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 

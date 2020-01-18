@@ -1,7 +1,7 @@
 /**
  *  @file env.c
  *
- *  @brief The env command
+ *  @brief The env command implementation.
  *
  *  @author Min Zhang
  *
@@ -17,11 +17,12 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
+
 #include "envvar.h"
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -34,12 +35,12 @@ static jf_clieng_caption_t ls_ccEnvVarVerbose[] =
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _envHelp(da_master_t * pdm)
+static u32 _envHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputRawLine2("\
-Envirionment variable\n\
+Env command.\n\
 env [-l var] [-s var] [-c var]");
     jf_clieng_outputRawLine2("\
   -l: list the specified env variable.\n\
@@ -74,21 +75,20 @@ static u32 _printEnvVar(olchar_t * name)
 
     if (strcasecmp(name, ENV_VAR_DATA_PATH) == 0)
     {
-        jf_clieng_outputLine(
-            "%s: %s\n", ENV_VAR_DATA_PATH, getEnvVar(ENV_VAR_DATA_PATH));
+        jf_clieng_outputLine("%s: %s\n", ENV_VAR_DATA_PATH, getEnvVar(ENV_VAR_DATA_PATH));
     }
     else if (strcasecmp(name, ENV_VAR_DAYS_STOCK_POOL) == 0)
     {
-        jf_clieng_outputLine(
-            "%s: %d\n", ENV_VAR_DAYS_STOCK_POOL, getEnvVarDaysStockPool());
+        jf_clieng_outputLine("%s: %d\n", ENV_VAR_DAYS_STOCK_POOL, getEnvVarDaysStockPool());
     }
     else if (strcasecmp(name, ENV_VAR_MAX_STOCK_IN_POOL) == 0)
     {
-        jf_clieng_outputLine(
-            "%s: %d\n", ENV_VAR_MAX_STOCK_IN_POOL, getEnvVarMaxStockInPool());
+        jf_clieng_outputLine("%s: %d\n", ENV_VAR_MAX_STOCK_IN_POOL, getEnvVarMaxStockInPool());
     }
     else
+    {
         u32Ret = JF_ERR_NOT_FOUND;
+    }
 
     return u32Ret;
 }
@@ -99,26 +99,18 @@ u32 processEnv(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_env_param_t * pcep = (cli_env_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcep->cep_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _envHelp(pdm);
+        u32Ret = _envHelp(ptcm);
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST_ALL)
-    {
         _printEnvVarVerbose();
-    }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_SET)
-    {
         u32Ret = setEnvVar(pcep->cep_pstrData);
-    }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST)
-    {
         u32Ret = _printEnvVar(pcep->cep_pstrData);
-    }
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_CLEAR)
-    {
         u32Ret = clearEnvVar(pcep->cep_pstrData);
-    }
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 
@@ -146,8 +138,7 @@ u32 parseEnv(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "s:l:c:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "s:l:c:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {

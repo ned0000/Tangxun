@@ -1,7 +1,7 @@
 /**
  *  @file stock.c
  *
- *  @brief The stock command
+ *  @brief The stock command implementation.
  *
  *  @author Min Zhang
  *
@@ -73,7 +73,7 @@ static jf_clieng_caption_t ls_jccStockInfoVerbose[] =
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _stockHelp(da_master_t * pdm)
+static u32 _stockHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -340,10 +340,10 @@ u32 processStock(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_stock_param_t * pcsp = (cli_stock_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcsp->csp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _stockHelp(pdm);
+        u32Ret = _stockHelp(ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_LIST_INDUSTRY)
         u32Ret = _printIndustryInfo(pcsp);
     else if (isNullEnvVarDataPath())

@@ -1,7 +1,7 @@
 /**
  *  @file misc.c
  *
- *  @brief The misc command
+ *  @brief The misc command implementation.
  *
  *  @author Min Zhang
  *
@@ -35,7 +35,7 @@
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _miscHelp(da_master_t * pdm)
+static u32 _miscHelp(tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -48,7 +48,7 @@ static u32 _miscHelp(da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _createExdrFile(cli_misc_param_t * pcmp, da_master_t * pdm)
+static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -84,7 +84,7 @@ u32 processMisc(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_misc_param_t * pcmp = (cli_misc_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * pdm = (tx_cli_master_t *)pMaster;
 
     if (pcmp->cmp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _miscHelp(pdm);

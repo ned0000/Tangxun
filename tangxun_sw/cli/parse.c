@@ -1,7 +1,7 @@
 /**
  *  @file parse.c
  *
- *  @brief The parse command
+ *  @brief The parse command implementation.
  *
  *  @author Min Zhang
  *
@@ -150,7 +150,7 @@ static jf_clieng_caption_t ls_ccDaySummaryVerbose[] =
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _parseHelp(da_master_t * pdm)
+static u32 _parseHelp(tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -461,7 +461,7 @@ static void _printTradeDetailFile(
     jf_clieng_outputLine("");
 }
 
-static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, da_master_t * pdm)
+static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_NUM_OF_TRADE_DETAIL_FILE;
@@ -677,7 +677,7 @@ static void _printTradeDaySummary(
     jf_clieng_outputLine("");
 }
 
-static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, da_master_t * pdm)
+static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 400; //MAX_NUM_OF_RESULT;
@@ -886,7 +886,7 @@ static void _analysisStockQuo(
 }
 #endif
 
-static u32 _readQuotationFile(cli_parse_param_t * pcpp, da_master_t * pdm)
+static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total, i;
@@ -971,7 +971,7 @@ u32 processParse(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_parse_param_t * pcpp = (cli_parse_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * pdm = (tx_cli_master_t *)pMaster;
 
     if (pcpp->cpp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _parseHelp(pdm);

@@ -1,7 +1,7 @@
 /**
  *  @file rule.c
  *
- *  @brief The find command
+ *  @brief The find command implementation.
  *
  *  @author Min Zhang
  *
@@ -42,7 +42,7 @@ static jf_clieng_caption_t ls_ccDaRuleBrief[] =
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _ruleHelp(da_master_t * pdm)
+static u32 _ruleHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -131,7 +131,7 @@ static void _printDaRuleVerbose(da_rule_t * pRule, u32 num)
     jf_clieng_outputLine("Total %u rules\n", num);
 }
 
-static u32 _listAllRules(cli_rule_param_t * pcrp, da_master_t * pdm)
+static u32 _listAllRules(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 total = getNumOfDaRules();
@@ -149,7 +149,7 @@ static u32 _listAllRules(cli_rule_param_t * pcrp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _listOneRule(cli_rule_param_t * pcrp, da_master_t * pdm)
+static u32 _listOneRule(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_rule_t * pRule;
@@ -172,14 +172,14 @@ u32 processRule(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_rule_param_t * pcrp = (cli_rule_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcrp->crp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _ruleHelp(pdm);
+        u32Ret = _ruleHelp(ptcm);
     else if (pcrp->crp_u8Action == CLI_ACTION_RULE_LIST_ALL)
-        u32Ret = _listAllRules(pcrp, pdm);
+        u32Ret = _listAllRules(pcrp, ptcm);
     else if (pcrp->crp_u8Action == CLI_ACTION_RULE_LIST)
-        u32Ret = _listOneRule(pcrp, pdm);
+        u32Ret = _listOneRule(pcrp, ptcm);
     else if (isNullEnvVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");

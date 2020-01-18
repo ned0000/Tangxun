@@ -1,7 +1,7 @@
 /**
  *  @file backtest.c
  *
- *  @brief Backtest command
+ *  @brief The backtest command implementation.
  *
  *  @author Min Zhang
  *
@@ -48,7 +48,7 @@ static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _backtestHelp(da_master_t * pdm)
+static u32 _backtestHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -120,7 +120,7 @@ static u32 _printBacktestingResult(backtesting_result_t * pbr)
     return u32Ret;
 }
 
-static u32 _startBacktestAll(cli_backtest_param_t * pcbp, da_master_t * pdm)
+static u32 _startBacktestAll(cli_backtest_param_t * pcbp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -152,7 +152,7 @@ static u32 _startBacktestAll(cli_backtest_param_t * pcbp, da_master_t * pdm)
     return u32Ret;
 }
 
-static u32 _startBacktestModel(cli_backtest_param_t * pcbp, da_master_t * pdm)
+static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -194,19 +194,19 @@ u32 processBacktest(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_backtest_param_t * pcbp = (cli_backtest_param_t *)pParam;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcbp->cbp_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _backtestHelp(pdm);
+        u32Ret = _backtestHelp(ptcm);
     else if (isNullEnvVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_ALL)
-        u32Ret = _startBacktestAll(pcbp, pdm);
+        u32Ret = _startBacktestAll(pcbp, ptcm);
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_MODEL)
-        u32Ret = _startBacktestModel(pcbp, pdm);
+        u32Ret = _startBacktestModel(pcbp, ptcm);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 

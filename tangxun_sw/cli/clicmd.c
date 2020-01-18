@@ -1,7 +1,7 @@
 /**
  *  @file clicmd.c
  *
- *  @brief Cli command
+ *  @brief Cli command implementation.
  *
  *  @author Min Zhang
  *  
@@ -39,7 +39,7 @@ static u32 _setDefaultParamExit(void * pMaster, void * pParam)
     return u32Ret;
 }
 
-static u32 _exitHelp(da_master_t * pdm)
+static u32 _exitHelp(tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -80,11 +80,11 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 static u32 _processExit(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_master_t * pdm = (da_master_t *)pMaster;
+    tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
     if (pcep->cep_u8Action == CLI_ACTION_SHOW_HELP)
-        u32Ret = _exitHelp(pdm);
+        u32Ret = _exitHelp(ptcm);
     else
     {
         jf_clieng_outputLine("Exit CLI\n");
@@ -166,7 +166,7 @@ static u32 _processHelp(void * pMaster, void * pParam)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 addDaCmd(da_master_t * pdm, da_cli_param_t * pdcp)
+u32 addDaCmd(tx_cli_master_t * ptcm, da_cli_param_t * pdcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
