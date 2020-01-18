@@ -26,12 +26,13 @@
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
-#include "indicator.h"
-#include "datastat.h"
 #include "jf_clieng.h"
-#include "stocklist.h"
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
+
+#include "indicator.h"
+#include "datastat.h"
+#include "tx_stock.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

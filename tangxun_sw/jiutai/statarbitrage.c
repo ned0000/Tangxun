@@ -29,7 +29,6 @@
 #include "jf_jiukun.h"
 
 #include "indicator.h"
-#include "stocklist.h"
 #include "statarbitrage.h"
 #include "datastat.h"
 
@@ -136,7 +135,7 @@ static u32 _newSaStock(
 		for (i = 0; (i < nStock) && (u32Ret == JF_ERR_NO_ERROR); i ++)
 		{
             ol_strncpy(name, pstrStocks + i * 9, 8);
-			u32Ret = getStockInfo(name, &sastock[i].ssi_psiStock);
+			u32Ret = getStockInfo(name, &sastock[i].ssi_ptsiStock);
 		}
     }
 
@@ -154,7 +153,7 @@ static u32 _newSaStock(
 				ol_snprintf(
 					dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
 					pstrDataPath, PATH_SEPARATOR,
-					sastock[i].ssi_psiStock->si_strCode);
+					sastock[i].ssi_ptsiStock->tsi_strCode);
 
 				u32Ret = readTradeDaySummaryWithFRoR(
 					dirpath, sastock[i].ssi_pddsSummary, &sastock[i].ssi_nDaySummary);
@@ -189,7 +188,7 @@ static u32 _statArbitrageIndustry_MAX(
     u32Ret = getIndustryInfo(induid, &info);
     if (u32Ret == JF_ERR_NO_ERROR)
 		u32Ret = _newSaStock(
-			pstrDataPath, info->sii_pstrStocks, info->sii_nStock,
+			pstrDataPath, info->tsii_pstrStocks, info->tsii_nStock,
             nDaySummary, &sastock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -202,9 +201,9 @@ static u32 _statArbitrageIndustry_MAX(
     {
         maxdbr = 0;
         maxi = maxj = 0;
-        for (i = 0; i < info->sii_nStock; i ++)
+        for (i = 0; i < info->tsii_nStock; i ++)
         {
-            for (j = i + 1; j < info->sii_nStock; j ++)
+            for (j = i + 1; j < info->tsii_nStock; j ++)
             {
                 u32Ret = _getClosingPricePair(
                     &sastock[i], &sastock[j], pdba, pdbb, nArray);
@@ -231,17 +230,17 @@ static u32 _statArbitrageIndustry_MAX(
                 entry->saire_dbCorrelation = maxdbr;
                 entry->saire_nInduId = induid;
                 ol_strcpy(
-                    entry->saire_strStockPair, sastock[maxi].ssi_psiStock->si_strCode);
+                    entry->saire_strStockPair, sastock[maxi].ssi_ptsiStock->tsi_strCode);
                 ol_strcat(entry->saire_strStockPair, ",");
                 ol_strcat(
-                    entry->saire_strStockPair, sastock[maxj].ssi_psiStock->si_strCode);
+                    entry->saire_strStockPair, sastock[maxj].ssi_ptsiStock->tsi_strCode);
                 result->sair_nNumOfPair ++;
             }
         }
     }
 
     if (sastock != NULL)
-        _freeSaStock(info->sii_nStock, &sastock);
+        _freeSaStock(info->tsii_nStock, &sastock);
     if (pdba != NULL)
         jf_mem_free((void **)&pdba);
     if (pdbb != NULL)
@@ -252,11 +251,11 @@ static u32 _statArbitrageIndustry_MAX(
 #endif
 
 static u32 _statArbitrageStock(
-    olchar_t * pstrDataPath, stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
+    olchar_t * pstrDataPath, tx_stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
     stat_arbi_indu_result_t * result)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    stock_indu_info_t * info;
+    tx_stock_indu_info_t * info;
     olint_t i, j;
     sa_stock_info_t * sastock = NULL;
     oldouble_t dbr;
@@ -265,10 +264,10 @@ static u32 _statArbitrageStock(
     olint_t nArray = param->saip_nCorrelationArray;
     stat_arbi_indu_result_entry_t * entry;
 
-    u32Ret = getIndustryInfo(stockinfo->si_nIndustry, &info);
+    u32Ret = getIndustryInfo(stockinfo->tsi_nIndustry, &info);
     if (u32Ret == JF_ERR_NO_ERROR)
 		u32Ret = _newSaStock(
-			pstrDataPath, info->sii_pstrStocks, info->sii_nStock,
+			pstrDataPath, info->tsii_pstrStocks, info->tsii_nStock,
             nDaySummary, &sastock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -279,11 +278,11 @@ static u32 _statArbitrageStock(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        for (i = 0; i < info->sii_nStock; i ++)
-            if (sastock[i].ssi_psiStock == stockinfo)
+        for (i = 0; i < info->tsii_nStock; i ++)
+            if (sastock[i].ssi_ptsiStock == stockinfo)
                 break;
 
-        for (j = 0; j < info->sii_nStock; j ++)
+        for (j = 0; j < info->tsii_nStock; j ++)
         {
             if (j == i)
                 continue;
@@ -300,12 +299,12 @@ static u32 _statArbitrageStock(
                 {
                     entry = &result->sair_psaireEntry[result->sair_nNumOfPair];
                     entry->saire_dbCorrelation = dbr;
-                    entry->saire_nInduId = stockinfo->si_nIndustry;
+                    entry->saire_nInduId = stockinfo->tsi_nIndustry;
                     ol_strcpy(
-                        entry->saire_strStockPair, sastock[i].ssi_psiStock->si_strCode);
+                        entry->saire_strStockPair, sastock[i].ssi_ptsiStock->tsi_strCode);
                     ol_strcat(entry->saire_strStockPair, ",");
                     ol_strcat(
-                        entry->saire_strStockPair, sastock[j].ssi_psiStock->si_strCode);
+                        entry->saire_strStockPair, sastock[j].ssi_ptsiStock->tsi_strCode);
                     result->sair_nNumOfPair ++;
                 }
                 else
@@ -315,7 +314,7 @@ static u32 _statArbitrageStock(
     }
 out:
     if (sastock != NULL)
-        _freeSaStock(info->sii_nStock, &sastock);
+        _freeSaStock(info->tsii_nStock, &sastock);
     if (pdba != NULL)
         jf_mem_free((void **)&pdba);
     if (pdbb != NULL)
@@ -366,10 +365,10 @@ static u32 _statArbitrageStockList(
                         entry->saire_dbCorrelation = dbr;
                         entry->saire_nInduId = 0;
                         ol_strcpy(
-                            entry->saire_strStockPair, sastock[i].ssi_psiStock->si_strCode);
+                            entry->saire_strStockPair, sastock[i].ssi_ptsiStock->tsi_strCode);
                         ol_strcat(entry->saire_strStockPair, ",");
                         ol_strcat(
-                            entry->saire_strStockPair, sastock[j].ssi_psiStock->si_strCode);
+                            entry->saire_strStockPair, sastock[j].ssi_ptsiStock->tsi_strCode);
                         result->sair_nNumOfPair ++;
                     }
                     else
@@ -395,7 +394,7 @@ static u32 _statArbitrageIndustry(
     stat_arbi_indu_result_t * result)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    stock_indu_info_t * info;
+    tx_stock_indu_info_t * info;
     olint_t i, j;
     sa_stock_info_t * sastock = NULL;
     oldouble_t dbr;
@@ -407,7 +406,7 @@ static u32 _statArbitrageIndustry(
     u32Ret = getIndustryInfo(induid, &info);
     if (u32Ret == JF_ERR_NO_ERROR)
 		u32Ret = _newSaStock(
-			pstrDataPath, info->sii_pstrStocks, info->sii_nStock,
+			pstrDataPath, info->tsii_pstrStocks, info->tsii_nStock,
             nDaySummary, &sastock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -418,9 +417,9 @@ static u32 _statArbitrageIndustry(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        for (i = 0; i < info->sii_nStock; i ++)
+        for (i = 0; i < info->tsii_nStock; i ++)
         {
-            for (j = i + 1; j < info->sii_nStock; j ++)
+            for (j = i + 1; j < info->tsii_nStock; j ++)
             {
                 u32Ret = _getClosingPricePair(
                     &sastock[i], &sastock[j], pdba, pdbb, nArray);
@@ -436,10 +435,10 @@ static u32 _statArbitrageIndustry(
                         entry->saire_dbCorrelation = dbr;
                         entry->saire_nInduId = induid;
                         ol_strcpy(
-                            entry->saire_strStockPair, sastock[i].ssi_psiStock->si_strCode);
+                            entry->saire_strStockPair, sastock[i].ssi_ptsiStock->tsi_strCode);
                         ol_strcat(entry->saire_strStockPair, ",");
                         ol_strcat(
-                            entry->saire_strStockPair, sastock[j].ssi_psiStock->si_strCode);
+                            entry->saire_strStockPair, sastock[j].ssi_ptsiStock->tsi_strCode);
                         result->sair_nNumOfPair ++;
                     }
                     else
@@ -450,7 +449,7 @@ static u32 _statArbitrageIndustry(
     }
 out:
     if (sastock != NULL)
-        _freeSaStock(info->sii_nStock, &sastock);
+        _freeSaStock(info->tsii_nStock, &sastock);
     if (pdba != NULL)
         jf_mem_free((void **)&pdba);
     if (pdbb != NULL)
@@ -512,7 +511,7 @@ stat_arbi_desc_t * getStatArbiDesc(olint_t id)
 }
 
 u32 statArbiStock(
-    olchar_t * pstrDataPath, stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
+    olchar_t * pstrDataPath, tx_stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
     stat_arbi_indu_result_t * result)
 {
 	u32 u32Ret = JF_ERR_NO_ERROR;
@@ -551,7 +550,7 @@ u32 statArbiAllIndustry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t id;
 
-    for (id = STOCK_INDU_AGRICULTURAL_PRODUCT; id < STOCK_INDU_MAX; id ++)
+    for (id = TX_STOCK_INDU_AGRICULTURAL_PRODUCT; id < TX_STOCK_INDU_MAX; id ++)
     {
         u32Ret = _statArbitrageIndustry(pstrDataPath, id, param, result);
         if (u32Ret == JF_ERR_NO_ERROR)

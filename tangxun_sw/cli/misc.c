@@ -23,8 +23,7 @@
 #include "parsedata.h"
 #include "regression.h"
 #include "datastat.h"
-#include "damodel.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "tx_env.h"
 #include "clicmd.h"
 
@@ -53,7 +52,7 @@ static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     stockinfo = getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -63,7 +62,7 @@ static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
             memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s%c%s",
-                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode,
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->tsi_strCode,
                 PATH_SEPARATOR, DEF_EXDR_FILE_NAME);
 
             u32Ret = jf_file_remove(strFullname);

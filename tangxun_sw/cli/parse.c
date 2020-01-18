@@ -33,8 +33,7 @@
 #include "datastat.h"
 #include "clicmd.h"
 #include "regression.h"
-#include "damodel.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -467,7 +466,7 @@ static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
     da_day_result_t * buffer = NULL;
     parse_param_t pp;
     olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     u32Ret = jf_mem_alloc((void **)&buffer, sizeof(da_day_result_t) * total);
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -887,7 +886,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
     olint_t total, i;
     quo_entry_t ** pqe = NULL;
     stock_quo_t stockquo;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     quo_entry_t * entry;
 
@@ -897,7 +896,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockquo.sq_nMaxEntry = 3500; //4 * 60 * 60 / 6; /*6 items per minutes*/
-        ol_strcpy(stockquo.sq_strCode, stockinfo->si_strCode);
+        ol_strcpy(stockquo.sq_strCode, stockinfo->tsi_strCode);
         if (pcpp->cpp_pstrDate != NULL)
             ol_strcpy(stockquo.sq_strDate, pcpp->cpp_pstrDate);
 

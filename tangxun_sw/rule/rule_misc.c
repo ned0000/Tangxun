@@ -31,7 +31,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleMinNumOfDaySummary(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_min_num_of_day_summary_param_t * param = (tx_rule_min_num_of_day_summary_param_t *)ptrp;

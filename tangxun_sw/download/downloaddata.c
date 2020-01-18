@@ -28,8 +28,8 @@
 #include "jf_date.h"
 #include "jf_process.h"
 
-#include "downloaddata.h"
-#include "stocklist.h"
+#include "tx_download.h"
+#include "tx_stock.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static olchar_t * ls_pstrDataServer = "market.finance.sina.com.cn";
@@ -42,7 +42,7 @@ static olchar_t * ls_pstrStartData = "19980101";
 /* --- private routine section ------------------------------------------------------------------ */
 static u32 _recvOneXls(
     jf_network_socket_t * sock, olchar_t * stock, olchar_t * date,
-    olchar_t * recvdata, olsize_t * srecv, download_data_param_t * param)
+    olchar_t * recvdata, olsize_t * srecv, tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[2048];
@@ -119,7 +119,7 @@ static u32 _writeChunkedData(jf_file_t fd, olchar_t * pBody, olsize_t sBody)
 
 static u32 _saveOneXls(
     olchar_t * stock, olchar_t * fname,
-    olchar_t * recvdata, olsize_t srecv, download_data_param_t * param)
+    olchar_t * recvdata, olsize_t srecv, tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * pjhph = NULL;
@@ -198,7 +198,7 @@ static u32 _saveOneXls(
     {
         jf_logger_logDebugMsg("Save trade detail %s for stock %s", fname, stock);
         ol_sprintf(
-            filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
+            filepath, "%s%c%s%c%s", param->tddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
 
         u32Ret = jf_file_openWithMode(
@@ -235,14 +235,14 @@ static u32 _saveOneXls(
 }
 
 /*create the directory if it's not existing*/
-static u32 _createStockDir(olchar_t * stock, download_data_param_t * param)
+static u32 _createStockDir(olchar_t * stock, tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t dirname[JF_LIMIT_MAX_PATH_LEN];
     jf_dir_t * pDir;
 
     ol_sprintf(
-        dirname, "%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock);
+        dirname, "%s%c%s", param->tddp_pstrDataDir, PATH_SEPARATOR, stock);
 
     u32Ret = jf_dir_open(dirname, &pDir);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -259,17 +259,17 @@ static u32 _createStockDir(olchar_t * stock, download_data_param_t * param)
 }
 
 static boolean_t _skipDataDownload(
-    olchar_t * stock, olchar_t * strfile, download_data_param_t * param)
+    olchar_t * stock, olchar_t * strfile, tx_download_data_param_t * param)
 {
     boolean_t bRet = FALSE;
     olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
     jf_file_stat_t filestat;
 
-    if (param->ddp_bOverwrite)
+    if (param->tddp_bOverwrite)
         return bRet;
 
     ol_sprintf(
-        filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
+        filepath, "%s%c%s%c%s", param->tddp_pstrDataDir, PATH_SEPARATOR, stock,
         PATH_SEPARATOR, strfile);
 
     if (jf_file_getStat(filepath, &filestat) == JF_ERR_NO_ERROR)
@@ -280,7 +280,7 @@ static boolean_t _skipDataDownload(
 
 static u32 _downloadOneXls(
     jf_ipaddr_t * serveraddr, olchar_t * stock, olchar_t * buf, olsize_t sbuf,
-    download_data_param_t * param)
+    tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t ipaddr;
@@ -294,8 +294,8 @@ static u32 _downloadOneXls(
     olint_t dw;
 
     jf_ipaddr_getStringIpAddr(strServer, serveraddr);
-    jf_date_getDate2FromString(param->ddp_pstrStartDate, &syear, &smonth, &sday);
-    jf_date_getDate2FromString(param->ddp_pstrEndDate, &eyear, &emonth, &eday);
+    jf_date_getDate2FromString(param->tddp_pstrStartDate, &syear, &smonth, &sday);
+    jf_date_getDate2FromString(param->tddp_pstrEndDate, &eyear, &emonth, &eday);
 
     sdays = jf_date_convertDateToDaysFrom1970(syear, smonth, sday);
     edays = jf_date_convertDateToDaysFrom1970(eyear, emonth, eday);
@@ -370,14 +370,14 @@ static u32 _downloadOneXls(
     return u32Ret;
 }
 
-static u32 _downloadSinaXls(download_data_param_t * param)
+static u32 _downloadSinaXls(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t serveraddr;
     olchar_t * recvdata = NULL;
     olsize_t srecv = 256 * 1024;
     struct hostent * servp;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     u32Ret = jf_network_getHostByName(ls_pstrDataServer, &servp);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -389,15 +389,15 @@ static u32 _downloadSinaXls(download_data_param_t * param)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (param->ddp_pstrStock == NULL)
+        if (param->tddp_pstrStock == NULL)
         {
             stockinfo = getFirstStockInfo();
             while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
-                u32Ret = _createStockDir(stockinfo->si_strCode, param);
+                u32Ret = _createStockDir(stockinfo->tsi_strCode, param);
                 if (u32Ret == JF_ERR_NO_ERROR)
                     u32Ret = _downloadOneXls(
-                        &serveraddr, stockinfo->si_strCode, recvdata, srecv, param);
+                        &serveraddr, stockinfo->tsi_strCode, recvdata, srecv, param);
 
 
                 stockinfo = getNextStockInfo(stockinfo);
@@ -405,13 +405,13 @@ static u32 _downloadSinaXls(download_data_param_t * param)
         }
         else
         {
-            u32Ret = getStockInfo(param->ddp_pstrStock, &stockinfo);
+            u32Ret = getStockInfo(param->tddp_pstrStock, &stockinfo);
             if (u32Ret == JF_ERR_NO_ERROR)
-                u32Ret = _createStockDir(param->ddp_pstrStock, param);
+                u32Ret = _createStockDir(param->tddp_pstrStock, param);
 
             if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneXls(
-                    &serveraddr, param->ddp_pstrStock, recvdata, srecv, param);
+                    &serveraddr, param->tddp_pstrStock, recvdata, srecv, param);
         }
     }
 
@@ -423,7 +423,7 @@ static u32 _downloadSinaXls(download_data_param_t * param)
 
 static u32 _recvOneCsv(
     jf_network_socket_t * sock, olchar_t * stock, olchar_t * startdate, olchar_t * enddate,
-    olchar_t * recvdata, olsize_t * srecv, download_data_param_t * param)
+    olchar_t * recvdata, olsize_t * srecv, tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[2048];
@@ -630,7 +630,7 @@ static olsize_t _cvsDataReady(
 
 static u32 _saveOneCsv(
     olchar_t * stock, olchar_t * fname, olchar_t * origcsv, olsize_t sorig,
-    olchar_t * recvdata, olsize_t srecv, download_data_param_t * param)
+    olchar_t * recvdata, olsize_t srecv, tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * pjhph = NULL;
@@ -717,7 +717,7 @@ static u32 _saveOneCsv(
     {
         jf_logger_logDebugMsg("Save trade summary for stock %s", stock);
         ol_sprintf(
-            filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
+            filepath, "%s%c%s%c%s", param->tddp_pstrDataDir, PATH_SEPARATOR, stock,
             PATH_SEPARATOR, fname);
 
         if (_cvsDataReady(bChunked, nContentLength, pBody, sbody) > 0)
@@ -753,36 +753,36 @@ static u32 _saveOneCsv(
 }
 
 static u32 _getStartEndDate(
-    stock_info_t * stockinfo, olchar_t * strFile, olchar_t * origcsv,
+    tx_stock_info_t * stockinfo, olchar_t * strFile, olchar_t * origcsv,
     olsize_t * rorig, olchar_t * startdate, olchar_t * enddate, boolean_t * pbUptodate,
-    download_data_param_t * param)
+    tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t filepath[JF_LIMIT_MAX_PATH_LEN];
     jf_file_t fd;
     olint_t year, mon, day, days;
     olchar_t date[16];
-    olchar_t * stock = stockinfo->si_strCode;
+    olchar_t * stock = stockinfo->tsi_strCode;
 
     ol_strcpy(startdate, ls_pstrStartData);
     jf_date_getDateToday(&year, &mon, &day);
     ol_sprintf(enddate, DATE_STRING_FORMAT, year, mon, day);
 
-    if (param->ddp_bOverwrite)
+    if (param->tddp_bOverwrite)
     {
         *rorig = 0;
         *pbUptodate = FALSE;
         return u32Ret;
     }
 
-    if (stockinfo->si_bCsvUptodate)
+    if (stockinfo->tsi_bCsvUptodate)
     {
         *pbUptodate = TRUE;
         return u32Ret;
     }
 
     ol_sprintf(
-        filepath, "%s%c%s%c%s", param->ddp_pstrDataDir, PATH_SEPARATOR, stock,
+        filepath, "%s%c%s%c%s", param->tddp_pstrDataDir, PATH_SEPARATOR, stock,
         PATH_SEPARATOR, strFile);
 
     u32Ret = jf_file_open(filepath, O_RDONLY, &fd);
@@ -821,9 +821,9 @@ static u32 _getStartEndDate(
 }
 
 static u32 _downloadOneCsv(
-    jf_ipaddr_t * serveraddr, stock_info_t * stockinfo, olchar_t * strFile,
+    jf_ipaddr_t * serveraddr, tx_stock_info_t * stockinfo, olchar_t * strFile,
     olchar_t * origcsv, olsize_t sorig, olchar_t * buf, olsize_t sbuf,
-    download_data_param_t * param)
+    tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, retry_count = 3;
@@ -833,7 +833,7 @@ static u32 _downloadOneCsv(
     olchar_t startdate[16], enddate[16];
     olsize_t rorig;
     boolean_t bUptodate = FALSE;
-    olchar_t * stock = stockinfo->si_strCode;
+    olchar_t * stock = stockinfo->tsi_strCode;
 
     jf_ipaddr_getStringIpAddr(strServer, serveraddr);
 
@@ -843,7 +843,7 @@ static u32 _downloadOneCsv(
  
     if (bUptodate)
     {
-        stockinfo->si_bCsvUptodate = TRUE;
+        stockinfo->tsi_bCsvUptodate = TRUE;
 //        cliengOutputLine("The CSV file for %s is up to date", stock);
         return u32Ret;
     }
@@ -898,7 +898,7 @@ static u32 _downloadOneCsv(
     return u32Ret;
 }
 
-static u32 _downloadNeteaseCSV(download_data_param_t * param)
+static u32 _downloadNeteaseCSV(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t serveraddr;
@@ -907,7 +907,7 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
     olchar_t * origcsv = NULL;
     olsize_t sorig = 1024 * 1024;
     struct hostent * servp;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     u32Ret = jf_network_getHostByName(ls_pstrDataServerNetease, &servp);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -920,12 +920,12 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (param->ddp_pstrStock == NULL)
+        if (param->tddp_pstrStock == NULL)
         {
             stockinfo = getFirstStockInfo();
             while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
-                u32Ret = _createStockDir(stockinfo->si_strCode, param);
+                u32Ret = _createStockDir(stockinfo->tsi_strCode, param);
                 if (u32Ret == JF_ERR_NO_ERROR)
                     u32Ret = _downloadOneCsv(
                         &serveraddr, stockinfo,
@@ -939,9 +939,9 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
         }
         else
         {
-            u32Ret = getStockInfo(param->ddp_pstrStock, &stockinfo);
+            u32Ret = getStockInfo(param->tddp_pstrStock, &stockinfo);
             if (u32Ret == JF_ERR_NO_ERROR)
-                u32Ret = _createStockDir(param->ddp_pstrStock, param);
+                u32Ret = _createStockDir(param->tddp_pstrStock, param);
 
             if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneCsv(
@@ -959,33 +959,33 @@ static u32 _downloadNeteaseCSV(download_data_param_t * param)
     return u32Ret;
 }
 
-static u32 _checkDlDataParam(download_data_param_t * param)
+static u32 _checkDlDataParam(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;
 
-    if ((param->ddp_pstrDataDir == NULL) ||
-        (param->ddp_pstrDataDir[0] == '\0'))
+    if ((param->tddp_pstrDataDir == NULL) ||
+        (param->tddp_pstrDataDir[0] == '\0'))
     {
         return JF_ERR_INVALID_PARAM;
     }
 
-    if (param->ddp_bTradeDetail)
+    if (param->tddp_bTradeDetail)
     {
-        if ((param->ddp_pstrStartDate == NULL) || (param->ddp_pstrEndDate == NULL))
+        if ((param->tddp_pstrStartDate == NULL) || (param->tddp_pstrEndDate == NULL))
         {
             return JF_ERR_INVALID_PARAM;
         }
 
-        u32Ret = jf_date_getDate2FromString(param->ddp_pstrStartDate, &year, &month, &day);
+        u32Ret = jf_date_getDate2FromString(param->tddp_pstrStartDate, &year, &month, &day);
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_date_getDate2FromString(param->ddp_pstrEndDate, &year, &month, &day);
+            u32Ret = jf_date_getDate2FromString(param->tddp_pstrEndDate, &year, &month, &day);
     }
 
     return u32Ret;
 }
 
-static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
+static u32 _downloadNeteaseIndexCSV(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t serveraddr;
@@ -994,7 +994,7 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
     olchar_t * origcsv = NULL;
     olsize_t sorig = 1024 * 1024;
     struct hostent * servp;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     u32Ret = jf_network_getHostByName(ls_pstrDataServerNetease, &servp);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1010,7 +1010,7 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
         stockinfo = getFirstStockInfoIndex();
         while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
         {
-            u32Ret = _createStockDir(stockinfo->si_strCode, param);
+            u32Ret = _createStockDir(stockinfo->tsi_strCode, param);
             if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _downloadOneCsv(
                     &serveraddr, stockinfo,
@@ -1032,7 +1032,8 @@ static u32 _downloadNeteaseIndexCSV(download_data_param_t * param)
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
-u32 downloadData(download_data_param_t * param)
+
+u32 tx_download_dlData(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -1040,9 +1041,9 @@ u32 downloadData(download_data_param_t * param)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (param->ddp_bTradeSummary)
+        if (param->tddp_bTradeSummary)
             u32Ret = _downloadNeteaseCSV(param);
-        else if (param->ddp_bTradeDetail)
+        else if (param->tddp_bTradeDetail)
             u32Ret = _downloadSinaXls(param);
         else
             u32Ret = JF_ERR_INVALID_PARAM;
@@ -1052,7 +1053,7 @@ u32 downloadData(download_data_param_t * param)
     return u32Ret;
 }
 
-u32 downloadStockInfoIndex(download_data_param_t * param)
+u32 tx_download_dlStockIndex(tx_download_data_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 

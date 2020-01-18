@@ -26,16 +26,16 @@
 /* --- functional routines ---------------------------------------------------------------------- */
 
 u32 daRuleHighLimitOfLastDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 u32 daRuleLowLimitOfLastDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 u32 daRuleMinHighLimitDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 u32 daRuleNoHighHighLimitDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 #endif /*TANGXUN_RULE_LIMIT_H*/
 

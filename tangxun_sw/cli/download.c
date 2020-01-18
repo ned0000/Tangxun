@@ -24,11 +24,10 @@
 #include "jf_jiukun.h"
 #include "jf_process.h"
 
-#include "downloaddata.h"
+#include "tx_download.h"
 #include "tx_env.h"
-#include "clicmd.h"
-#include "stocklist.h"
 
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -64,27 +63,27 @@ download [-s stock] [-e] [-i] [-d dir] [-o]\n\
 static u32 _dlStock(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    download_data_param_t ddp;
+    tx_download_data_param_t tddp;
 
     if (pcdp->cdp_pstrStock == NULL)
     {
-        memset(&ddp, 0, sizeof(ddp));
+        memset(&tddp, 0, sizeof(tddp));
 
-        ddp.ddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-        ddp.ddp_bOverwrite = pcdp->cdp_bOverwrite;
+        tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
+        tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
 
-        downloadStockInfoIndex(&ddp);
+        tx_download_dlStockIndex(&tddp);
     }
 
-    memset(&ddp, 0, sizeof(ddp));
+    memset(&tddp, 0, sizeof(tddp));
 
-    ddp.ddp_pstrStock = pcdp->cdp_pstrStock;
-    ddp.ddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    ddp.ddp_bOverwrite = pcdp->cdp_bOverwrite;
-    ddp.ddp_bTradeSummary = TRUE;
+    tddp.tddp_pstrStock = pcdp->cdp_pstrStock;
+    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
+    tddp.tddp_bTradeSummary = TRUE;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = downloadData(&ddp);
+        u32Ret = tx_download_dlData(&tddp);
 
     jf_clieng_outputLine("");
 
@@ -122,7 +121,7 @@ static u32 _dlStockIterative(cli_download_param_t * pcdp)
 static u32 _dlStockDetail(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    download_data_param_t ddp;
+    tx_download_data_param_t tddp;
 
     if (pcdp->cdp_pstrStock == NULL)
         return JF_ERR_INVALID_PARAM;
@@ -130,17 +129,17 @@ static u32 _dlStockDetail(cli_download_param_t * pcdp)
     if ((pcdp->cdp_pstrStartDate == NULL) || (pcdp->cdp_pstrEndDate == NULL))
         return JF_ERR_INVALID_PARAM;
 
-    memset(&ddp, 0, sizeof(ddp));
+    memset(&tddp, 0, sizeof(tddp));
 
-    ddp.ddp_pstrStartDate = pcdp->cdp_pstrStartDate;
-    ddp.ddp_pstrEndDate = pcdp->cdp_pstrEndDate;
-    ddp.ddp_pstrStock = pcdp->cdp_pstrStock;
-    ddp.ddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    ddp.ddp_bOverwrite = pcdp->cdp_bOverwrite;
-    ddp.ddp_bTradeDetail = TRUE;
+    tddp.tddp_pstrStartDate = pcdp->cdp_pstrStartDate;
+    tddp.tddp_pstrEndDate = pcdp->cdp_pstrEndDate;
+    tddp.tddp_pstrStock = pcdp->cdp_pstrStock;
+    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
+    tddp.tddp_bTradeDetail = TRUE;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = downloadData(&ddp);
+        u32Ret = tx_download_dlData(&tddp);
 
     return u32Ret;
 }
@@ -148,14 +147,14 @@ static u32 _dlStockDetail(cli_download_param_t * pcdp)
 static u32 _dlStockIndex(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    download_data_param_t ddp;
+    tx_download_data_param_t tddp;
 
-    memset(&ddp, 0, sizeof(ddp));
+    memset(&tddp, 0, sizeof(tddp));
 
-    ddp.ddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    ddp.ddp_bOverwrite = pcdp->cdp_bOverwrite;
+    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
 
-    u32Ret = downloadStockInfoIndex(&ddp);
+    u32Ret = tx_download_dlStockIndex(&tddp);
 
     return u32Ret;
 }

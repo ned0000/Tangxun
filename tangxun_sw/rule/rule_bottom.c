@@ -49,7 +49,7 @@ static boolean_t _isInBottomArea(da_day_summary_t * buffer, int total, double ma
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleInBottomArea(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_rule_in_bottom_area_param_t * param = (tx_rule_in_bottom_area_param_t *)ptrp;

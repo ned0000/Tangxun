@@ -19,7 +19,7 @@
 #include "jf_basic.h"
 
 #include "parsedata.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "indicator.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -241,7 +241,7 @@ typedef union
 } tx_rule_param_t;
 
 typedef u32 (* fnExecStocksRule_t)(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 typedef struct
 {

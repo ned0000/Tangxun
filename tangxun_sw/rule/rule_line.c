@@ -28,7 +28,7 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _isNearPressureLine(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
     tx_rule_pressure_line_param_t * ptrplp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
@@ -63,7 +63,7 @@ static u32 _isNearPressureLine(
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRulePressureLine(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_pressure_line_param_t * ptrplp = (tx_rule_pressure_line_param_t *)ptrp;

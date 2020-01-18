@@ -20,9 +20,8 @@
 #include "jf_string.h"
 
 #include "tx_rule.h"
-#include "roi.h"
-#include "damodel.h"
 #include "tx_trade.h"
+#include "roi.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -33,33 +32,33 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _initDaModelRoi(da_model_t * pdm)
+static u32 _initTxModelRoi(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_roi_data_t * pdmrd = NULL;
+    tx_model_roi_data_t * ptmrd = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&pdmrd, sizeof(*pdmrd));
+    u32Ret = jf_mem_calloc((void **)&ptmrd, sizeof(*ptmrd));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 
-        pdm->dm_pData = pdmrd;
+        ptm->tm_pData = ptmrd;
     }
     
     return u32Ret;
 }
 
-static u32 _finiDaModelRoi(da_model_t * pdm)
+static u32 _finiTxModelRoi(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (pdm->dm_pData != NULL)
-        jf_mem_free((void **)&pdm->dm_pData);
+    if (ptm->tm_pData != NULL)
+        jf_mem_free((void **)&ptm->tm_pData);
 
     return u32Ret;
 }
 
 static u32 _canBeTradedInRoi(
-    struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
     da_day_summary_t * buffer, int total)
 {
     u32 u32Ret = JF_ERR_NOT_READY;
@@ -68,7 +67,7 @@ static u32 _canBeTradedInRoi(
     tx_rule_rectangle_param_t trrp;
     da_day_summary_t * end = buffer + total - 1;
 
-    jf_logger_logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->si_strCode, total);
+    jf_logger_logInfoMsg("can be traded in roi, %s, total: %d", stockinfo->tsi_strCode, total);
 
     u32Ret = tx_rule_getRule("minNumOfDaySummary", &rule);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -146,7 +145,7 @@ static u32 _canBeTradedInRoi(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initTradePoolStock(ptps, stockinfo->si_strCode, pdm->dm_strName);
+        initTradePoolStock(ptps, stockinfo->tsi_strCode, ptm->tm_strName);
         strcpy(ptps->tps_strAddDate, end->dds_strDate);
         snprintf(
             ptps->tps_strModelParam, MAX_TRADE_MODEL_PARAM_LEN,
@@ -167,8 +166,8 @@ static u32 _canBeTradedInRoi(
 }
 
 static u32 _tradeTryBuyInRoi(
-    struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
-    da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
+    tx_model_trade_data_t * ptmtd, da_day_summary_t * buffer, int total)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * end = buffer + total - 1;
@@ -187,15 +186,15 @@ static u32 _tradeTryBuyInRoi(
         setTradePoolStockPositionFull(ptps);
         ptps->tps_dbPrice = end->dds_dbOpeningPrice;
         /*TODO: use all funds for the trade, improve this to reduce the risk*/
-        ptps->tps_nVolume = pdmtd->dmtd_dbFund / ptps->tps_dbPrice;
+        ptps->tps_nVolume = ptmtd->tmtd_dbFund / ptps->tps_dbPrice;
         jf_logger_logInfoMsg("try buy in roi, volume: %d", ptps->tps_nVolume);
         /*one board lot is 100 shares*/
         ptps->tps_nVolume /= 100;
         ptps->tps_nVolume *= 100;
-        pdmtd->dmtd_dbFund -= ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
+        ptmtd->tmtd_dbFund -= ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
         jf_logger_logInfoMsg(
             "try buy in roi, volume: %d, fund remains %.2f",
-            ptps->tps_nVolume, pdmtd->dmtd_dbFund);
+            ptps->tps_nVolume, ptmtd->tmtd_dbFund);
     }
 
     return u32Ret;
@@ -267,8 +266,8 @@ static u32 _getRoiRectanglePoint(
 }
 
 static u32 _tradeTrySellInRoi(
-    struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
-    da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
+    tx_model_trade_data_t * ptmtd, da_day_summary_t * buffer, int total)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * pLeftUpper, * pLeftLower, * pRightUpper, * pRightLower;
@@ -278,7 +277,7 @@ static u32 _tradeTrySellInRoi(
     tx_rule_t * rule;
     boolean_t bSell = FALSE;
 
-    jf_logger_logDebugMsg("try sell in roi, %s", stockinfo->si_strCode);
+    jf_logger_logDebugMsg("try sell in roi, %s", stockinfo->tsi_strCode);
     
     if (ol_strcmp(end->dds_strDate, ptps->tps_strTradeDate) <= 0)
     {
@@ -338,10 +337,10 @@ static u32 _tradeTrySellInRoi(
             setTradePoolStockOpSell(ptps);
             strcpy(ptps->tps_strTradeDate, end->dds_strDate);
             ptps->tps_dbPrice = dbPrice;
-            pdmtd->dmtd_dbFund += ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
+            ptmtd->tmtd_dbFund += ptps->tps_dbPrice * (oldouble_t)ptps->tps_nVolume;
             jf_logger_logInfoMsg(
                 "try sell in roi, fund remains %.2f",
-                pdmtd->dmtd_dbFund);
+                ptmtd->tmtd_dbFund);
         }
     }
 
@@ -349,20 +348,20 @@ static u32 _tradeTrySellInRoi(
 }
 
 static u32 _tradeInRoi(
-    struct da_model * pdm, stock_info_t * stockinfo, trade_pool_stock_t * ptps,
-    da_model_trade_data_t * pdmtd, da_day_summary_t * buffer, int total)
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
+    tx_model_trade_data_t * ptmtd, da_day_summary_t * buffer, int total)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (isTradePoolStockOpNone(ptps))
     {
         /*try to buy*/
-        u32Ret = _tradeTryBuyInRoi(pdm, stockinfo, ptps, pdmtd, buffer, total);
+        u32Ret = _tradeTryBuyInRoi(ptm, stockinfo, ptps, ptmtd, buffer, total);
     }
     else if (isTradePoolStockOpBuy(ptps))
     {
         /*try to sell*/
-        u32Ret = _tradeTrySellInRoi(pdm, stockinfo, ptps, pdmtd, buffer, total);
+        u32Ret = _tradeTrySellInRoi(ptm, stockinfo, ptps, ptmtd, buffer, total);
     }
 
     return u32Ret;
@@ -370,16 +369,16 @@ static u32 _tradeInRoi(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 fillDaModel(da_model_t * pdm)
+u32 tx_model_fillModel(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_strcpy(pdm->dm_strName, "ROI");
-    ol_strcpy(pdm->dm_strLongName, "rectangle_over_index");
-    pdm->dm_fnInitModel = _initDaModelRoi;
-    pdm->dm_fnFiniModel = _finiDaModelRoi;
-    pdm->dm_fnCanBeTraded = _canBeTradedInRoi;
-    pdm->dm_fnTrade = _tradeInRoi;
+    ol_strcpy(ptm->tm_strName, "ROI");
+    ol_strcpy(ptm->tm_strLongName, "rectangle_over_index");
+    ptm->tm_fnInitModel = _initTxModelRoi;
+    ptm->tm_fnFiniModel = _finiTxModelRoi;
+    ptm->tm_fnCanBeTraded = _canBeTradedInRoi;
+    ptm->tm_fnTrade = _tradeInRoi;
 
     return u32Ret;
 }

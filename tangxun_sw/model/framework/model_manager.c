@@ -1,7 +1,7 @@
 /**
  *  @file model_manager.c
  *
- *  @brief The model manager object
+ *  @brief The model manager object.
  *
  *  @author Min Zhang
  *
@@ -18,11 +18,12 @@
 #include "jf_mem.h"
 #include "jf_dir.h"
 
+#include "tx_model.h"
+
 #include "model_manager.h"
 #include "model_xml.h"
 #include "model_lib.h"
 #include "model_common.h"
-#include "damodel.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -74,18 +75,17 @@ u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir)
 u32 removeDaModel(jf_listhead_t * pjl)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
-    da_model_t * pdm;
+    tx_model_t * ptm;
 
     while (! jf_listhead_isEmpty(pjl))
     {
-        pdm = jf_listhead_getEntry(pjl->jl_pjlNext, da_model_t, dm_jlList);
+        ptm = jf_listhead_getEntry(pjl->jl_pjlNext, tx_model_t, tm_jlList);
 
-        jf_listhead_del(&pdm->dm_jlList);
+        jf_listhead_del(&ptm->tm_jlList);
 
-        pdm->dm_fnFiniModel(pdm);
+        ptm->tm_fnFiniModel(ptm);
 
-        destroyDaModel(&pdm);
+        destroyDaModel(&ptm);
     }
 
     return u32Ret;

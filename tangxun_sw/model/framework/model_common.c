@@ -18,8 +18,8 @@
 #include "jf_mem.h"
 #include "jf_dir.h"
 
+#include "tx_model.h"
 #include "model_common.h"
-#include "damodel.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,47 +31,47 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 destroyDaModel(da_model_t ** ppdm)
+u32 destroyDaModel(tx_model_t ** pptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = *ppdm;
+    tx_model_t * ptm = *pptm;
 
-    if (pdm->dm_pjdLib != NULL)
-        jf_dynlib_unload(&pdm->dm_pjdLib);
+    if (ptm->tm_pjdLib != NULL)
+        jf_dynlib_unload(&ptm->tm_pjdLib);
     
-    jf_mem_free((void **)ppdm);
+    jf_mem_free((void **)pptm);
 
     return u32Ret;
 }
 
-u32 createDaModel(da_model_t ** ppdm)
+u32 createDaModel(tx_model_t ** pptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = NULL;
+    tx_model_t * ptm = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&pdm, sizeof(*pdm));
+    u32Ret = jf_mem_calloc((void **)&ptm, sizeof(*ptm));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        *ppdm = pdm;
-    else if (pdm != NULL)
-        destroyDaModel(&pdm);
+        *pptm = ptm;
+    else if (ptm != NULL)
+        destroyDaModel(&ptm);
     
     return u32Ret;
 }
 
-u32 checkDaModelField(da_model_t * pdm)
+u32 checkDaModelField(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (pdm->dm_strName[0] == '\0')
+    if (ptm->tm_strName[0] == '\0')
         u32Ret = JF_ERR_INVALID_NAME;
 
-    if ((pdm->dm_fnInitModel == NULL) || (pdm->dm_fnFiniModel == NULL) ||
-        (pdm->dm_fnCanBeTraded == NULL) || (pdm->dm_fnTrade == NULL))
+    if ((ptm->tm_fnInitModel == NULL) || (ptm->tm_fnFiniModel == NULL) ||
+        (ptm->tm_fnCanBeTraded == NULL) || (ptm->tm_fnTrade == NULL))
         u32Ret = JF_ERR_INVALID_CALLBACK_FUNCTION;
 
     return u32Ret;

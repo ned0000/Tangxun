@@ -25,7 +25,7 @@
 #include "jf_network.h"
 #include "jf_date.h"
 
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "datransd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

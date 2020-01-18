@@ -31,7 +31,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleNDaysUpInMDays(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_n_days_up_in_m_days_param_t * param = (tx_rule_n_days_up_in_m_days_param_t *)ptrp;
@@ -61,7 +61,7 @@ u32 daRuleNDaysUpInMDays(
 }
 
 u32 daRuleMinRampingDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_min_ramping_day_param_t * param = (tx_rule_min_ramping_day_param_t *)ptrp;
@@ -103,7 +103,7 @@ u32 daRuleMinRampingDay(
 }
 
 u32 daRuleNeedStopLoss(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_need_stop_loss_param_t * ptrnslp = (tx_rule_need_stop_loss_param_t *)ptrp;
@@ -121,7 +121,7 @@ u32 daRuleNeedStopLoss(
 }
 
 u32 daRulePriceVolatility(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_price_volatility_param_t * param = (tx_rule_price_volatility_param_t *)ptrp; 

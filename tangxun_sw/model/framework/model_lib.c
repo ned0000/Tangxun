@@ -18,8 +18,9 @@
 #include "jf_mem.h"
 #include "jf_dir.h"
 
+#include "tx_model.h"
+
 #include "model_lib.h"
-#include "damodel.h"
 #include "model_common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -34,9 +35,9 @@
 
 /** The entry name of the library, MUST be implemented
  */
-#define MODEL_LIB_ENTRY_NAME  "fillDaModel"
+#define MODEL_LIB_ENTRY_NAME  "tx_model_fillModel"
 
-typedef u32 (* fnFillDaModel_t)(da_model_t * pdm);
+typedef u32 (* tx_model_fnFillModel_t)(tx_model_t * ptm);
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -44,11 +45,11 @@ static u32 _handleModelLibFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = NULL;
+    tx_model_t * ptm = NULL;
     jf_dynlib_t * pDynlib = NULL;
-    fnFillDaModel_t fnFillDaModel;
+    tx_model_fnFillModel_t fnFillModel;
     
-    u32Ret = createDaModel(&pdm);
+    u32Ret = createDaModel(&ptm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_dynlib_load(pstrFullpath, &pDynlib);
@@ -57,27 +58,27 @@ static u32 _handleModelLibFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_dynlib_getSymbolAddress(
-            pDynlib, MODEL_LIB_ENTRY_NAME, (void **)&fnFillDaModel);
+            pDynlib, MODEL_LIB_ENTRY_NAME, (void **)&fnFillModel);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = fnFillDaModel(pdm);
+        u32Ret = fnFillModel(ptm);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = checkDaModelField(pdm);
+        u32Ret = checkDaModelField(ptm);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_listhead_add(pjl, &pdm->dm_jlList);
+        jf_listhead_add(pjl, &ptm->tm_jlList);
     }
-    else if (pdm != NULL)
+    else if (ptm != NULL)
     {
         jf_logger_logErrMsg(u32Ret, "failed to load model");
-        destroyDaModel(&pdm);
+        destroyDaModel(&ptm);
     }
 
     return u32Ret;

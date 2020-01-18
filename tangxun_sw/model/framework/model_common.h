@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_listhead.h"
 
-#include "damodel.h"
+#include "tx_model.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -26,11 +26,11 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 destroyDaModel(da_model_t ** ppdm);
+u32 destroyDaModel(tx_model_t ** pptm);
 
-u32 createDaModel(da_model_t ** ppdm);
+u32 createDaModel(tx_model_t ** pptm);
 
-u32 checkDaModelField(da_model_t * pdm);
+u32 checkDaModelField(tx_model_t * ptm);
 
 #endif /*TANGXUN_DAMODEL_COMMON_H*/
 

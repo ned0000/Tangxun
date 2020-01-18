@@ -16,8 +16,9 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
+
 #include "parsedata.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 #define MIN_STAT_ARBI_DAY_SUMMARY  300
@@ -26,7 +27,7 @@
 
 typedef struct
 {
-    stock_info_t * ssi_psiStock;
+    tx_stock_info_t * ssi_ptsiStock;
     da_day_summary_t * ssi_pddsSummary;
     olint_t ssi_nDaySummary;
 } sa_stock_info_t;
@@ -111,7 +112,7 @@ typedef struct
 stat_arbi_desc_t * getStatArbiDesc(olint_t id);
 
 u32 statArbiStock(
-    olchar_t * pstrDataPath, stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
+    olchar_t * pstrDataPath, tx_stock_info_t * stockinfo, stat_arbi_indu_param_t * param,
     stat_arbi_indu_result_t * result);
 
 u32 statArbiIndustry(
@@ -119,21 +120,19 @@ u32 statArbiIndustry(
     stat_arbi_indu_result_t * result);
 
 u32 statArbiAllIndustry(
-    olchar_t * pstrDataPath, stat_arbi_indu_param_t * param,
-    stat_arbi_indu_result_t * result);
+    olchar_t * pstrDataPath, stat_arbi_indu_param_t * param, stat_arbi_indu_result_t * result);
 
 u32 statArbiStockList(
     olchar_t * pstrDataPath, olchar_t * stocklist, olint_t nStock, stat_arbi_indu_param_t * param,
     stat_arbi_indu_result_t * result);
 
 u32 newSaStockInfo(
-    olchar_t * pstrDataPath, olchar_t * pstrStocks,
-    sa_stock_info_t ** ppsastock, olint_t nDaySummary);
+    olchar_t * pstrDataPath, olchar_t * pstrStocks, sa_stock_info_t ** ppsastock,
+    olint_t nDaySummary);
 
 u32 freeSaStockInfo(sa_stock_info_t ** ppsastock);
 
-oldouble_t getSaStockInfoCorrelation(
-    sa_stock_info_t * sastock, olint_t nDaySummary);
+oldouble_t getSaStockInfoCorrelation(sa_stock_info_t * sastock, olint_t nDaySummary);
 
 #endif /*TANGXUN_JIUTAI_STATARBITRAGE_H*/
 

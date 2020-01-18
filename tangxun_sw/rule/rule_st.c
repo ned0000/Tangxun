@@ -32,7 +32,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleNotStRelated(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * start = buffer;
@@ -50,7 +50,7 @@ u32 daRuleNotStRelated(
 }
 
 u32 daRuleSt(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * start = buffer;
@@ -68,7 +68,7 @@ u32 daRuleSt(
 }
 
 u32 daRuleStDelisting(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * start = buffer;

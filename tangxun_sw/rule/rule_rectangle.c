@@ -28,7 +28,7 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _daRuleRectangle(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
     tx_rule_rectangle_param_t * param)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
@@ -38,7 +38,7 @@ static u32 _daRuleRectangle(
     double dbHigh, dbLow;
     int rectangle_start = 0;
 
-    jf_logger_logInfoMsg("rule rectangle, %s", stockinfo->si_strCode);
+    jf_logger_logInfoMsg("rule rectangle, %s", stockinfo->tsi_strCode);
 
     if (total < param->trrp_u32MaxDays)
         return u32Ret;
@@ -131,14 +131,14 @@ static u32 _daRuleRectangle(
             return u32Ret;
     }
 
-    jf_logger_logInfoMsg("rule rectangle is match, %s", stockinfo->si_strCode);
+    jf_logger_logInfoMsg("rule rectangle is match, %s", stockinfo->tsi_strCode);
     return JF_ERR_NO_ERROR;
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleRectangle(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_rule_rectangle_param_t * param = (tx_rule_rectangle_param_t *)ptrp;

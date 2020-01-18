@@ -18,7 +18,7 @@ EXE = tx_transd
 SOURCES = datransd.c main.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocklist.c tx_env.c datastat.c
+JIUTAI_SRCS = tx_env.c datastat.c
 
 # For code complile
 EXTRA_INC_DIR = -I../jtk/inc
@@ -28,8 +28,8 @@ EXTRA_CFLAGS = -DENT
 EXTRA_LDFLAGS = 
 EXTRA_OBJECTS = ../jtk/inc/jf_mutex.o ../jtk/inc/jf_sem.o ../jtk/inc/jf_thread.o
 EXTRA_LIB_DIR = -L../jtk/lib 
-EXTRA_LIBS = -ljf_logger -ljf_files -ljf_string -ljf_ifmgmt -ljf_network \
-    -ljf_jiukun -ljf_httpparser -ljf_persistency -ljf_clieng -ljf_webclient -ltx_parsedata \
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_string -ljf_ifmgmt -ljf_network -ljf_jiukun \
+    -ljf_httpparser -ljf_persistency -ljf_clieng -ljf_webclient -ltx_parsedata -ltx_stock \
     -ltx_trade -lsqlite3 -lm
 
 include $(TOPDIR)/mak/lnxexe.mak

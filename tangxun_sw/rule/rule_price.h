@@ -26,16 +26,16 @@
 /* --- functional routines ---------------------------------------------------------------------- */
 
 u32 daRuleNDaysUpInMDays(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
 
 u32 daRuleMinRampingDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
 
 u32 daRuleNeedStopLoss(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
 
 u32 daRulePriceVolatility(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * pdrp);
 
 #endif /*TANGXUN_DARULE_PRICE_H*/
 

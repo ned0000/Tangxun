@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_time.h"
 
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "parsedata.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -135,7 +135,7 @@ u32 filterPoolStockByOp(
 u32 setStockFirstTradeDate(const char * strStockPath);
 
 boolean_t isAfterStockFirstTradeDate(
-    const stock_info_t * stockinfo, const olchar_t * pstrDate);
+    const tx_stock_info_t * stockinfo, const olchar_t * pstrDate);
 
 boolean_t isHoliday(olint_t days);
 

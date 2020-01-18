@@ -28,10 +28,10 @@
 #include "parsedata.h"
 #include "indicator.h"
 #include "datastat.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "statarbitrage.h"
 #include "tx_env.h"
-#include "damodel.h"
+#include "tx_model.h"
 #include "trade_persistency.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -67,7 +67,7 @@ find [-a] [-p date~date] [-l] [-m] [-c] [-h] [-v]");
 }
 
 static boolean_t _isSuspendedStock(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     boolean_t bRet = TRUE;
     da_day_summary_t * last = buffer + num - 1;
@@ -87,40 +87,40 @@ static boolean_t _isSuspendedStock(
     if (ldays == cdays)
     {
         bRet = FALSE;
-        jf_logger_logInfoMsg("%s is not suspended", stockinfo->si_strCode);
+        jf_logger_logInfoMsg("%s is not suspended", stockinfo->tsi_strCode);
     }
     else
     {
-        jf_logger_logInfoMsg("%s is suspended", stockinfo->si_strCode);
+        jf_logger_logInfoMsg("%s is suspended", stockinfo->tsi_strCode);
     }
 
     return bRet;
 }
 
 static u32 _throwStockIntoModel(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * model = NULL;
+    tx_model_t * model = NULL;
     trade_pool_stock_t tps;
     da_day_summary_t * end;
 
     end = buffer + num - 1;
     jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->dds_strDate);
 
-    model = getFirstDaModel();
+    model = tx_model_getFirstModel();
     while (model != NULL)
     {
-        u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
+        u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->si_strCode);
-            ol_strcpy(tps.tps_strModel, model->dm_strName);
+            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
+            ol_strcpy(tps.tps_strModel, model->tm_strName);
             u32Ret = getPoolStockInTradePersistency(&tps);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                jf_logger_logInfoMsg("%s is already in pool", stockinfo->si_strCode);
+                jf_logger_logInfoMsg("%s is already in pool", stockinfo->tsi_strCode);
                 continue;
             }
             else
@@ -132,21 +132,21 @@ static u32 _throwStockIntoModel(
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->si_strCode);
+            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
             ol_strcpy(tps.tps_strAddDate, end->dds_strDate);
-            ol_strcpy(tps.tps_strModel, model->dm_strName);
+            ol_strcpy(tps.tps_strModel, model->tm_strName);
 
             u32Ret = insertPoolStockIntoTradePersistency(&tps);
         }
 
-        model = getNextDaModel(model);
+        model = tx_model_getNextModel(model);
     }
 
     return JF_ERR_NO_ERROR; //u32Ret;
 }
 
 static u32 _findStocks(
-    cli_find_param_t * pcfp, olchar_t * pstrDataDir, stock_info_t * stockinfo,
+    cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -180,7 +180,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olint_t total = 400; //MAX_NUM_OF_DAY_SUMMARY;
     da_day_summary_t * buffer = NULL;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     _cleanTradeStockFromPool();
 
@@ -194,7 +194,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->tsi_strCode);
 
             u32Ret = _findStocks(pcfp, strFullname, stockinfo, buffer, total);
         }
@@ -211,7 +211,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
 }
 
 static u32 _findStockInPeriod(
-    cli_find_param_t * pcfp, olchar_t * pstrDataDir, stock_info_t * stockinfo,
+    cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -258,7 +258,7 @@ static u32 _findStockInPeriod(
 }
 
 static u32 _startFindStockInPeriod(
-    cli_find_param_t * pcfp, olchar_t * pstrDataDir, stock_info_t * stockinfo,
+    cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -281,7 +281,7 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olint_t total = 800; //MAX_NUM_OF_DAY_SUMMARY;
     da_day_summary_t * buffer = NULL;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
 
     if (strlen(pcfp->cfp_pstrPeriod) != 21)
         return JF_ERR_INVALID_PARAM;
@@ -292,7 +292,7 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
 #if 0
-        if (ol_strcmp(stockinfo->si_strCode, "sh600073") != 0)
+        if (ol_strcmp(stockinfo->tsi_strCode, "sh600073") != 0)
         {
             stockinfo = getNextStockInfo(stockinfo);
             continue;
@@ -303,7 +303,7 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->tsi_strCode);
 
             u32Ret = _startFindStockInPeriod(pcfp, strFullname, stockinfo, buffer, total);
         }

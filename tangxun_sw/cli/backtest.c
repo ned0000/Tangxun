@@ -23,14 +23,13 @@
 #include "jf_jiukun.h"
 #include "jf_time.h"
 
-#include "stocklist.h"
 #include "clicmd.h"
 #include "parsedata.h"
 #include "indicator.h"
 #include "datastat.h"
 #include "statarbitrage.h"
 #include "tx_env.h"
-#include "damodel.h"
+#include "tx_model.h"
 #include "trade_persistency.h"
 #include "tx_backtesting.h"
 

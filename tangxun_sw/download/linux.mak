@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for parsedata library.
+#  @brief The makefile for download library.
 #
 #  @author Min Zhang
 #
@@ -12,10 +12,10 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = tx_parsedata
+SONAME = tx_download
 
 # Source files
-SOURCES = parsedata.c 
+SOURCES = downloaddata.c 
 
 # Jiutai source files
 JIUTAI_SRCS =
@@ -27,7 +27,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -ljf_logger
+EXTRA_LIBS = -ljf_logger -ljf_ifmgmt -ljf_network -ljf_httpparser
 
 include $(TOPDIR)/mak/lnxlib.mak
 

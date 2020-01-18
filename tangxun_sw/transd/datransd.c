@@ -41,7 +41,7 @@
 #include "datastat.h"
 #include "tx_trade.h"
 #include "parsedata.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "datransd.h"
 
 /* --- private data structures ------------------------------------------------------------------ */
@@ -105,7 +105,7 @@ typedef struct transd_stock_info
     u8 tsi_u8Reserved[3];
     oldouble_t tsi_dbPrice;
 
-    stock_info_t * tsi_psiStock;
+    tx_stock_info_t * tsi_psiStock;
 
     stock_quo_t tsi_sqQuo;
 #define STAT_ARBI_STRING_LEN  240
@@ -219,7 +219,7 @@ static void _refreshStrStockList(
     jf_listhead_forEach(&head[idx], pos)
     {
         ptsi = jf_listhead_getEntry(pos, transd_stock_info_t, tsi_jlList);
-        ol_strcat(pstr, ptsi->tsi_psiStock->si_strCode);
+        ol_strcat(pstr, ptsi->tsi_psiStock->tsi_strCode);
         ol_strcat(pstr, ",");
         count[idx] ++;
     }
@@ -756,14 +756,14 @@ static void _freeTransdStockInfo(transd_stock_info_t ** info)
     transd_stock_info_t * ptsi = *info;
 
     jf_logger_logInfoMsg(
-        "free transd stock info %s", ptsi->tsi_psiStock->si_strCode);
+        "free transd stock info %s", ptsi->tsi_psiStock->tsi_strCode);
     jf_listhead_del(&ptsi->tsi_jlList);
     _freeStockQuo(&ptsi->tsi_sqQuo);
     jf_mem_free((void **)info);
 }
 
 static u32 _newTransdStockInfo(
-    jf_listhead_t * head, stock_info_t * stockinfo, transd_stock_info_t ** ppInfo)
+    jf_listhead_t * head, tx_stock_info_t * stockinfo, transd_stock_info_t ** ppInfo)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     transd_stock_info_t * ptsi = NULL;
@@ -772,7 +772,7 @@ static u32 _newTransdStockInfo(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ptsi->tsi_psiStock = stockinfo;
-        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
 
         jf_listhead_addTail(head, &ptsi->tsi_jlList);
     }
@@ -787,7 +787,7 @@ static u32 _newTransdStockInfo(
 
 #if 0
 static transd_stock_info_t * _getTransdStockInfo(
-    jf_listhead_t * pjl, olint_t num, stock_info_t * stockinfo)
+    jf_listhead_t * pjl, olint_t num, tx_stock_info_t * stockinfo)
 {
     transd_stock_info_t * ptsi;
     jf_listhead_t * pos, * head;
@@ -824,7 +824,7 @@ static transd_stock_info_t * _getTransdStockInfoByCode(
         {
             jf_logger_logInfoMsg(
                 "get transd stock info by code, %s",
-                ptsi->tsi_psiStock->si_strCode);
+                ptsi->tsi_psiStock->tsi_strCode);
             return ptsi;
         }
     }
@@ -852,7 +852,7 @@ static transd_stock_info_t * _getTransdStockInfoByCode2(
             {
                 jf_logger_logInfoMsg(
                     "get transd stock info by code 2, No.1, %s",
-                    ptsi->tsi_psiStock->si_strCode);
+                    ptsi->tsi_psiStock->tsi_strCode);
                 ls_nLastSectorIdx = i;
                 return ptsi;
             }
@@ -870,7 +870,7 @@ static transd_stock_info_t * _getTransdStockInfoByCode2(
             {
                 jf_logger_logInfoMsg(
                     "get transd stock info by code 2, No.2, %s",
-                    ptsi->tsi_psiStock->si_strCode);
+                    ptsi->tsi_psiStock->tsi_strCode);
                 ls_nLastSectorIdx = i;
                 return ptsi;
             }
@@ -1031,7 +1031,7 @@ static boolean_t _isLowLimit(stock_quo_t * psq)
 
 static void _markTsiDelete(transd_stock_info_t * ptsi)
 {
-    jf_logger_logInfoMsg("mart tsi delete, %s", ptsi->tsi_psiStock->si_strCode);
+    jf_logger_logInfoMsg("mart tsi delete, %s", ptsi->tsi_psiStock->tsi_strCode);
     ptsi->tsi_bDelete = TRUE;
 }
 
@@ -1390,7 +1390,7 @@ static u32 _initStockInduListHead(
     jf_listhead_t * head, stock_indu_info_t * stockindu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     transd_stock_info_t * ptsi;
 
     stockinfo = getFirstStockInfo();
@@ -1402,7 +1402,7 @@ static u32 _initStockInduListHead(
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ptsi->tsi_psiStock = stockinfo;
-                ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+                ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
 
                 jf_listhead_addTail(head, &ptsi->tsi_jlList);
             }
@@ -1422,15 +1422,15 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     olchar_t line[512];
     olsize_t sline;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     transd_stock_info_t * ptsi;
     olint_t nStock = 0;
 
     u32Ret = jf_mem_calloc((void **)&ptsi, sizeof(transd_stock_info_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ptsi->tsi_psiStock = getStockInfoIndex(SH_COMPOSITE_INDEX);
-        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+        ptsi->tsi_psiStock = getStockInfoIndex(TX_STOCK_SH_COMPOSITE_INDEX);
+        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
         jf_listhead_addTail(head, &ptsi->tsi_jlList);
         nStock ++;
 
@@ -1439,8 +1439,8 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ptsi->tsi_psiStock = getStockInfoIndex(SZ_COMPOSITIONAL_INDEX);
-        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+        ptsi->tsi_psiStock = getStockInfoIndex(TX_STOCK_SZ_COMPOSITIONAL_INDEX);
+        ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
         jf_listhead_addTail(head, &ptsi->tsi_jlList);
         nStock ++;
 
@@ -1468,7 +1468,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     ptsi->tsi_psiStock = stockinfo;
-                    ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+                    ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
                     jf_listhead_addTail(head, &ptsi->tsi_jlList);
                     nStock ++;
 
@@ -1487,7 +1487,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_file_open(STOCK_TOUGH_LIST_FILE_NAME, O_RDONLY, &fd);
+        u32Ret = jf_file_open(TX_STOCK_TOUGH_LIST_FILE_NAME, O_RDONLY, &fd);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             do
@@ -1506,7 +1506,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     ptsi->tsi_psiStock = stockinfo;
-                    ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->si_strCode);
+                    ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
                     jf_listhead_addTail(head, &ptsi->tsi_jlList);
                     nStock ++;
                 }
@@ -1527,7 +1527,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
 }
 
 static u32 _addStrStockStatArbi(
-    jf_listhead_t * head, stock_info_t * psi, olchar_t * code)
+    jf_listhead_t * head, tx_stock_info_t * psi, olchar_t * code)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     transd_stock_info_t * ptsi;
@@ -1551,7 +1551,7 @@ static u32 _addStockStatArbi(
     olchar_t * buf;
     olsize_t size = 128 * 1024, sline;
     olchar_t line[512], code[16];
-    stock_info_t * psi;
+    tx_stock_info_t * psi;
     jf_listhead_t * listhead;
 
     memset(code, 0, sizeof(code));
@@ -1645,7 +1645,7 @@ static void _dumpStockIndu(jf_listhead_t * head, olint_t num)
             buf[0] = '\0';
             count ++;
             ptsi = jf_listhead_getEntry(pos, transd_stock_info_t, tsi_jlList);
-            ol_strcat(buf, ptsi->tsi_psiStock->si_strCode);
+            ol_strcat(buf, ptsi->tsi_psiStock->tsi_strCode);
             ol_strcat(buf, "(");
             if (ptsi->tsi_strStatArbi[0] == '\0')
                 ol_strcat(buf, "Empty");
@@ -1708,7 +1708,7 @@ static u32 _initStrStockList(
             {
                 ptsi = jf_listhead_getEntry(pos, transd_stock_info_t, tsi_jlList);
 
-                ol_strcat(pstr, ptsi->tsi_psiStock->si_strCode);
+                ol_strcat(pstr, ptsi->tsi_psiStock->tsi_strCode);
                 ol_strcat(pstr, ",");
             }
             pstr[strlen(pstr)] = '\0';
@@ -1757,7 +1757,7 @@ u32 createDatransd(datransd_t ** ppDatransd, datransd_param_t * pdp)
 
         u32Ret = _initStockIndu(
             ls_jlStockSector, MAX_STOCK_SECTOR, &ls_nStockSector,
-            STOCK_STAT_ARBI_LIST_FILE_NAME);
+            TX_STOCK_STAT_ARBI_LIST_FILE_NAME);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

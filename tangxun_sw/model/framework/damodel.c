@@ -22,7 +22,7 @@
 #include "jf_mem.h"
 #include "jf_clieng.h"
 
-#include "damodel.h"
+#include "tx_model.h"
 #include "model_manager.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -35,20 +35,20 @@ static JF_LISTHEAD(ls_jlModel);
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
+static u32 _findModelByName(const olchar_t * name, tx_model_t ** model)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pos;
-    da_model_t * pdm;
+    tx_model_t * ptm;
 
     *model = NULL;
 
     jf_listhead_forEach(&ls_jlModel, pos)
     {
-        pdm = jf_listhead_getEntry(pos, da_model_t, dm_jlList);
-        if (ol_strncasecmp(pdm->dm_strName, name, ol_strlen(pdm->dm_strName)) == 0)
+        ptm = jf_listhead_getEntry(pos, tx_model_t, tm_jlList);
+        if (ol_strncasecmp(ptm->tm_strName, name, ol_strlen(ptm->tm_strName)) == 0)
         {
-            *model = pdm;
+            *model = ptm;
             break;
         }
     }
@@ -61,7 +61,7 @@ static u32 _findModelByName(const olchar_t * name, da_model_t ** model)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 initDaModelFramework(void)
+u32 tx_model_initModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -72,7 +72,7 @@ u32 initDaModelFramework(void)
     return u32Ret;
 }
 
-u32 finiDaModelFramework(void)
+u32 tx_model_finiModelFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -81,38 +81,38 @@ u32 finiDaModelFramework(void)
     return u32Ret;
 }
 
-u32 getDaModel(const olchar_t * name, da_model_t ** ppModel)
+u32 tx_model_getModel(const olchar_t * name, tx_model_t ** ppModel)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = NULL;
+    tx_model_t * ptm = NULL;
 
     assert(name != NULL);
 
-    u32Ret = _findModelByName(name, &pdm);
+    u32Ret = _findModelByName(name, &ptm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppModel = pdm;
+        *ppModel = ptm;
     }
 
     return u32Ret;
 }
 
-da_model_t * getFirstDaModel(void)
+tx_model_t * tx_model_getFirstModel(void)
 {
-    da_model_t * pdm = NULL;
+    tx_model_t * ptm = NULL;
 
     if (! jf_listhead_isEmpty(&ls_jlModel))
-        pdm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, da_model_t, dm_jlList);
+        ptm = jf_listhead_getEntry(ls_jlModel.jl_pjlNext, tx_model_t, tm_jlList);
 
-    return pdm;
+    return ptm;
 }
 
-da_model_t * getNextDaModel(da_model_t * pdm)
+tx_model_t * tx_model_getNextModel(tx_model_t * ptm)
 {
-    da_model_t * pNext = NULL;
+    tx_model_t * pNext = NULL;
 
-    if (! jf_listhead_isLast(&ls_jlModel, &pdm->dm_jlList))
-        pNext = jf_listhead_getEntry(pdm->dm_jlList.jl_pjlNext, da_model_t, dm_jlList);
+    if (! jf_listhead_isLast(&ls_jlModel, &ptm->tm_jlList))
+        pNext = jf_listhead_getEntry(ptm->tm_jlList.jl_pjlNext, tx_model_t, tm_jlList);
 
     return pNext;
 }

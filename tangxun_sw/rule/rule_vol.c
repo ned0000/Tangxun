@@ -30,7 +30,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleMinAbnormalVolRatioDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_min_abnormal_vol_ratio_day_param_t * param =

@@ -34,13 +34,14 @@
 #include "jf_process.h"
 #include "jf_option.h"
 
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "tx_env.h"
+#include "tx_rule.h"
 #include "trade_persistency.h"
-#include "damodel.h"
+#include "tx_model.h"
 #include "clicmd.h"
 #include "main.h"
-#include "tx_rule.h"
+
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -134,7 +135,7 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
             u32Ret = initTradePersistency();
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initDaModelFramework();
+            u32Ret = tx_model_initModelFramework();
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = tx_rule_init();
@@ -148,7 +149,7 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
         jf_clieng_fini();
         tx_env_finiPersistency();
         finiStockList();
-        finiDaModelFramework();
+        tx_model_finiModelFramework();
         tx_rule_fini();
 
     return u32Ret;

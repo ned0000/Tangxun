@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for parsedata library.
+#  @brief The makefile for stock library.
 #
 #  @author Min Zhang
 #
@@ -12,10 +12,10 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = tx_parsedata
+SONAME = tx_stock
 
 # Source files
-SOURCES = parsedata.c 
+SOURCES = stocklist.c 
 
 # Jiutai source files
 JIUTAI_SRCS =

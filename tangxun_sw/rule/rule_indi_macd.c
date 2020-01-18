@@ -33,13 +33,13 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleIndiMacdDiffUpBreakDea(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     tx_rule_indi_macd_diff_up_break_dea_param_t * param =
         (tx_rule_indi_macd_diff_up_break_dea_param_t *)ptrp;
 
-    JF_LOGGER_INFO("sotck, %s", stockinfo->si_strCode);
+    JF_LOGGER_INFO("sotck, %s", stockinfo->tsi_strCode);
 
     if (total < param->trimdubdp_nMacdLongDays)
         return u32Ret;

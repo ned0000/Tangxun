@@ -22,7 +22,7 @@
 
 #include "parsedata.h"
 #include "indicator.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "tx_env.h"
 #include "clicmd.h"
 
@@ -72,8 +72,7 @@ static u32 _listAllIndicators(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 }
 
 static u32 _daySummaryIndiAdxr(
-    cli_indi_param_t * pcip, stock_info_t * stockinfo,
-    da_day_summary_t * buffer, olint_t num)
+    cli_indi_param_t * pcip, tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_adxr_t * adxr;
@@ -81,7 +80,7 @@ static u32 _daySummaryIndiAdxr(
     olint_t count;
     oldouble_t ratio;
 
-    jf_clieng_outputLine("Stock: %s", stockinfo->si_strCode);
+    jf_clieng_outputLine("Stock: %s", stockinfo->tsi_strCode);
 
     u32Ret = getIndicatorAdxrTrend(buffer, num);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -112,7 +111,7 @@ static u32 _daySummaryIndiAdxr(
 }
 
 static u32 _indiAdxrOneStock(
-    cli_indi_param_t * pcip, stock_info_t * stockinfo,
+    cli_indi_param_t * pcip, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t * num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -120,7 +119,7 @@ static u32 _indiAdxrOneStock(
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->tsi_strCode);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, num);
 
@@ -136,7 +135,7 @@ static u32 _indiAdxr(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_INDI_DAY_SUMMARY;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     da_day_summary_t * buffer = NULL;
 
     u32Ret = jf_mem_calloc((void **)&buffer, sizeof(da_day_summary_t) * total);

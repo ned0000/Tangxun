@@ -16,16 +16,16 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
 
 /* --- functional routines ---------------------------------------------------------------------- */
-oldouble_t getCorrelationWithIndex(stock_info_t * info);
+oldouble_t getCorrelationWithIndex(tx_stock_info_t * info);
 
-oldouble_t getCorrelationWithSmeIndex(stock_info_t * info);
+oldouble_t getCorrelationWithSmeIndex(tx_stock_info_t * info);
 
 
 #endif /*TANGXUN_JIUTAI_DAMETHOD_H*/

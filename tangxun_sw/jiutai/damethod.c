@@ -30,7 +30,7 @@
 #include "jf_jiukun.h"
 
 #include "tx_env.h"
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "indicator.h"
 #include "statarbitrage.h"
 
@@ -40,7 +40,7 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-oldouble_t getCorrelationWithIndex(stock_info_t * info)
+oldouble_t getCorrelationWithIndex(tx_stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -48,12 +48,12 @@ oldouble_t getCorrelationWithIndex(stock_info_t * info)
     sa_stock_info_t * sastock = NULL;
     olint_t nDaySummary = 60;
 
-    ol_strcpy(strStocks, info->si_strCode);
+    ol_strcpy(strStocks, info->tsi_strCode);
     ol_strcat(strStocks, ",");
-    if (isShStockExchange(info->si_strCode))
-        ol_strcat(strStocks, SH_COMPOSITE_INDEX);
+    if (isShStockExchange(info->tsi_strCode))
+        ol_strcat(strStocks, TX_STOCK_SH_COMPOSITE_INDEX);
     else
-        ol_strcat(strStocks, SZ_COMPOSITIONAL_INDEX);
+        ol_strcat(strStocks, TX_STOCK_SZ_COMPOSITIONAL_INDEX);
 
     u32Ret = newSaStockInfo(
 		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);
@@ -68,7 +68,7 @@ oldouble_t getCorrelationWithIndex(stock_info_t * info)
     return dbret;
 }
 
-oldouble_t getCorrelationWithSmeIndex(stock_info_t * info)
+oldouble_t getCorrelationWithSmeIndex(tx_stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -76,9 +76,9 @@ oldouble_t getCorrelationWithSmeIndex(stock_info_t * info)
     sa_stock_info_t * sastock = NULL;
     olint_t nDaySummary = 60;
 
-    ol_strcpy(strStocks, info->si_strCode);
+    ol_strcpy(strStocks, info->tsi_strCode);
     ol_strcat(strStocks, ",");
-    ol_strcat(strStocks, SME_COMPOSITIONAL_INDEX);
+    ol_strcat(strStocks, TX_STOCK_SME_COMPOSITIONAL_INDEX);
 
     u32Ret = newSaStockInfo(
 		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);

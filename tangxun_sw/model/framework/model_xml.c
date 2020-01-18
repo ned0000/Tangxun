@@ -18,9 +18,10 @@
 #include "jf_mem.h"
 #include "jf_dir.h"
 
+#include "tx_model.h"
+
 #include "model_xml.h"
 #include "model_common.h"
-#include "damodel.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -47,9 +48,9 @@ static u32 _handleDaModelXmlFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * pdm = NULL;
+    tx_model_t * ptm = NULL;
     
-    u32Ret = createDaModel(&pdm);
+    u32Ret = createDaModel(&ptm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseModelXmlFile(pstrFullpath, pStat, pjl);
@@ -57,17 +58,17 @@ static u32 _handleDaModelXmlFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = checkDaModelField(pdm);
+        u32Ret = checkDaModelField(ptm);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_listhead_add(pjl, &pdm->dm_jlList);
+        jf_listhead_add(pjl, &ptm->tm_jlList);
     }
-    else if (pdm != NULL)
+    else if (ptm != NULL)
     {
         jf_logger_logErrMsg(u32Ret, "failed to load model");
-        destroyDaModel(&pdm);
+        destroyDaModel(&ptm);
     }
 
     return u32Ret;

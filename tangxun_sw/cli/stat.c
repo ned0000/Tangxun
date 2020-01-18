@@ -33,8 +33,6 @@
 #include "datastat.h"
 #include "clicmd.h"
 #include "regression.h"
-#include "damodel.h"
-#include "stocklist.h"
 #include "statarbitrage.h"
 #include "tx_env.h"
 

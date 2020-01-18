@@ -27,12 +27,12 @@
 #include "jf_time.h"
 #include "jf_date.h"
 
-#include "stocklist.h"
+#include "tx_stock.h"
 #include "parsedata.h"
 #include "indicator.h"
 #include "datastat.h"
 #include "statarbitrage.h"
-#include "damodel.h"
+#include "tx_model.h"
 #include "trade_persistency.h"
 #include "tx_backtesting.h"
 #include "tx_trade.h"
@@ -56,50 +56,50 @@ typedef struct
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _backtestingFindAndTradeStockInModel(
-    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, stock_info_t * stockinfo,
+    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * model = NULL;
+    tx_model_t * model = NULL;
     da_day_summary_t * end;
     trade_pool_stock_t tps;
     trade_trading_record_t ttr;
-    da_model_trade_data_t dmtd;
+    tx_model_trade_data_t tmtd;
     tx_backtesting_result_t * ptbr = pbre->bre_ptbrResult;
 
     end = buffer + num - 1;
     JF_LOGGER_INFO("total: %d, last day: %s", num, end->dds_strDate);
 
-    model = getFirstDaModel();
+    model = tx_model_getFirstModel();
     while (model != NULL)
     {
         if ((ptbp->tbp_pstrModel != NULL) &&
-            ol_strcmp(model->dm_strName, ptbp->tbp_pstrModel) != 0)
+            ol_strcmp(model->tm_strName, ptbp->tbp_pstrModel) != 0)
         {
-            model = getNextDaModel(model);
+            model = tx_model_getNextModel(model);
             continue;
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            initTradePoolStock(&tps, stockinfo->si_strCode, model->dm_strName);
+            initTradePoolStock(&tps, stockinfo->tsi_strCode, model->tm_strName);
             initTradeTradingRecord(
-                &ttr, stockinfo->si_strCode, model->dm_strName);
+                &ttr, stockinfo->tsi_strCode, model->tm_strName);
 
             u32Ret = getPoolStockInTradePersistency(&tps);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 /*the stock is in pool*/
-                JF_LOGGER_INFO("%s is already in pool", stockinfo->si_strCode);
+                JF_LOGGER_INFO("%s is already in pool", stockinfo->tsi_strCode);
 
-                ol_bzero(&dmtd, sizeof(dmtd));
+                ol_bzero(&tmtd, sizeof(tmtd));
 
                 if (isTradePoolStockOpNone(&tps))
                 {
                     JF_LOGGER_INFO("before buy, fund: %.2f", ptbr->tbr_dbFund);
-                    dmtd.dmtd_dbFund = ptbr->tbr_dbFund;
+                    tmtd.tmtd_dbFund = ptbr->tbr_dbFund;
                     /*not bought yet*/
-                    u32Ret = model->dm_fnTrade(model, stockinfo, &tps, &dmtd, buffer, num);
+                    u32Ret = model->tm_fnTrade(model, stockinfo, &tps, &tmtd, buffer, num);
                     if ((u32Ret == JF_ERR_NO_ERROR) && isTradePoolStockOpBuy(&tps))
                     {
                         /*the stock is bought*/
@@ -112,14 +112,14 @@ static u32 _backtestingFindAndTradeStockInModel(
                         pbre->bre_nStock ++;
                         pbre->bre_bSaveAsset = TRUE;
                     }
-                    ptbr->tbr_dbFund = dmtd.dmtd_dbFund;
+                    ptbr->tbr_dbFund = tmtd.tmtd_dbFund;
                     JF_LOGGER_INFO("after buy, fund: %.2f", ptbr->tbr_dbFund);
                 }
                 else if (isTradePoolStockOpBuy(&tps))
                 {
                     JF_LOGGER_INFO("before sell, fund: %.2f", ptbr->tbr_dbFund);
                     /*Bought already, try to sell*/
-                    u32Ret = model->dm_fnTrade(model, stockinfo, &tps, &dmtd, buffer, num);
+                    u32Ret = model->tm_fnTrade(model, stockinfo, &tps, &tmtd, buffer, num);
                     if ((u32Ret == JF_ERR_NO_ERROR) && isTradePoolStockOpSell(&tps))
                     {
                         /*the stock is sold out*/
@@ -128,8 +128,8 @@ static u32 _backtestingFindAndTradeStockInModel(
                         insertTradingRecordIntoTradePersistency(&ttr);
                         /*delete pool stock*/
                         removePoolStockFromTradePersistency(&tps);
-                        ptbr->tbr_dbFund += dmtd.dmtd_dbFund;
-                        pbre->bre_dbAsset += dmtd.dmtd_dbFund;
+                        ptbr->tbr_dbFund += tmtd.tmtd_dbFund;
+                        pbre->bre_dbAsset += tmtd.tmtd_dbFund;
                         pbre->bre_bSaveAsset = TRUE;
                         JF_LOGGER_INFO("after sell, fund: %.2f", ptbr->tbr_dbFund);
                     }
@@ -145,7 +145,7 @@ static u32 _backtestingFindAndTradeStockInModel(
             else
             {
                 /* The stock is not in pool */
-                u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
+                u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     u32Ret = insertPoolStockIntoTradePersistency(&tps);
@@ -153,7 +153,7 @@ static u32 _backtestingFindAndTradeStockInModel(
             }
         }
 
-        model = getNextDaModel(model);
+        model = tx_model_getNextModel(model);
     }
 
     return u32Ret;
@@ -198,7 +198,7 @@ static u32 _backtestingCalcAssetDayByDay(
 
 static u32 _backtestingFindAndTradeStock(
     tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre,
-    stock_info_t * stockinfo, olchar_t * pstrStartDate, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, olchar_t * pstrStartDate, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t lyear, lmonth, lday;
@@ -376,7 +376,7 @@ static u32 _startBacktestingModel(
     olint_t total = MAX_NUM_OF_DDS_FOR_BACKTESTING;
     da_day_summary_t * buffer = NULL, * middle = NULL;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     olchar_t strStartDate[16] = {'\0'};
     olchar_t strDate[16] = {'\0'};
     olchar_t * pstrStartDate = NULL;
@@ -390,18 +390,18 @@ static u32 _startBacktestingModel(
     stockinfo = getFirstStockInfo();
     while (stockinfo != NULL)
     {
-        JF_LOGGER_INFO("stock: %s", stockinfo->si_strCode);
+        JF_LOGGER_INFO("stock: %s", stockinfo->tsi_strCode);
 
         ol_snprintf(
             strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s.txt",
-            BACKTESTING_OUTPUT_DIR, PATH_SEPARATOR, stockinfo->si_strCode);
+            BACKTESTING_OUTPUT_DIR, PATH_SEPARATOR, stockinfo->tsi_strCode);
         u32Ret = jf_filestream_open(strFullname, "w", &pbre->bre_pjfAsset);
         if (u32Ret != JF_ERR_NO_ERROR)
             break;
 
         ol_snprintf(
             strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-            ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
+            ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->tsi_strCode);
 
         pstrStartDate = NULL;
         strDate[0] = '\0';
@@ -453,11 +453,11 @@ static u32 _startBacktestingModel(
 }
 
 static u32 _backtestingFindStockInModelDayByDay(
-    tx_backtesting_param_t * ptbp, olchar_t * pstrBacktestDate, stock_info_t * stockinfo,
+    tx_backtesting_param_t * ptbp, olchar_t * pstrBacktestDate, tx_stock_info_t * stockinfo,
     da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * model = NULL;
+    tx_model_t * model = NULL;
     trade_pool_stock_t tps;
     da_day_summary_t * pdds;
     olint_t total = num;
@@ -465,23 +465,23 @@ static u32 _backtestingFindStockInModelDayByDay(
     if (num == 0)
         return u32Ret;
 
-    model = getFirstDaModel();
+    model = tx_model_getFirstModel();
     while (model != NULL)
     {
         if ((ptbp->tbp_pstrModel != NULL) &&
-            ol_strcasecmp(model->dm_strName, ptbp->tbp_pstrModel) != 0)
+            ol_strcasecmp(model->tm_strName, ptbp->tbp_pstrModel) != 0)
         {
-            model = getNextDaModel(model);
+            model = tx_model_getNextModel(model);
             continue;
         }
 
-        initTradePoolStock(&tps, stockinfo->si_strCode, model->dm_strName);
+        initTradePoolStock(&tps, stockinfo->tsi_strCode, model->tm_strName);
 
         u32Ret = getPoolStockInTradePersistency(&tps);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*the stock is in pool*/
-            JF_LOGGER_INFO("%s is already in pool", stockinfo->si_strCode);
+            JF_LOGGER_INFO("%s is already in pool", stockinfo->tsi_strCode);
         }
         else
         {
@@ -491,7 +491,7 @@ static u32 _backtestingFindStockInModelDayByDay(
             {
                 total = pdds - buffer + 1;
 
-                u32Ret = model->dm_fnCanBeTraded(model, stockinfo, &tps, buffer, total);
+                u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &tps, buffer, total);
             }
 
             if (u32Ret == JF_ERR_NO_ERROR)
@@ -502,7 +502,7 @@ static u32 _backtestingFindStockInModelDayByDay(
             }
         }
 
-        model = getNextDaModel(model);
+        model = tx_model_getNextModel(model);
     }
 
     return u32Ret;
@@ -512,7 +512,7 @@ static u32 _backtestingFindStockDayByDay(
     tx_backtesting_param_t * ptbp, olchar_t * pstrBacktestDate, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    stock_info_t * stockinfo;
+    tx_stock_info_t * stockinfo;
     olint_t total;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     boolean_t bAfter;
@@ -531,7 +531,7 @@ static u32 _backtestingFindStockDayByDay(
 
         ol_snprintf(
             strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-            ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
+            ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->tsi_strCode);
         strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
         total = num;
 
@@ -551,19 +551,19 @@ static u32 _backtestingFindStockDayByDay(
 }
 
 static u32 _backtestingSellOneStockDayByDay(
-    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, stock_info_t * stockinfo,
-    da_model_t * model, trade_pool_stock_t * ptps, da_day_summary_t * buffer, olint_t num)
+    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, tx_stock_info_t * stockinfo,
+    tx_model_t * model, trade_pool_stock_t * ptps, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     trade_trading_record_t ttr;
-    da_model_trade_data_t dmtd;
+    tx_model_trade_data_t tmtd;
     tx_backtesting_result_t * ptbr = pbre->bre_ptbrResult;
     da_day_summary_t * end;
 
-    ol_bzero(&dmtd, sizeof(dmtd));
+    ol_bzero(&tmtd, sizeof(tmtd));
     
     /*Bought already, try to sell*/
-    u32Ret = model->dm_fnTrade(model, stockinfo, ptps, &dmtd, buffer, num);
+    u32Ret = model->tm_fnTrade(model, stockinfo, ptps, &tmtd, buffer, num);
     if ((u32Ret == JF_ERR_NO_ERROR) && isTradePoolStockOpSell(ptps))
     {
         /*the stock is sold out*/
@@ -572,8 +572,8 @@ static u32 _backtestingSellOneStockDayByDay(
         insertTradingRecordIntoTradePersistency(&ttr);
         /*delete pool stock*/
         removePoolStockFromTradePersistency(ptps);
-        ptbr->tbr_dbFund += dmtd.dmtd_dbFund;
-        pbre->bre_dbAsset += dmtd.dmtd_dbFund;
+        ptbr->tbr_dbFund += tmtd.tmtd_dbFund;
+        pbre->bre_dbAsset += tmtd.tmtd_dbFund;
         pbre->bre_bSaveAsset = TRUE;
     }
     else
@@ -600,8 +600,8 @@ static u32 _backtestingSellStockDayByDay(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index;
-    da_model_t * model = NULL;
-    stock_info_t * stockinfo;
+    tx_model_t * model = NULL;
+    tx_stock_info_t * stockinfo;
     trade_pool_stock_t * pStock = NULL;
     olint_t total = num;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -616,7 +616,7 @@ static u32 _backtestingSellStockDayByDay(
     {
         pStock = ptpsOp[index];
 
-        u32Ret = getDaModel(pStock->tps_strModel, &model);
+        u32Ret = tx_model_getModel(pStock->tps_strModel, &model);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = getStockInfo(pStock->tps_strStock, &stockinfo);
@@ -626,7 +626,7 @@ static u32 _backtestingSellStockDayByDay(
         {
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
+                ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->tsi_strCode);
             strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
             total = pStock->tps_nNumOfDaySummary;
 
@@ -662,25 +662,25 @@ static u32 sortPoolStockForBuyOp(
 }
 
 static u32 _backtestingBuyOneStockDayByDay(
-    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, stock_info_t * stockinfo,
-    da_model_t * model, trade_pool_stock_t * ptps, da_day_summary_t * buffer, olint_t num)
+    tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre, tx_stock_info_t * stockinfo,
+    tx_model_t * model, trade_pool_stock_t * ptps, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     trade_trading_record_t ttr;
-    da_model_trade_data_t dmtd;
+    tx_model_trade_data_t tmtd;
     oldouble_t maxfund;
     tx_backtesting_result_t * ptbr = pbre->bre_ptbrResult;
 
-    ol_bzero(&dmtd, sizeof(dmtd));
+    ol_bzero(&tmtd, sizeof(tmtd));
     
     /*ToDo: determine fund which can be used for one stock*/
 #define MAX_PERCENT_OF_FUND_FOR_ONE_STOCK     (0.2)
 #define MAX_FUND_FOR_ONE_STOCK                (10000)
-    dmtd.dmtd_dbFund = ptbr->tbr_dbFund;
+    tmtd.tmtd_dbFund = ptbr->tbr_dbFund;
     maxfund = ptbr->tbr_dbInitialFund * MAX_PERCENT_OF_FUND_FOR_ONE_STOCK;
-    if (dmtd.dmtd_dbFund > maxfund)
-        dmtd.dmtd_dbFund = maxfund;
-    if (dmtd.dmtd_dbFund < MAX_FUND_FOR_ONE_STOCK)
+    if (tmtd.tmtd_dbFund > maxfund)
+        tmtd.tmtd_dbFund = maxfund;
+    if (tmtd.tmtd_dbFund < MAX_FUND_FOR_ONE_STOCK)
     {
         jf_logger_logErrMsg(JF_ERR_OPERATION_FAIL, "No enough fund");
         /*delete pool stock*/
@@ -688,9 +688,9 @@ static u32 _backtestingBuyOneStockDayByDay(
         return u32Ret;
     }
 
-    ptbr->tbr_dbFund -= dmtd.dmtd_dbFund;
+    ptbr->tbr_dbFund -= tmtd.tmtd_dbFund;
     /*not bought yet*/
-    u32Ret = model->dm_fnTrade(model, stockinfo, ptps, &dmtd, buffer, num);
+    u32Ret = model->tm_fnTrade(model, stockinfo, ptps, &tmtd, buffer, num);
     if ((u32Ret == JF_ERR_NO_ERROR) && isTradePoolStockOpBuy(ptps))
     {
         /*the stock is bought*/
@@ -701,7 +701,7 @@ static u32 _backtestingBuyOneStockDayByDay(
         insertTradingRecordIntoTradePersistency(&ttr);
     }
 
-    ptbr->tbr_dbFund += dmtd.dmtd_dbFund;
+    ptbr->tbr_dbFund += tmtd.tmtd_dbFund;
     jf_logger_logInfoMsg("backtesting buy one stock day by day, fund: %.2f", ptbr->tbr_dbFund);
 
     return u32Ret;
@@ -713,8 +713,8 @@ static u32 _backtestingBuyStockDayByDay(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index;
-    da_model_t * model = NULL;
-    stock_info_t * stockinfo;
+    tx_model_t * model = NULL;
+    tx_stock_info_t * stockinfo;
     trade_pool_stock_t * pStock = NULL;
     olint_t total = num;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
@@ -729,7 +729,7 @@ static u32 _backtestingBuyStockDayByDay(
     {
         pStock = ptpsOp[index];
 
-        u32Ret = getDaModel(pStock->tps_strModel, &model);
+        u32Ret = tx_model_getModel(pStock->tps_strModel, &model);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = getStockInfo(pStock->tps_strStock, &stockinfo);
@@ -739,7 +739,7 @@ static u32 _backtestingBuyStockDayByDay(
         {
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->si_strCode);
+                ptbp->tbp_pstrStockPath, PATH_SEPARATOR, stockinfo->tsi_strCode);
             strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
             total = pStock->tps_nNumOfDaySummary;
 
@@ -766,8 +766,7 @@ static u32 _backtestingBuyStockDayByDay(
 
 static u32 _backtestingTradeStockDayByDay(
     tx_backtesting_param_t * ptbp, backtesting_result_ext_t * pbre,
-    olchar_t * pstrBacktestDate,
-    da_day_summary_t * buffer, olint_t num)
+    olchar_t * pstrBacktestDate, da_day_summary_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count;
@@ -885,14 +884,14 @@ static u32 _startBacktestingModelDayByDay(
 u32 backtestingModel(tx_backtesting_param_t * ptbp, tx_backtesting_result_t * ptbr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_model_t * model = NULL;
+    tx_model_t * model = NULL;
     backtesting_result_ext_t bre;
 
     if (! ptbp->tbp_bAllModel)
     {
         assert(ptbp->tbp_pstrModel != NULL);
 
-        u32Ret = getDaModel(ptbp->tbp_pstrModel, &model);
+        u32Ret = tx_model_getModel(ptbp->tbp_pstrModel, &model);
         if (u32Ret != JF_ERR_NO_ERROR)
             u32Ret = JF_ERR_INVALID_PARAM;
     }
