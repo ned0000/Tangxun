@@ -19,7 +19,7 @@ SOURCES = env.c indi.c model.c stat.c fix.c download.c rule.c find.c parse.c bac
     analysis.c stock.c misc.c trade.c clicmd.c main.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocklist.c parsedata.c fixdata.c datastat.c regression.c downloaddata.c \
+JIUTAI_SRCS = stocklist.c fixdata.c datastat.c regression.c downloaddata.c \
     indicator.c statarbitrage.c damethod.c envvar.c
 
 # For code complile
@@ -33,7 +33,7 @@ EXTRA_LDFLAGS =
 EXTRA_LIB_DIR = -L../jtk/lib
 EXTRA_LIBS = -ljf_logger -ljf_files -ljf_clieng -ljf_string -ljf_ifmgmt \
     -ljf_network -ljf_httpparser -ljf_jiukun -ljf_matrix -ljf_persistency \
-    -ltx_tradehelper -ltx_rule -ltx_model -ltx_trade_persistency -ltx_backtesting \
+    -ltx_tradehelper -ltx_rule -ltx_model -ltx_trade_persistency -ltx_backtesting -ltx_parsedata \
     -lm -lsqlite3
 
 include $(TOPDIR)/mak/lnxexe.mak

@@ -1,7 +1,7 @@
 #
 #  @file 
 #
-#  @brief The makefile for building Tangxun software
+#  @brief The makefile for building tangxun software.
 #
 #  @author Min Zhang
 #
@@ -14,7 +14,7 @@ TOPDIR := $(shell /bin/pwd)
 
 export TOPDIR
 
-SUBDIRS = jiutai trade_persistency rule model tradehelper backtesting \
+SUBDIRS = jiutai parsedata trade_persistency rule model tradehelper backtesting \
     bgad transd cli misc
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
