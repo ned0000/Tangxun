@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for Tangxun transaction daemon
+#  @brief The makefile for Tangxun transaction daemon.
 #
 #  @author Min Zhang
 #
@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the executable file
-EXE = datransd
+EXE = tx_transd
 
 # Source files
 SOURCES = datransd.c main.c

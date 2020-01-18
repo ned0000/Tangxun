@@ -1,7 +1,7 @@
 #
 #  @file Makefile
 #
-#  @brief The Makefile for trade persistency library
+#  @brief The makefile for trade persistency library.
 #
 #  @author Min Zhang
 #
@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = datrade_persistency
+SONAME = tx_trade_persistency
 
 # Source files
 SOURCES = sqlitepersistency.c trade_persistency.c 

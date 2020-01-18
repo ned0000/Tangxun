@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for cli utility.
+#  @brief The makefile for cli utility.
 #
 #  @author Min Zhang
 #
@@ -33,7 +33,7 @@ EXTRA_LDFLAGS =
 EXTRA_LIB_DIR = -L../jtk/lib
 EXTRA_LIBS = -ljf_logger -ljf_files -ljf_clieng -ljf_string -ljf_ifmgmt \
     -ljf_network -ljf_httpparser -ljf_jiukun -ljf_matrix -ljf_persistency \
-    -ldatradehelper -ldarule -ldamodel -ldatrade_persistency -ldabacktesting \
+    -ltx_tradehelper -ltx_rule -ltx_model -ltx_trade_persistency -ltx_backtesting \
     -lm -lsqlite3
 
 include $(TOPDIR)/mak/lnxexe.mak

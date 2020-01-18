@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library, MUST be start with "damodel_"
-SONAME = damodel_roi
+SONAME = tx_model_roi
 
 # Source files
 SOURCES = roi.c
@@ -28,7 +28,7 @@ EXTRA_OBJECTS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L$(TOPDIR)/jtk/lib
-EXTRA_LIBS = -ljf_logger -ldarule
+EXTRA_LIBS = -ljf_logger -ltx_rule
 
 include $(TOPDIR)/mak/lnxlib.mak
 

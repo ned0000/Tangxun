@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for tradehelper library
+#  @brief The makefile for tradehelper library.
 #
 #  @author Min Zhang
 #
@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = datradehelper
+SONAME = tx_tradehelper
 
 # Source files
 SOURCES = tradehelper.c
@@ -28,7 +28,7 @@ EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_date.o
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L$(TOPDIR)/jtk/lib
-EXTRA_LIBS = -ljf_logger -ldamodel -ldatrade_persistency
+EXTRA_LIBS = -ljf_logger -ltx_model -ltx_trade_persistency
 
 include $(TOPDIR)/mak/lnxlib.mak
 

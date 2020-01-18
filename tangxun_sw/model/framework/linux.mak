@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for darule library
+#  @brief The makefile for model framework library.
 #
 #  @author Min Zhang
 #
@@ -12,23 +12,23 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = darule
+SONAME = tx_model
 
 # Source files
-SOURCES = rule_vol.c rule_vol.c rule_indi_macd.c rule_st.c rule_rectangle.c rule_limit.c \
-    rule_price.c rule_bottom.c rule_misc.c rule_line.c darule.c
+SOURCES = model_common.c model_lib.c model_xml.c model_manager.c damodel.c
 
 # Jiutai source files
-JIUTAI_SRCS =
+JIUTAI_SRCS = stocktrade.c
 
 # For code complile
-EXTRA_INC_DIR += -I. -I../jtk/inc
+EXTRA_INC_DIR += -I. -I$(TOPDIR)/jtk/inc
+EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_dynlib.o
 EXTRA_CFLAGS =
 
 # For library build 
 EXTRA_LDFLAGS = 
-EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -ljf_logger
+EXTRA_LIB_DIR = -L$(TOPDIR)/jtk/lib
+EXTRA_LIBS = -ljf_logger -ljf_files -ltx_rule
 
 include $(TOPDIR)/mak/lnxlib.mak
 

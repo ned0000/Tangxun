@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for damodel module
+#  @brief The makefile for model module.
 #
 #  @author Min Zhang
 #
@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = framework model
+SUBDIRS = framework model_lib
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

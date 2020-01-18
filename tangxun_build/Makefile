@@ -1,7 +1,7 @@
 #
 #  @file Makefile
 #
-#  @brief Tangxun building script
+#  @brief Tangxun building script.
 #
 #  @author Min Zhang
 #
@@ -38,7 +38,7 @@ tangxun_sw_config_sector_dir = $(tangxun_sw_config_dir)/sector
 tangxun_sw_dest_config_dir = $(build_dir_config)
 
 # Tangxun software model xml files
-tangxun_sw_model_xml_dir = $(tangxun_sw_src_dir)/damodel/model_xml/
+tangxun_sw_model_xml_dir = $(tangxun_sw_src_dir)/model/model_xml/
 
 # Tangxun software db files
 tangxun_sw_db_dir = $(tangxun_sw_src_dir)/db
@@ -116,7 +116,7 @@ sw_build: sw_dirs .build_sw
 	@for i in $(tangxun_sw_lib_dir)/*; do \
         cp -af $$i $(build_dir_lib); \
     done
-	@for i in $(build_dir_lib)/libdamodel_*; do \
+	@for i in $(build_dir_lib)/libtx_model_*; do \
         mv $$i $(build_dir_lib_model); \
     done
 	@for i in $(tangxun_sw_model_xml_dir)/model_*; do \

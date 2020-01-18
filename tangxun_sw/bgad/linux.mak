@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for Tangxun background activity daemon
+#  @brief The makefile for Tangxun background activity daemon.
 #
 #  @author Min Zhang
 #
@@ -12,7 +12,7 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the executable file
-EXE = dabgad
+EXE = tx_bgad
 
 # Source files
 SOURCES = dabgad.c main.c
