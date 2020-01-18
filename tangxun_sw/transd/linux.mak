@@ -18,7 +18,7 @@ EXE = tx_transd
 SOURCES = datransd.c main.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocklist.c envvar.c datastat.c stocktrade.c
+JIUTAI_SRCS = stocklist.c tx_env.c datastat.c stocktrade.c
 
 # For code complile
 EXTRA_INC_DIR = -I../jtk/inc

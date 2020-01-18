@@ -33,7 +33,7 @@
 #include "statarbitrage.h"
 #include "clicmd.h"
 #include "damethod.h"
-#include "envvar.h"
+#include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_jccStockInfoAdditionalVerbose[] =
@@ -346,7 +346,7 @@ u32 processStock(void * pMaster, void * pParam)
         u32Ret = _stockHelp(ptcm);
     else if (pcsp->csp_u8Action == CLI_ACTION_LIST_INDUSTRY)
         u32Ret = _printIndustryInfo(pcsp);
-    else if (isNullEnvVarDataPath())
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

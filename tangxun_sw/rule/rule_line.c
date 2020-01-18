@@ -1,7 +1,7 @@
 /**
  *  @file rule_line.c
  *
- *  @brief Implementation file for rules related to line
+ *  @brief Implementation file for rules related to line.
  *
  *  @author Min Zhang
  *
@@ -17,17 +17,9 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
-#include "jf_process.h"
-#include "jf_string.h"
-#include "jf_file.h"
-#include "jf_clieng.h"
-#include "jf_mem.h"
-#include "jf_jiukun.h"
-#include "jf_hashtable.h"
 
-#include "envvar.h"
-#include "darule.h"
+#include "tx_env.h"
+#include "tx_rule.h"
 #include "rule_line.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -37,31 +29,31 @@
 
 static u32 _isNearPressureLine(
     stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
-    da_rule_pressure_line_param_t * pdrplp)
+    tx_rule_pressure_line_param_t * ptrplp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * highest = pdrplp->drplp_pddsUpperLeft;
+    da_day_summary_t * highest = ptrplp->trplp_pddsUpperLeft;
     oldouble_t dbPrice;
     da_day_summary_t * end = buffer + total - 1;
 
-    if (highest->dds_dbClosingPrice < pdrplp->drplp_pddsUpperRight->dds_dbClosingPrice)
-        highest = pdrplp->drplp_pddsUpperRight;
+    if (highest->dds_dbClosingPrice < ptrplp->trplp_pddsUpperRight->dds_dbClosingPrice)
+        highest = ptrplp->trplp_pddsUpperRight;
 
-    dbPrice = highest->dds_dbClosingPrice * (1 - pdrplp->drplp_dbRatio);
-    if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_NEAR)
+    dbPrice = highest->dds_dbClosingPrice * (1 - ptrplp->trplp_dbRatio);
+    if (ptrplp->trplp_u8Condition == PRESSURE_LINE_CONDITION_NEAR)
     {
         if (end->dds_dbClosingPrice > dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
-            pdrplp->drplp_dbPrice = dbPrice;
+            ptrplp->trplp_dbPrice = dbPrice;
         }
     }
-    else if (pdrplp->drplp_u8Condition == PRESSURE_LINE_CONDITION_FAR)
+    else if (ptrplp->trplp_u8Condition == PRESSURE_LINE_CONDITION_FAR)
     {
         if (end->dds_dbClosingPrice < dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
-            pdrplp->drplp_dbPrice = dbPrice;
+            ptrplp->trplp_dbPrice = dbPrice;
         }
     }
 
@@ -71,12 +63,12 @@ static u32 _isNearPressureLine(
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRulePressureLine(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_rule_pressure_line_param_t * pdrplp = (da_rule_pressure_line_param_t *)pdrp;
+    tx_rule_pressure_line_param_t * ptrplp = (tx_rule_pressure_line_param_t *)ptrp;
 
-    u32Ret = _isNearPressureLine(stockinfo, buffer, total, pdrplp);
+    u32Ret = _isNearPressureLine(stockinfo, buffer, total, ptrplp);
         
     return u32Ret;
 }

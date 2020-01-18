@@ -17,15 +17,16 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
-#include "clicmd.h"
-#include "jf_string.h"
 #include "jf_file.h"
+#include "jf_time.h"
+#include "jf_string.h"
+#include "jf_jiukun.h"
+
+#include "clicmd.h"
 #include "parsedata.h"
 #include "indicator.h"
-#include "darule.h"
-#include "jf_time.h"
-#include "envvar.h"
-#include "jf_jiukun.h"
+#include "tx_rule.h"
+#include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccDaRuleVerbose[] =
@@ -59,7 +60,7 @@ rule [-l name] [-v] [-h]");
     return u32Ret;
 }
 
-static void _printOneDaRuleBrief(u32 id, da_rule_t * info)
+static void _printOneDaRuleBrief(u32 id, tx_rule_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccDaRuleBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -72,16 +73,16 @@ static void _printOneDaRuleBrief(u32 id, da_rule_t * info)
     pcc++;
 
     /* Name */
-    jf_clieng_appendBriefColumn(pcc, strInfo, info->dr_pstrName);
+    jf_clieng_appendBriefColumn(pcc, strInfo, info->tr_pstrName);
     pcc++;
 
     jf_clieng_outputLine(strInfo);
 }
 
-static void _printDaRuleBrief(da_rule_t * pRule, u32 num)
+static void _printDaRuleBrief(tx_rule_t * pRule, u32 num)
 {
     u32 index = 0;
-    da_rule_t * pStart = pRule; 
+    tx_rule_t * pStart = pRule; 
 
     jf_clieng_printDivider();
 
@@ -99,7 +100,7 @@ static void _printDaRuleBrief(da_rule_t * pRule, u32 num)
     jf_clieng_outputLine("Total %u rules\n", num);
 }
 
-static void _printOneDaRuleVerbose(u32 id, da_rule_t * rule)
+static void _printOneDaRuleVerbose(u32 id, tx_rule_t * rule)
 {
     jf_clieng_caption_t * pcc = &ls_ccDaRuleVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -112,14 +113,14 @@ static void _printOneDaRuleVerbose(u32 id, da_rule_t * rule)
     pcc += 1;
 
     /*Name*/
-    jf_clieng_printOneFullLine(pcc, rule->dr_pstrName);
+    jf_clieng_printOneFullLine(pcc, rule->tr_pstrName);
     pcc += 1;
 }
 
-static void _printDaRuleVerbose(da_rule_t * pRule, u32 num)
+static void _printDaRuleVerbose(tx_rule_t * pRule, u32 num)
 {
     u32 index = 0;
-    da_rule_t * pStart = pRule; 
+    tx_rule_t * pStart = pRule; 
 
     for (index = 0; index < num; index ++)
     {
@@ -134,10 +135,10 @@ static void _printDaRuleVerbose(da_rule_t * pRule, u32 num)
 static u32 _listAllRules(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 total = getNumOfDaRules();
-    da_rule_t * rule = NULL;
+    u32 total = tx_rule_getNumOfRules();
+    tx_rule_t * rule = NULL;
 
-    u32Ret = getAllDaRules(&rule);
+    u32Ret = tx_rule_getAllRules(&rule);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcrp->crp_bVerbose)
@@ -152,9 +153,9 @@ static u32 _listAllRules(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
 static u32 _listOneRule(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_rule_t * pRule;
+    tx_rule_t * pRule;
 
-    u32Ret = getDaRule(pcrp->crp_pstrRuleName, &pRule);
+    u32Ret = tx_rule_getRule(pcrp->crp_pstrRuleName, &pRule);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcrp->crp_bVerbose)
@@ -180,7 +181,7 @@ u32 processRule(void * pMaster, void * pParam)
         u32Ret = _listAllRules(pcrp, ptcm);
     else if (pcrp->crp_u8Action == CLI_ACTION_RULE_LIST)
         u32Ret = _listOneRule(pcrp, ptcm);
-    else if (isNullEnvVarDataPath())
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

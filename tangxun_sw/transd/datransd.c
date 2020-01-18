@@ -1,7 +1,7 @@
 /**
  *  @file datransd.c
  *
- *  @brief Tangxun transaction daemon
+ *  @brief Tangxun transaction daemon.
  *
  *  @author Min Zhang
  *
@@ -37,9 +37,9 @@
 #include "jf_date.h"
 #include "jf_thread.h"
 
+#include "tx_env.h"
 #include "datastat.h"
 #include "stocktrade.h"
-#include "envvar.h"
 #include "parsedata.h"
 #include "stocklist.h"
 #include "datransd.h"
@@ -694,13 +694,12 @@ static void _saveStockQuo(stock_quo_t * psq)
     jf_date_getDateToday(&syear, &smonth, &sday);
     jf_date_getStringDate2(strDate, syear, smonth, sday);
     ol_sprintf(
-        filepath, "%s%c%s%cquotation-%s.xls", getEnvVar(ENV_VAR_DATA_PATH),
+        filepath, "%s%c%s%cquotation-%s.xls", tx_env_getVar(TX_ENV_VAR_DATA_PATH),
         PATH_SEPARATOR, psq->sq_strCode, PATH_SEPARATOR, strDate);
     jf_logger_logInfoMsg("save stock quo to %s", filepath);
 
     u32Ret = jf_file_openWithMode(
-        filepath, O_WRONLY | O_CREAT | O_TRUNC,
-        JF_FILE_DEFAULT_CREATE_MODE, &fd);
+        filepath, O_WRONLY | O_CREAT | O_TRUNC, JF_FILE_DEFAULT_CREATE_MODE, &fd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (j = 0; j < psq->sq_nNumOfEntry; j ++)

@@ -29,7 +29,7 @@
 #include "indicator.h"
 #include "datastat.h"
 #include "statarbitrage.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "damodel.h"
 #include "trade_persistency.h"
 #include "backtesting.h"
@@ -128,8 +128,7 @@ static u32 _startBacktestAll(cli_backtest_param_t * pcbp, tx_cli_master_t * ptcm
     backtesting_result_t br;
 
     ol_snprintf(
-        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s",
-        getEnvVar(ENV_VAR_DATA_PATH));
+        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     bzero(&bp, sizeof(backtesting_param_t));
@@ -163,8 +162,7 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * pt
         return JF_ERR_INVALID_PARAM;
 
     ol_snprintf(
-        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s",
-        getEnvVar(ENV_VAR_DATA_PATH));
+        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     ol_bzero(&bp, sizeof(backtesting_param_t));
@@ -198,7 +196,7 @@ u32 processBacktest(void * pMaster, void * pParam)
 
     if (pcbp->cbp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _backtestHelp(ptcm);
-    else if (isNullEnvVarDataPath())
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

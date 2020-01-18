@@ -1,7 +1,7 @@
 /**
  *  @file rule_limit.c
  *
- *  @brief Implementation file for rules related to limit
+ *  @brief Implementation file for rules related to limit.
  *
  *  @author Min Zhang
  *
@@ -17,17 +17,9 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
-#include "jf_process.h"
-#include "jf_string.h"
-#include "jf_file.h"
-#include "jf_clieng.h"
-#include "jf_mem.h"
-#include "jf_jiukun.h"
-#include "jf_hashtable.h"
 
-#include "envvar.h"
-#include "darule.h"
+#include "tx_env.h"
+#include "tx_rule.h"
 #include "rule_limit.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -41,7 +33,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleHighLimitOfLastDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * last = buffer + total - 1;
@@ -53,7 +45,7 @@ u32 daRuleHighLimitOfLastDay(
 }
 
 u32 daRuleLowLimitOfLastDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * last = buffer + total - 1;
@@ -65,10 +57,10 @@ u32 daRuleLowLimitOfLastDay(
 }
 
 u32 daRuleMinHighLimitDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_rule_min_high_limit_day_param_t * param = (da_rule_min_high_limit_day_param_t *)pdrp;
+    tx_rule_min_high_limit_day_param_t * param = (tx_rule_min_high_limit_day_param_t *)ptrp;
     u32 highcount = 0, closecount = 0;
     da_day_summary_t * start, * end;
 
@@ -77,12 +69,12 @@ u32 daRuleMinHighLimitDay(
 
     while (start <= end)
     {
-        if (param->drmhldp_bHighHighLimit)
+        if (param->trmhldp_bHighHighLimit)
         {
             if (start->dds_bHighHighLimit)
                 highcount ++;
         }
-        if (param->drmhldp_bCloseHighLimit)
+        if (param->trmhldp_bCloseHighLimit)
         {
             if (start->dds_bCloseHighLimit)
                 closecount ++;
@@ -91,15 +83,15 @@ u32 daRuleMinHighLimitDay(
         start ++;
     }
 
-    if (param->drmhldp_bHighHighLimit)
+    if (param->trmhldp_bHighHighLimit)
     {
-        if (highcount < param->drmhldp_u32MinHighHighLimitDay)
+        if (highcount < param->trmhldp_u32MinHighHighLimitDay)
             return u32Ret;
     }
 
-    if (param->drmhldp_bCloseHighLimit)
+    if (param->trmhldp_bCloseHighLimit)
     {
-        if (closecount < param->drmhldp_u32MinCloseHighLimitDay)
+        if (closecount < param->trmhldp_u32MinCloseHighLimitDay)
             return u32Ret;
     }
 
@@ -107,7 +99,7 @@ u32 daRuleMinHighLimitDay(
 }
 
 u32 daRuleNoHighHighLimitDay(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * start, * end;

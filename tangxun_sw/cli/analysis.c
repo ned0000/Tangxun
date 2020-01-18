@@ -34,7 +34,7 @@
 #include "stocklist.h"
 #include "damethod.h"
 #include "clicmd.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "datastat.h"
 #include "statarbitrage.h"
 
@@ -137,7 +137,7 @@ static boolean_t _getStockIndexClosingPriceInc(
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, strindex);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, strindex);
 
     jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
@@ -398,13 +398,13 @@ static u32 _analysisStock(cli_analysis_param_t * pcap, tx_cli_master_t * ptcm)
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
@@ -417,7 +417,7 @@ static u32 _analysisStock(cli_analysis_param_t * pcap, tx_cli_master_t * ptcm)
         {
             ol_snprintf(
                 dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcap->cap_pstrDir[i]);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcap->cap_pstrDir[i]);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
         }
@@ -481,7 +481,7 @@ static u32 _analysisStockStatArbi(
     saip.saip_nDaySummary = NUM_OF_STAT_ARBI_DAY_SUMMARY + 10;
     saip.saip_nCorrelationArray = NUM_OF_STAT_ARBI_DAY_SUMMARY;
 
-    u32Ret = statArbiAllIndustry(getEnvVar(ENV_VAR_DATA_PATH), &saip, result);
+    u32Ret = statArbiAllIndustry(tx_env_getVar(TX_ENV_VAR_DATA_PATH), &saip, result);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_qsort(
@@ -637,13 +637,13 @@ static u32 _analysisStockToughness(
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
@@ -653,7 +653,7 @@ static u32 _analysisStockToughness(
         while (stockinfo != NULL)
         {
             ol_snprintf(
-                dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
+                dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH),
                 PATH_SEPARATOR, stockinfo->si_strCode);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
@@ -679,7 +679,7 @@ static u32 _analysisStockToughness(
             bTough = FALSE;
             ol_snprintf(
                 dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR,
                 ppsiStock[i]->si_strCode);
             total = MAX_ANALYSIS_DAY_SUMMARY;
             u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
@@ -877,7 +877,7 @@ static oldouble_t _getIndexClosingPriceInc(
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, strstock);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, strstock);
 
     jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
 
@@ -966,7 +966,7 @@ static u32 _analysisIndexStock1(cli_analysis_param_t * pcap)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
         total = MAX_NUM_OF_RESULT;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -1051,7 +1051,7 @@ static u32 _analysisIndexStock2(cli_analysis_param_t * pcap)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
         total = MAX_NUM_OF_RESULT;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -1192,7 +1192,7 @@ static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
     while (stockinfo != NULL)
     {
         ol_snprintf(
-            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             stockinfo->si_strCode);
         total = MAX_ANALYSIS_DAY_SUMMARY;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
@@ -1210,7 +1210,7 @@ static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
         {
             result.sair_nNumOfPair = 0;
             u32Ret = statArbiStock(
-                getEnvVar(ENV_VAR_DATA_PATH), stockinfo, &saip, &result);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), stockinfo, &saip, &result);
         }
 
         if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
@@ -1219,7 +1219,7 @@ static u32 _analysisStockLimit(cli_analysis_param_t * pcap)
             {
                 entry = &result.sair_psaireEntry[i];
                 ol_snprintf(
-                    dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
+                    dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH),
                     PATH_SEPARATOR, entry->saire_strStockPair + 9);
                 total = MAX_ANALYSIS_DAY_SUMMARY;
                 u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
@@ -1319,7 +1319,7 @@ static boolean_t _analysisSectorStockToughness(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             stockinfo->si_strCode);
         total = MAX_ANALYSIS_DAY_SUMMARY;
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
@@ -1392,13 +1392,13 @@ static u32 _analysisSector(cli_analysis_param_t * pcap)
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SH_COMPOSITE_INDEX);
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, shiBuf, &shiTotal);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, SZ_COMPOSITIONAL_INDEX);
         u32Ret = readTradeDaySummaryWithFRoR(dirpath, sziBuf, &sziTotal);
     }
 
@@ -1427,7 +1427,7 @@ static u32 _analysisSector(cli_analysis_param_t * pcap)
             result.sair_nNumOfPair = 0;
 
             u32Ret = statArbiStockList(
-                getEnvVar(ENV_VAR_DATA_PATH), psi[i].psi_pstrStocks,
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), psi[i].psi_pstrStocks,
                 ol_strlen(psi[i].psi_pstrStocks) / 9, &saip, &result);
             if ((u32Ret == JF_ERR_NO_ERROR) && (result.sair_nNumOfPair > 0))
             {
@@ -1816,7 +1816,7 @@ static u32 _analysisFillStockQuotation(
     da_day_summary_t * end;
 
     ol_snprintf(
-        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
+        dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR,
         stockinfo->si_strCode);
 
     jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
@@ -1872,7 +1872,7 @@ static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, tx_cli_master_t 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR,
             pcap->cap_pstrDir[0]);
 
         u32Ret = readStockQuotationFile(dirpath, &stockquo);
@@ -1895,8 +1895,8 @@ static u32 _analysisStockQuotation(cli_analysis_param_t * pcap, tx_cli_master_t 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
-            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
-            pstrIndex);
+            dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH),
+            PATH_SEPARATOR, pstrIndex);
 
         u32Ret = readStockQuotationFile(dirpath, &stockquoindex);
     }
@@ -1924,7 +1924,7 @@ u32 processAnalysis(void * pMaster, void * pParam)
 
     if (pcap->cap_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _analysisHelp(ptcm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

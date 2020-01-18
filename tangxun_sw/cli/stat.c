@@ -36,7 +36,7 @@
 #include "damodel.h"
 #include "stocklist.h"
 #include "statarbitrage.h"
-#include "envvar.h"
+#include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -685,7 +685,7 @@ static u32 _parseDirInflexionPoint(cli_stat_param_t * pcsp, tx_cli_master_t * pt
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcsp->csp_pstrData);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcsp->csp_pstrData);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -729,7 +729,7 @@ static u32 _parseDirInflexionPoint2(cli_stat_param_t * pcsp, tx_cli_master_t * p
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcsp->csp_pstrData);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcsp->csp_pstrData);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -828,7 +828,7 @@ static u32 _statArbiIndustry(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
     if (strcmp(pcsp->csp_pstrIndustry, "all") == 0)
     {
         u32Ret = statArbiAllIndustry(
-            getEnvVar(ENV_VAR_DATA_PATH), &saip, &result);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), &saip, &result);
     }
     else
     {
@@ -836,7 +836,7 @@ static u32 _statArbiIndustry(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
             pcsp->csp_pstrIndustry, ol_strlen(pcsp->csp_pstrIndustry), &nIndustry);
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = statArbiIndustry(
-                getEnvVar(ENV_VAR_DATA_PATH), nIndustry, &saip, &result);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), nIndustry, &saip, &result);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -859,7 +859,7 @@ static u32 _statArbiFind(cli_stat_param_t * pcsp, tx_cli_master_t * ptcm)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
 //	u32Ret = statArbiStockPair(
-//		getEnvVar(ENV_VAR_DATA_PATH), pcsp->csp_pstrData, NULL);
+//		tx_env_getVar(TX_ENV_VAR_DATA_PATH), pcsp->csp_pstrData, NULL);
 
     return u32Ret;
 }

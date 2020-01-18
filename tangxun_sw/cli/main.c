@@ -35,12 +35,12 @@
 #include "jf_option.h"
 
 #include "stocklist.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "trade_persistency.h"
 #include "damodel.h"
 #include "clicmd.h"
 #include "main.h"
-#include "darule.h"
+#include "tx_rule.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -128,7 +128,7 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
             u32Ret = initStockList();
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initEnvPersistency();
+            u32Ret = tx_env_initPersistency();
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = initTradePersistency();
@@ -137,7 +137,7 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
             u32Ret = initDaModelFramework();
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initDaRule();
+            u32Ret = tx_rule_init();
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = addDaCmd(ptcmCli, &dcpParam);
@@ -146,10 +146,10 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
             u32Ret = jf_clieng_run();
 
         jf_clieng_fini();
-        finiEnvPersistency();
+        tx_env_finiPersistency();
         finiStockList();
         finiDaModelFramework();
-        finiDaRule();
+        tx_rule_fini();
 
     return u32Ret;
 }

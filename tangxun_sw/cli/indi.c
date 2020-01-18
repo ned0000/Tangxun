@@ -23,7 +23,7 @@
 #include "parsedata.h"
 #include "indicator.h"
 #include "stocklist.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -120,8 +120,7 @@ static u32 _indiAdxrOneStock(
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR,
-        stockinfo->si_strCode);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
 
     u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, num);
 

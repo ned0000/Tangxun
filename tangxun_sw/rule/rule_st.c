@@ -1,7 +1,7 @@
 /**
  *  @file rule_st.c
  *
- *  @brief Implementation file for rules related to st
+ *  @brief Implementation file for rules related to st.
  *
  *  @author Min Zhang
  *
@@ -18,16 +18,9 @@
 
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_process.h"
-#include "jf_string.h"
-#include "jf_file.h"
-#include "jf_clieng.h"
-#include "jf_mem.h"
 #include "jf_jiukun.h"
-#include "jf_hashtable.h"
 
-#include "envvar.h"
-#include "darule.h"
+#include "tx_rule.h"
 #include "rule_st.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -39,7 +32,7 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 daRuleNotStRelated(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
     da_day_summary_t * start = buffer;
@@ -57,7 +50,7 @@ u32 daRuleNotStRelated(
 }
 
 u32 daRuleSt(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * start = buffer;
@@ -75,7 +68,7 @@ u32 daRuleSt(
 }
 
 u32 daRuleStDelisting(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp)
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_day_summary_t * start = buffer;

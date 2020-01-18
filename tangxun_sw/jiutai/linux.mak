@@ -10,7 +10,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SOURCES = stocklist.c fixdata.c datastat.c regression.c envvar.c stocktrade.c \
+SOURCES = stocklist.c fixdata.c datastat.c regression.c tx_env.c stocktrade.c \
     downloaddata.c indicator.c statarbitrage.c damethod.c 
 
 EXTRA_INC_DIR += -I../jtk/inc

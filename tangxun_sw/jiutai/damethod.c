@@ -27,11 +27,12 @@
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
+#include "jf_jiukun.h"
+
+#include "tx_env.h"
 #include "stocklist.h"
 #include "indicator.h"
 #include "statarbitrage.h"
-#include "jf_jiukun.h"
-#include "envvar.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -55,8 +56,7 @@ oldouble_t getCorrelationWithIndex(stock_info_t * info)
         ol_strcat(strStocks, SZ_COMPOSITIONAL_INDEX);
 
     u32Ret = newSaStockInfo(
-		getEnvVar(ENV_VAR_DATA_PATH), strStocks,
-        &sastock, nDaySummary * 2);
+		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         dbret = getSaStockInfoCorrelation(sastock, nDaySummary);
@@ -81,8 +81,7 @@ oldouble_t getCorrelationWithSmeIndex(stock_info_t * info)
     ol_strcat(strStocks, SME_COMPOSITIONAL_INDEX);
 
     u32Ret = newSaStockInfo(
-		getEnvVar(ENV_VAR_DATA_PATH), strStocks,
-        &sastock, nDaySummary * 2);
+		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         dbret = getSaStockInfoCorrelation(sastock, nDaySummary);

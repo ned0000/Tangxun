@@ -30,7 +30,7 @@
 #include "datastat.h"
 #include "stocklist.h"
 #include "statarbitrage.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "damodel.h"
 #include "trade_persistency.h"
 
@@ -193,8 +193,8 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
         {
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
-                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
-                PATH_SEPARATOR, stockinfo->si_strCode);
+                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
 
             u32Ret = _findStocks(pcfp, strFullname, stockinfo, buffer, total);
         }
@@ -302,8 +302,8 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
         {
             ol_memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
-                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s", getEnvVar(ENV_VAR_DATA_PATH),
-                PATH_SEPARATOR, stockinfo->si_strCode);
+                strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
 
             u32Ret = _startFindStockInPeriod(pcfp, strFullname, stockinfo, buffer, total);
         }
@@ -439,7 +439,7 @@ u32 processFind(void * pMaster, void * pParam)
         u32Ret = _listStocksInPool(pcfp, ptcm);
     else if (pcfp->cfp_u8Action == CLI_ACTION_CLEAN_STOCK_POOL)
         u32Ret = _cleanStocksInPool(pcfp, ptcm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

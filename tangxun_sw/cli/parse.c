@@ -35,7 +35,7 @@
 #include "regression.h"
 #include "damodel.h"
 #include "stocklist.h"
-#include "envvar.h"
+#include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -207,16 +207,16 @@ static void _printTradeDayDetailBrief(da_day_result_t * cur)
     pcc++;
 
     /* Buy */
-    ol_sprintf(strField, "%llu",
-            cur->ddr_u64Buy + cur->ddr_u64CloseHighLimitSold +
-            cur->ddr_u64CloseHighLimitLambSold);
+    ol_sprintf(
+        strField, "%llu",
+        cur->ddr_u64Buy + cur->ddr_u64CloseHighLimitSold + cur->ddr_u64CloseHighLimitLambSold);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Sold */
-    ol_sprintf(strField, "%llu",
-            cur->ddr_u64Sold + cur->ddr_u64CloseLowLimitBuy +
-            cur->ddr_u64CloseLowLimitLambBuy);
+    ol_sprintf(
+        strField, "%llu",
+        cur->ddr_u64Sold + cur->ddr_u64CloseLowLimitBuy + cur->ddr_u64CloseLowLimitLambBuy);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -231,8 +231,7 @@ static void _printTradeDayDetailBrief(da_day_result_t * cur)
     pcc++;
 
     /* ClosePriceInc */
-    ol_sprintf(strField, "%.2f",
-            cur->ddr_dbClosingPriceInc - cur->ddr_dbClosingPriceDec);
+    ol_sprintf(strField, "%.2f", cur->ddr_dbClosingPriceInc - cur->ddr_dbClosingPriceDec);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -488,7 +487,7 @@ static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
         ol_strcpy(pp.pp_strLastX, "14:45:00");
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
 
         u32Ret = readTradeDayDetail(dirpath, &pp, buffer, &total);
     }
@@ -693,7 +692,7 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm
 
     ol_snprintf(
         dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-        getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
+        tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
 
 	if (pcpp->cpp_bFRoR)
     {
@@ -796,8 +795,7 @@ static void _printStockQuoVerbose(stock_quo_t * psq)
     jf_clieng_outputLine("");
 }
 
-static void _analysisStockQuo(
-    stock_quo_t * pstockquo, quo_entry_t ** pqe, olint_t total)
+static void _analysisStockQuo(stock_quo_t * pstockquo, quo_entry_t ** pqe, olint_t total)
 {
 //    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
@@ -817,21 +815,18 @@ static void _analysisStockQuo(
         {
             u64Vol = u64Vol - (pqe[i]->qe_u64Volume - pqe[i - 1]->qe_u64Volume);
         }
-        jf_clieng_outputLine(
-            "%s, %.2f, %lld", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice, u64Vol);
+        jf_clieng_outputLine("%s, %.2f, %lld", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice, u64Vol);
     }
 
     jf_clieng_outputLine("");
     start = 0;
-    jf_clieng_outputLine(
-        "%s, %.2f", pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice);
+    jf_clieng_outputLine("%s, %.2f", pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice);
     while (start < total)
     {
         end = getNextTopBottomQuoEntry(pqe, total, start);
 
         jf_clieng_outputLine(
-            "%s(%.2f) --> %s(%.2f)",
-            pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice,
+            "%s(%.2f) --> %s(%.2f)", pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice,
             pqe[end]->qe_strTime, pqe[end]->qe_dbCurPrice);
 
         /*Do something from start to end*/
@@ -907,25 +902,22 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
             ol_strcpy(stockquo.sq_strDate, pcpp->cpp_pstrDate);
 
         u32Ret = jf_mem_alloc(
-            (void **)&stockquo.sq_pqeEntry,
-            sizeof(quo_entry_t) * stockquo.sq_nMaxEntry);
+            (void **)&stockquo.sq_pqeEntry, sizeof(quo_entry_t) * stockquo.sq_nMaxEntry);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
-            getEnvVar(ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
+            tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
 
-        u32Ret = readStockQuotationFile(
-            dirpath, &stockquo);
+        u32Ret = readStockQuotationFile(dirpath, &stockquo);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_clieng_printHeader(
-            ls_ccQuoEntryBrief,
-            sizeof(ls_ccQuoEntryBrief) / sizeof(jf_clieng_caption_t));
+            ls_ccQuoEntryBrief, sizeof(ls_ccQuoEntryBrief) / sizeof(jf_clieng_caption_t));
 
         entry = stockquo.sq_pqeEntry;
         for (i = 0; i < stockquo.sq_nNumOfEntry; i++)
@@ -942,14 +934,12 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
         total = stockquo.sq_nNumOfEntry;
         jf_jiukun_allocMemory((void **)&pqe, sizeof(quo_entry_t *) * total);
         jf_clieng_outputLine("");
-        getQuoEntryInflexionPoint(
-            stockquo.sq_pqeEntry, stockquo.sq_nNumOfEntry, pqe, &total);
+        getQuoEntryInflexionPoint(stockquo.sq_pqeEntry, stockquo.sq_nNumOfEntry, pqe, &total);
         jf_clieng_outputLine("Total %d points", total);
 
         for (i = 0; i < total; i ++)
         {
-            jf_clieng_outputLine(
-                "%s %.2f", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice);
+            jf_clieng_outputLine("%s %.2f", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice);
         }
         jf_clieng_outputLine("");
 
@@ -975,7 +965,7 @@ u32 processParse(void * pMaster, void * pParam)
 
     if (pcpp->cpp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _parseHelp(pdm);
-    else if (isNullEnvVarDataPath())
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
@@ -1014,8 +1004,8 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "s:e:c:t:d:fuq:l:ohv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "s:e:c:t:d:fuq:l:ohv?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -1038,8 +1028,7 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcpp->cpp_pstrStock = (olchar_t *)optarg;
             break;
         case 't':
-            u32Ret = jf_string_getS32FromString(
-                optarg, ol_strlen(optarg), &pcpp->cpp_nThres);
+            u32Ret = jf_string_getS32FromString(optarg, ol_strlen(optarg), &pcpp->cpp_nThres);
             if ((u32Ret == JF_ERR_NO_ERROR) && (pcpp->cpp_nThres <= 0))
             {
                 jf_clieng_reportInvalidOpt('t');
@@ -1047,8 +1036,7 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             }
             break;
         case 'c':
-            u32Ret = jf_string_getU32FromString(
-                optarg, ol_strlen(optarg), &pcpp->cpp_u32Count);
+            u32Ret = jf_string_getU32FromString(optarg, ol_strlen(optarg), &pcpp->cpp_u32Count);
             if (u32Ret != JF_ERR_NO_ERROR)
             {
                 jf_clieng_reportInvalidOpt('c');
@@ -1062,8 +1050,7 @@ u32 parseParse(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 			pcpp->cpp_bFRoR = TRUE;
 			break;
         case 'l':
-            u32Ret = jf_string_getS32FromString(
-                optarg, ol_strlen(optarg), &pcpp->cpp_nLastCount);
+            u32Ret = jf_string_getS32FromString(optarg, ol_strlen(optarg), &pcpp->cpp_nLastCount);
             if ((u32Ret == JF_ERR_NO_ERROR) && (pcpp->cpp_nLastCount <= 0))
             {
                 jf_clieng_reportInvalidOpt('l');

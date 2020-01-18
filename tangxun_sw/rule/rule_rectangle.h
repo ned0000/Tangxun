@@ -17,7 +17,7 @@
 
 #include "jf_basic.h"
 
-#include "darule.h"
+#include "tx_rule.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -26,7 +26,7 @@
 /* --- functional routines ---------------------------------------------------------------------- */
 
 u32 daRuleRectangle(
-    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, da_rule_param_t * pdrp);
+    stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
 
 
 #endif /*TANGXUN_DARULE_RECTANGLE_H*/

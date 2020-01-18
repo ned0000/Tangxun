@@ -1,7 +1,7 @@
 /**
  *  @file darule.c
  *
- *  @brief Base rule library
+ *  @brief Base rule library.
  *
  *  @author Min Zhang
  *
@@ -17,17 +17,9 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
-#include "jf_process.h"
-#include "jf_string.h"
-#include "jf_file.h"
-#include "jf_clieng.h"
-#include "jf_mem.h"
-#include "jf_jiukun.h"
 #include "jf_hashtable.h"
 
-#include "envvar.h"
-#include "darule.h"
+#include "tx_rule.h"
 #include "rule_rectangle.h"
 #include "rule_limit.h"
 #include "rule_st.h"
@@ -40,7 +32,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static da_rule_t ls_drDaRules[] =
+static tx_rule_t ls_trRules[] =
 {
 /* limite */
     {"highLimitOfLastDay", daRuleHighLimitOfLastDay},
@@ -70,7 +62,7 @@ static da_rule_t ls_drDaRules[] =
     {"pressureLine", daRulePressureLine},
 };
 
-static u32 ls_u32NumOfRules = sizeof(ls_drDaRules) / sizeof(da_rule_t);
+static u32 ls_u32NumOfRules = sizeof(ls_trRules) / sizeof(tx_rule_t);
 
 #define MAX_DA_RULE_IN_TABLE     (100)
 
@@ -88,19 +80,19 @@ static olint_t _fnDaRuleCmpKeys(void * pKey1, void * pKey2)
 
 static void * _fnDaRuleGetKeyFromEntry(void * pEntry)
 {
-    da_rule_t * rule = (da_rule_t *)pEntry;
+    tx_rule_t * rule = (tx_rule_t *)pEntry;
 
-    return rule->dr_pstrName;
+    return rule->tr_pstrName;
 }
 
-static u32 _addDaRule(jf_hashtable_t * pTable, da_rule_t * ls_drDaRules, u32 u32NumOfRules)
+static u32 _addDaRule(jf_hashtable_t * pTable, tx_rule_t * ls_trRules, u32 u32NumOfRules)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index;
 
     for (u32Index = 0; (u32Index < u32NumOfRules) && (u32Ret == JF_ERR_NO_ERROR); u32Index ++)
     {
-        u32Ret = jf_hashtable_insertEntry(pTable, &ls_drDaRules[u32Index]);
+        u32Ret = jf_hashtable_insertEntry(pTable, &ls_trRules[u32Index]);
     }
 
     
@@ -109,16 +101,16 @@ static u32 _addDaRule(jf_hashtable_t * pTable, da_rule_t * ls_drDaRules, u32 u32
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 getAllDaRules(da_rule_t ** ppRule)
+u32 tx_rule_getAllRules(tx_rule_t ** ppRule)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    *ppRule = ls_drDaRules;
+    *ppRule = ls_trRules;
 
     return u32Ret;
 }
 
-u32 getDaRule(char * name, da_rule_t ** ppRule)
+u32 tx_rule_getRule(char * name, tx_rule_t ** ppRule)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -131,25 +123,25 @@ u32 getDaRule(char * name, da_rule_t ** ppRule)
     return u32Ret;    
 }
 
-u32 getNumOfDaRules(void)
+u32 tx_rule_getNumOfRules(void)
 {
     return ls_u32NumOfRules;
 }
 
-da_rule_t * getFirstDaRule(void)
+tx_rule_t * tx_rule_getFirstRule(void)
 {
-    return &ls_drDaRules[0];
+    return &ls_trRules[0];
 }
 
-da_rule_t * getNextDaRule(da_rule_t * pRule)
+tx_rule_t * tx_rule_getNextRule(tx_rule_t * pRule)
 {
-    if (pRule - ls_drDaRules + 1 < ls_u32NumOfRules)
+    if (pRule - ls_trRules + 1 < ls_u32NumOfRules)
         return pRule + 1;
 
     return NULL;
 }
 
-u32 initDaRule(void)
+u32 tx_rule_init(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtable_create_param_t jhcp;
@@ -163,13 +155,13 @@ u32 initDaRule(void)
     u32Ret = jf_hashtable_create(&ls_pjhDaRuleTable, &jhcp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _addDaRule(ls_pjhDaRuleTable, ls_drDaRules, ls_u32NumOfRules);
+        u32Ret = _addDaRule(ls_pjhDaRuleTable, ls_trRules, ls_u32NumOfRules);
     }
 
     return u32Ret;
 }
 
-u32 finiDaRule(void)
+u32 tx_rule_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 

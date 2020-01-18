@@ -18,15 +18,17 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
-#include "downloaddata.h"
 #include "jf_jiukun.h"
-#include "stocklist.h"
 #include "jf_process.h"
-#include "envvar.h"
+
+#include "downloaddata.h"
+#include "tx_env.h"
+#include "clicmd.h"
+#include "stocklist.h"
+
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -167,7 +169,7 @@ u32 processDownload(void * pMaster, void * pParam)
 
     if (pcdp->cdp_u8Action == CLI_ACTION_SHOW_HELP)
         u32Ret = _downloadHelp(ptcm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (*tx_env_getVar(TX_ENV_VAR_DATA_PATH) == '\0')
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
@@ -192,7 +194,7 @@ u32 setDefaultParamDownload(void * pMaster, void * pParam)
     memset(pcdp, 0, sizeof(*pcdp));
 
     pcdp->cdp_u8Action = CLI_ACTION_DOWNLOAD_TRADE_SUMMARY;
-    pcdp->cdp_pstrDataDir = getEnvVar(ENV_VAR_DATA_PATH);
+    pcdp->cdp_pstrDataDir = tx_env_getVar(TX_ENV_VAR_DATA_PATH);
     pcdp->cdp_u8IterativeCount = 1;
 
     return u32Ret;

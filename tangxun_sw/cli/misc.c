@@ -16,16 +16,17 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
+
 #include "parsedata.h"
 #include "regression.h"
 #include "datastat.h"
 #include "damodel.h"
 #include "stocklist.h"
-#include "envvar.h"
+#include "tx_env.h"
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -62,8 +63,7 @@ static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
             memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH),
-                PATH_SEPARATOR, stockinfo->si_strCode,
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode,
                 PATH_SEPARATOR, DEF_EXDR_FILE_NAME);
 
             u32Ret = jf_file_remove(strFullname);
@@ -116,8 +116,8 @@ u32 parseMisc(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "ehv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "ehv?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {

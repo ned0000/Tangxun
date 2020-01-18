@@ -1,5 +1,5 @@
 /**
- *  @file envvar.h
+ *  @file tx_env.h
  *
  *  @brief The routines for environment variable
  *
@@ -9,8 +9,8 @@
  *  
  */
 
-#ifndef TANGXUN_JIUTAI_ENVVAR_H
-#define TANGXUN_JIUTAI_ENVVAR_H
+#ifndef TANGXUN_JIUTAI_ENV_H
+#define TANGXUN_JIUTAI_ENV_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -19,29 +19,29 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define ENV_VAR_DATA_PATH           "DataPath"
-#define ENV_VAR_DAYS_STOCK_POOL     "DaysForStockInPool"
-#define ENV_VAR_MAX_STOCK_IN_POOL   "MaxStockInPool"
+#define TX_ENV_VAR_DATA_PATH           "DataPath"
+#define TX_ENV_VAR_DAYS_STOCK_POOL     "DaysForStockInPool"
+#define TX_ENV_VAR_MAX_STOCK_IN_POOL   "MaxStockInPool"
 
 /* --- data structures -------------------------------------------------------------------------- */
 
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-char * getEnvVar(olchar_t * name);
-olint_t getEnvVarDaysStockPool(void);
-olint_t getEnvVarMaxStockInPool(void);
+char * tx_env_getVar(olchar_t * name);
+olint_t tx_env_getVarDaysStockPool(void);
+olint_t tx_env_getVarMaxStockInPool(void);
 
-boolean_t isNullEnvVarDataPath(void);
+boolean_t tx_env_isNullVarDataPath(void);
 
-u32 setEnvVar(olchar_t * data);
-u32 clearEnvVar(olchar_t * name);
+u32 tx_env_setVar(olchar_t * data);
+u32 tx_env_clearVar(olchar_t * name);
 
 /*the envirionment variable persistency */
-u32 initEnvPersistency(void);
-u32 finiEnvPersistency(void);
+u32 tx_env_initPersistency(void);
+u32 tx_env_finiPersistency(void);
 
-#endif /*TANGXUN_JIUTAI_ENVVAR_H*/
+#endif /*TANGXUN_JIUTAI_ENV_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

@@ -29,7 +29,7 @@
 #include "stocklist.h"
 #include "clicmd.h"
 #include "statarbitrage.h"
-#include "envvar.h"
+#include "tx_env.h"
 #include "damodel.h"
 #include "trade_persistency.h"
 
@@ -169,11 +169,9 @@ static u32 _startTradeInStockPool(cli_trade_param_t * pctp, tx_cli_master_t * pt
             memset(strFullname, 0, JF_LIMIT_MAX_PATH_LEN);
             ol_snprintf(
                 strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
-                getEnvVar(ENV_VAR_DATA_PATH),
-                PATH_SEPARATOR, stockinfo->si_strCode);
+                tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, stockinfo->si_strCode);
 
-            u32Ret = _tradeStocks(
-                pctp, strFullname, stockinfo, buffer, total);
+            u32Ret = _tradeStocks(pctp, strFullname, stockinfo, buffer, total);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -450,7 +448,7 @@ u32 processTrade(void * pMaster, void * pParam)
         u32Ret = _listTradingStock(pctp, ptcm);
     else if (pctp->ctp_u8Action == CLI_ACTION_TRADE_LIST_RECORD)
         u32Ret = _listTradingRecord(pctp, ptcm);
-    else if (*getEnvVar(ENV_VAR_DATA_PATH) == '\0')
+    else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;

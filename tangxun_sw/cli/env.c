@@ -21,15 +21,15 @@
 #include "jf_file.h"
 #include "jf_mem.h"
 
-#include "envvar.h"
+#include "tx_env.h"
 #include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 static jf_clieng_caption_t ls_ccEnvVarVerbose[] =
 {
-    {ENV_VAR_DATA_PATH, JF_CLIENG_CAP_FULL_LINE},
-    {ENV_VAR_DAYS_STOCK_POOL, JF_CLIENG_CAP_HALF_LINE}, {ENV_VAR_MAX_STOCK_IN_POOL, JF_CLIENG_CAP_HALF_LINE},
+    {TX_ENV_VAR_DATA_PATH, JF_CLIENG_CAP_FULL_LINE},
+    {TX_ENV_VAR_DAYS_STOCK_POOL, JF_CLIENG_CAP_HALF_LINE}, {TX_ENV_VAR_MAX_STOCK_IN_POOL, JF_CLIENG_CAP_HALF_LINE},
 };
 
 
@@ -57,12 +57,12 @@ static void _printEnvVarVerbose(void)
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     /* DataPath */
-    jf_clieng_printOneFullLine(pcc, getEnvVar(ENV_VAR_DATA_PATH)); 
+    jf_clieng_printOneFullLine(pcc, tx_env_getVar(TX_ENV_VAR_DATA_PATH)); 
     pcc += 1;
 
     /* DaysForStockInPool */
-    ol_sprintf(strLeft, "%d", getEnvVarDaysStockPool());
-    ol_sprintf(strRight, "%d", getEnvVarMaxStockInPool());
+    ol_sprintf(strLeft, "%d", tx_env_getVarDaysStockPool());
+    ol_sprintf(strRight, "%d", tx_env_getVarMaxStockInPool());
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight); 
     pcc += 2;
 
@@ -73,17 +73,18 @@ static u32 _printEnvVar(olchar_t * name)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (strcasecmp(name, ENV_VAR_DATA_PATH) == 0)
+    if (strcasecmp(name, TX_ENV_VAR_DATA_PATH) == 0)
     {
-        jf_clieng_outputLine("%s: %s\n", ENV_VAR_DATA_PATH, getEnvVar(ENV_VAR_DATA_PATH));
+        jf_clieng_outputLine("%s: %s\n", TX_ENV_VAR_DATA_PATH, tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     }
-    else if (strcasecmp(name, ENV_VAR_DAYS_STOCK_POOL) == 0)
+    else if (strcasecmp(name, TX_ENV_VAR_DAYS_STOCK_POOL) == 0)
     {
-        jf_clieng_outputLine("%s: %d\n", ENV_VAR_DAYS_STOCK_POOL, getEnvVarDaysStockPool());
+        jf_clieng_outputLine("%s: %d\n", TX_ENV_VAR_DAYS_STOCK_POOL, tx_env_getVarDaysStockPool());
     }
-    else if (strcasecmp(name, ENV_VAR_MAX_STOCK_IN_POOL) == 0)
+    else if (strcasecmp(name, TX_ENV_VAR_MAX_STOCK_IN_POOL) == 0)
     {
-        jf_clieng_outputLine("%s: %d\n", ENV_VAR_MAX_STOCK_IN_POOL, getEnvVarMaxStockInPool());
+        jf_clieng_outputLine(
+            "%s: %d\n", TX_ENV_VAR_MAX_STOCK_IN_POOL, tx_env_getVarMaxStockInPool());
     }
     else
     {
@@ -106,11 +107,11 @@ u32 processEnv(void * pMaster, void * pParam)
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST_ALL)
         _printEnvVarVerbose();
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_SET)
-        u32Ret = setEnvVar(pcep->cep_pstrData);
+        u32Ret = tx_env_setVar(pcep->cep_pstrData);
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_LIST)
         u32Ret = _printEnvVar(pcep->cep_pstrData);
     else if (pcep->cep_u8Action == CLI_ACTION_ENV_CLEAR)
-        u32Ret = clearEnvVar(pcep->cep_pstrData);
+        u32Ret = tx_env_clearVar(pcep->cep_pstrData);
     else
         u32Ret = JF_ERR_MISSING_PARAM;
 
