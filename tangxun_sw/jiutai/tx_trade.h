@@ -1,7 +1,7 @@
 /**
- *  @file stocktrade.h
+ *  @file tx_trade.h
  *
- *  @brief Provide some helper routine for stock trade
+ *  @brief Provide some routine for stock trade.
  *
  *  @author Min Zhang
  *
@@ -9,16 +9,18 @@
  *  
  */
 
-#ifndef TANGXUN_JIUTAI_STOCKTRADE_H
-#define TANGXUN_JIUTAI_STOCKTRADE_H
+#ifndef TANGXUN_TRADE_H
+#define TANGXUN_TRADE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "parsedata.h"
 #include "jf_time.h"
+
+#include "stocklist.h"
+#include "parsedata.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -129,7 +131,17 @@ u32 filterPoolStockByOp(
     trade_pool_stock_t * ptps, olint_t count, u8 u8Op,
     trade_pool_stock_t ** ppFilterStock, olint_t * pnFilterCount);
 
-#endif /*TANGXUN_JIUTAI_STOCKTRADE_H*/
+
+u32 setStockFirstTradeDate(const char * strStockPath);
+
+boolean_t isAfterStockFirstTradeDate(
+    const stock_info_t * stockinfo, const olchar_t * pstrDate);
+
+boolean_t isHoliday(olint_t days);
+
+u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext);
+
+#endif /*TANGXUN_TRADE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

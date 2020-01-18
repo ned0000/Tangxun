@@ -22,7 +22,7 @@
 #include "tx_rule.h"
 #include "roi.h"
 #include "damodel.h"
-#include "tradehelper.h"
+#include "tx_trade.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

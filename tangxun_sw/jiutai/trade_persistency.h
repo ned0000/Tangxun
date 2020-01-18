@@ -16,7 +16,8 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "stocktrade.h"
+
+#include "tx_trade.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 

@@ -18,7 +18,7 @@ SONAME = tx_model
 SOURCES = model_common.c model_lib.c model_xml.c model_manager.c damodel.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocktrade.c
+JIUTAI_SRCS =
 
 # For code complile
 EXTRA_INC_DIR += -I. -I$(TOPDIR)/jtk/inc
@@ -28,7 +28,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L$(TOPDIR)/jtk/lib
-EXTRA_LIBS = -ljf_logger -ljf_files -ltx_rule
+EXTRA_LIBS = -ljf_logger -ljf_files -ltx_rule -ltx_trade
 
 include $(TOPDIR)/mak/lnxlib.mak
 

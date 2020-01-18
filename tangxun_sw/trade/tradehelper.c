@@ -24,7 +24,7 @@
 #include "parsedata.h"
 #include "damodel.h"
 #include "trade_persistency.h"
-#include "tradehelper.h"
+#include "tx_trade.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for tradehelper library.
+#  @brief The makefile for trade library.
 #
 #  @author Min Zhang
 #
@@ -12,10 +12,10 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library
-SONAME = tx_tradehelper
+SONAME = tx_trade
 
 # Source files
-SOURCES = tradehelper.c
+SOURCES = stocktrade.c tradehelper.c
 
 # Jiutai source files
 JIUTAI_SRCS =
@@ -28,7 +28,7 @@ EXTRA_OBJECTS = $(TOPDIR)/jtk/inc/jf_date.o
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L$(TOPDIR)/jtk/lib
-EXTRA_LIBS = -ljf_logger -ltx_model -ltx_trade_persistency
+EXTRA_LIBS = -ljf_logger -ltx_parsedata
 
 include $(TOPDIR)/mak/lnxlib.mak
 

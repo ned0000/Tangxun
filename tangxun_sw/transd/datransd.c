@@ -39,7 +39,7 @@
 
 #include "tx_env.h"
 #include "datastat.h"
-#include "stocktrade.h"
+#include "tx_trade.h"
 #include "parsedata.h"
 #include "stocklist.h"
 #include "datransd.h"

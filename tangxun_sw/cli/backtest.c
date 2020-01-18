@@ -32,7 +32,7 @@
 #include "tx_env.h"
 #include "damodel.h"
 #include "trade_persistency.h"
-#include "backtesting.h"
+#include "tx_backtesting.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccBacktestingResultVerbose[] =
@@ -66,7 +66,7 @@ backtest [-m model] [-s] [-h] [-v]");
     return u32Ret;
 }
 
-static void _printBacktestingResultVerbose(backtesting_result_t * pbr)
+static void _printBacktestingResultVerbose(tx_backtesting_result_t * ptbr)
 {
     jf_clieng_caption_t * pcc = &ls_ccBacktestingResultVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -74,48 +74,48 @@ static void _printBacktestingResultVerbose(backtesting_result_t * pbr)
     jf_clieng_printDivider();
 
     /*NumOfTrade*/
-    ol_sprintf(strLeft, "%u", pbr->br_u32NumOfTrade);
+    ol_sprintf(strLeft, "%u", ptbr->tbr_u32NumOfTrade);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*NumOfTradeProfit*/
-    ol_sprintf(strLeft, "%u", pbr->br_u32NumOfTradeProfit);
-    ol_sprintf(strRight, "%u", pbr->br_u32NumOfTradeLoss);
+    ol_sprintf(strLeft, "%u", ptbr->tbr_u32NumOfTradeProfit);
+    ol_sprintf(strRight, "%u", ptbr->tbr_u32NumOfTradeLoss);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*StartDate*/
-    ol_sprintf(strLeft, "%s", pbr->br_strStartDate);
-    ol_sprintf(strRight, "%s", pbr->br_strEndDate);
+    ol_sprintf(strLeft, "%s", ptbr->tbr_strStartDate);
+    ol_sprintf(strRight, "%s", ptbr->tbr_strEndDate);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*MaxDrawdown*/
-    ol_sprintf(strLeft, "%.2f%%", pbr->br_dbMaxDrawdown);
-    ol_sprintf(strRight, "%.2f%%", pbr->br_dbRateOfReturn);
+    ol_sprintf(strLeft, "%.2f%%", ptbr->tbr_dbMaxDrawdown);
+    ol_sprintf(strRight, "%.2f%%", ptbr->tbr_dbRateOfReturn);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*InitialFund*/
-    ol_sprintf(strLeft, "%.2f", pbr->br_dbInitialFund);
-    ol_sprintf(strRight, "%.2f", pbr->br_dbFund);
+    ol_sprintf(strLeft, "%.2f", ptbr->tbr_dbInitialFund);
+    ol_sprintf(strRight, "%.2f", ptbr->tbr_dbFund);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*MinAsset*/
-    ol_sprintf(strLeft, "%.2f", pbr->br_dbMinAsset);
-    ol_sprintf(strRight, "%.2f", pbr->br_dbMaxAsset);
+    ol_sprintf(strLeft, "%.2f", ptbr->tbr_dbMinAsset);
+    ol_sprintf(strRight, "%.2f", ptbr->tbr_dbMaxAsset);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     jf_clieng_outputLine("");
 }
 
-static u32 _printBacktestingResult(backtesting_result_t * pbr)
+static u32 _printBacktestingResult(tx_backtesting_result_t * ptbr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    _printBacktestingResultVerbose(pbr);
+    _printBacktestingResultVerbose(ptbr);
 
     return u32Ret;
 }
@@ -124,28 +124,28 @@ static u32 _startBacktestAll(cli_backtest_param_t * pcbp, tx_cli_master_t * ptcm
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    backtesting_param_t bp;
-    backtesting_result_t br;
+    tx_backtesting_param_t tbp;
+    tx_backtesting_result_t tbr;
 
     ol_snprintf(
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
-    bzero(&bp, sizeof(backtesting_param_t));
-    bp.bp_bAllModel = TRUE;
-    bp.bp_pstrStockPath = strFullname;
-    bp.bp_dbInitialFund = 100000;
-    bp.bp_u8Method = BACKTESTING_METHOD_DAY_BY_DAY;
+    bzero(&tbp, sizeof(tx_backtesting_param_t));
+    tbp.tbp_bAllModel = TRUE;
+    tbp.tbp_pstrStockPath = strFullname;
+    tbp.tbp_dbInitialFund = 100000;
+    tbp.tbp_u8Method = TX_BACKTESTING_METHOD_DAY_BY_DAY;
     if (pcbp->cbp_bStockByStock)
-        bp.bp_u8Method = BACKTESTING_METHOD_STOCK_BY_STOCK;
+        tbp.tbp_u8Method = TX_BACKTESTING_METHOD_STOCK_BY_STOCK;
 
-    bzero(&br, sizeof(backtesting_result_t));
+    bzero(&tbr, sizeof(tx_backtesting_result_t));
 
-    u32Ret = backtestingModel(&bp, &br);
+    u32Ret = backtestingModel(&tbp, &tbr);
 
 //    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _printBacktestingResult(&br);
+        u32Ret = _printBacktestingResult(&tbr);
     }
 
     return u32Ret;
@@ -155,8 +155,8 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * pt
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    backtesting_param_t bp;
-    backtesting_result_t br;
+    tx_backtesting_param_t tbp;
+    tx_backtesting_result_t tbr;
 
     if (pcbp->cbp_pstrModel == NULL)
         return JF_ERR_INVALID_PARAM;
@@ -165,22 +165,22 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * pt
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
-    ol_bzero(&bp, sizeof(backtesting_param_t));
-    bp.bp_bAllModel = FALSE;
-    bp.bp_pstrModel = pcbp->cbp_pstrModel;
-    bp.bp_pstrStockPath = strFullname;
-    bp.bp_dbInitialFund = 100000;
-    bp.bp_u8Method = BACKTESTING_METHOD_DAY_BY_DAY;
+    ol_bzero(&tbp, sizeof(tx_backtesting_param_t));
+    tbp.tbp_bAllModel = FALSE;
+    tbp.tbp_pstrModel = pcbp->cbp_pstrModel;
+    tbp.tbp_pstrStockPath = strFullname;
+    tbp.tbp_dbInitialFund = 100000;
+    tbp.tbp_u8Method = TX_BACKTESTING_METHOD_DAY_BY_DAY;
     if (pcbp->cbp_bStockByStock)
-        bp.bp_u8Method = BACKTESTING_METHOD_STOCK_BY_STOCK;
+        tbp.tbp_u8Method = TX_BACKTESTING_METHOD_STOCK_BY_STOCK;
 
-    ol_bzero(&br, sizeof(backtesting_result_t));
+    ol_bzero(&tbr, sizeof(tx_backtesting_result_t));
 
-    u32Ret = backtestingModel(&bp, &br);
+    u32Ret = backtestingModel(&tbp, &tbr);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _printBacktestingResult(&br);
+        u32Ret = _printBacktestingResult(&tbr);
     }
 
     return u32Ret;

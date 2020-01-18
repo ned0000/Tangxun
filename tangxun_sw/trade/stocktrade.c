@@ -1,7 +1,7 @@
 /**
  *  @file stocktrade.c
  *
- *  @brief Provide some helper routine for stock trade
+ *  @brief Provide some helper routine for stock trade.
  *
  *  @author Min Zhang
  *
@@ -17,11 +17,11 @@
 #include "jf_basic.h"
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "stocktrade.h"
 #include "jf_time.h"
 #include "jf_date.h"
 #include "jf_string.h"
 
+#include "tx_trade.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

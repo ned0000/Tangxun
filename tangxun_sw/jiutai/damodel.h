@@ -21,7 +21,7 @@
 
 #include "stocklist.h"
 #include "parsedata.h"
-#include "stocktrade.h"
+#include "tx_trade.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 

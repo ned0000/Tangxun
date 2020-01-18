@@ -17,7 +17,7 @@ SONAME = tx_backtesting
 SOURCES = backtesting.c
 
 # Jiutai source files
-JIUTAI_SRCS = stocktrade.c
+JIUTAI_SRCS =
 
 # For code complile
 EXTRA_INC_DIR += -I. -I../jtk/inc
@@ -26,7 +26,7 @@ EXTRA_CFLAGS =
 # For library build 
 EXTRA_LDFLAGS = 
 EXTRA_LIB_DIR = -L../jtk/lib
-EXTRA_LIBS = -ljf_logger -ljf_files -ltx_model -ltx_trade_persistency -ltx_tradehelper
+EXTRA_LIBS = -ljf_logger -ljf_files -ltx_model -ltx_trade_persistency -ltx_trade
 
 include $(TOPDIR)/mak/lnxlib.mak
 
