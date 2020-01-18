@@ -29,7 +29,6 @@
 #include "jf_jiukun.h"
 
 #include "tx_stock.h"
-#include "indicator.h"
 #include "statarbitrage.h"
 #include "clicmd.h"
 #include "damethod.h"

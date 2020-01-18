@@ -29,7 +29,8 @@
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
 
-#include "parsedata.h"
+#include "tx_daysummary.h"
+#include "tx_quo.h"
 #include "datastat.h"
 #include "clicmd.h"
 #include "regression.h"

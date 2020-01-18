@@ -30,7 +30,7 @@
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
 
-#include "indicator.h"
+#include "tx_indi.h"
 #include "datastat.h"
 #include "tx_stock.h"
 
@@ -459,21 +459,21 @@ static void _obvGetIndicatorParamFromString(
 
 static da_indicator_desc_t ls_didIndicatorDesc[] =
 {
-    {STOCK_INDICATOR_DMI, INDI_TYPE_TREND, "DMI", "Directional Movement Index",
+    {TX_INDI_TYPE_DMI, INDI_TYPE_TREND, "DMI", "Directional Movement Index",
      _dmiGetStringIndicatorParam, _dmiGetIndicatorParamFromString},
-    {STOCK_INDICATOR_MACD, INDI_TYPE_TREND, "MACD", "Moving Average Convergence / Divergence",
+    {TX_INDI_TYPE_MACD, INDI_TYPE_TREND, "MACD", "Moving Average Convergence / Divergence",
      _macdGetStringIndicatorParam, _macdGetIndicatorParamFromString},
-    {STOCK_INDICATOR_MTM, INDI_TYPE_UNKNOWN, "MTM", "Momentum Index",
+    {TX_INDI_TYPE_MTM, INDI_TYPE_UNKNOWN, "MTM", "Momentum Index",
      _mtmGetStringIndicatorParam, _mtmGetIndicatorParamFromString},
-    {STOCK_INDICATOR_KDJ, INDI_TYPE_ANTI_TREND, "KDJ", "KDJ",
+    {TX_INDI_TYPE_KDJ, INDI_TYPE_ANTI_TREND, "KDJ", "KDJ",
      _kdjGetStringIndicatorParam, _kdjGetIndicatorParamFromString},
-    {STOCK_INDICATOR_RSI, INDI_TYPE_UNKNOWN, "RSI", "Relative Strength Index",
+    {TX_INDI_TYPE_RSI, INDI_TYPE_UNKNOWN, "RSI", "Relative Strength Index",
      _rsiGetStringIndicatorParam, _rsiGetIndicatorParamFromString},
-    {STOCK_INDICATOR_ASI, INDI_TYPE_UNKNOWN, "ASI", "Accumulation Swing Index",
+    {TX_INDI_TYPE_ASI, INDI_TYPE_UNKNOWN, "ASI", "Accumulation Swing Index",
      _asiGetStringIndicatorParam, _asiGetIndicatorParamFromString},
-    {STOCK_INDICATOR_ATR, INDI_TYPE_UNKNOWN, "ATR", "Average True Range",
+    {TX_INDI_TYPE_ATR, INDI_TYPE_UNKNOWN, "ATR", "Average True Range",
      _atrGetStringIndicatorParam, _atrGetIndicatorParamFromString},
-    {STOCK_INDICATOR_OBV, INDI_TYPE_UNKNOWN, "OBV", "On Balance Volume",
+    {TX_INDI_TYPE_OBV, INDI_TYPE_UNKNOWN, "OBV", "On Balance Volume",
      _obvGetStringIndicatorParam, _obvGetIndicatorParamFromString},
 };
 
@@ -481,7 +481,7 @@ static da_indicator_desc_t ls_didIndicatorDesc[] =
 
 da_indicator_desc_t * getDaIndicatorDesc(olint_t id)
 {
-    if ((id == 0) || (id >= STOCK_INDICATOR_MAX))
+    if ((id == 0) || (id >= TX_INDI_TYPE_MAX))
         return NULL;
 
     return &ls_didIndicatorDesc[id - 1];
@@ -492,7 +492,7 @@ da_indicator_desc_t * getDaIndicatorDescByName(olchar_t * name)
     olint_t id;
     da_indicator_desc_t * indi = NULL;
 
-    for (id = STOCK_INDICATOR_UNKNOWN + 1; id < STOCK_INDICATOR_MAX; id ++)
+    for (id = TX_INDI_TYPE_UNKNOWN + 1; id < TX_INDI_TYPE_MAX; id ++)
     {
         indi = getDaIndicatorDesc(id);
         if (strcasecmp(name, indi->did_pstrName) == 0)
@@ -565,7 +565,7 @@ olchar_t * getAbbrevStringKcp(olint_t nKcp)
 
 olchar_t * getStringIndicatorName(olint_t nIndicator)
 {
-    if ((nIndicator == 0) || (nIndicator >= STOCK_INDICATOR_MAX))
+    if ((nIndicator == 0) || (nIndicator >= TX_INDI_TYPE_MAX))
         return "Unknown";
 
     return ls_pstrIndicator[nIndicator];

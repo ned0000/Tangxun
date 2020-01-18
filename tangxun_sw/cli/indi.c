@@ -20,8 +20,8 @@
 #include "jf_file.h"
 #include "jf_mem.h"
 
-#include "parsedata.h"
-#include "indicator.h"
+#include "tx_daysummary.h"
+#include "tx_indi.h"
 #include "tx_stock.h"
 #include "tx_env.h"
 #include "clicmd.h"
@@ -60,7 +60,7 @@ static u32 _listAllIndicators(cli_indi_param_t * pcip, tx_cli_master_t * ptcm)
 //    da_indicator_desc_t * indi;
     olint_t id;
 
-    for (id = STOCK_INDICATOR_DMI; id < STOCK_INDICATOR_MAX; id ++)
+    for (id = TX_INDI_TYPE_DMI; id < TX_INDI_TYPE_MAX; id ++)
     {
 //        indi = getDaIndicatorDesc(id);
 

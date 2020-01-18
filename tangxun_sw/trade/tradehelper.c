@@ -21,9 +21,10 @@
 #include "jf_time.h"
 #include "jf_date.h"
 
-#include "parsedata.h"
+#include "tx_daysummary.h"
 #include "trade_persistency.h"
 #include "tx_trade.h"
+#include "tx_daysummary.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

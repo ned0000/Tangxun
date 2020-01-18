@@ -20,7 +20,7 @@
 #include "jf_dynlib.h"
 
 #include "tx_stock.h"
-#include "parsedata.h"
+#include "tx_daysummary.h"
 #include "tx_trade.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */

@@ -18,9 +18,9 @@
 
 #include "jf_basic.h"
 
-#include "parsedata.h"
+#include "tx_daysummary.h"
 #include "tx_stock.h"
-#include "indicator.h"
+#include "tx_indi.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 

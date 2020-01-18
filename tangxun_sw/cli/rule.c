@@ -23,8 +23,7 @@
 #include "jf_jiukun.h"
 
 #include "clicmd.h"
-#include "parsedata.h"
-#include "indicator.h"
+#include "tx_daysummary.h"
 #include "tx_rule.h"
 #include "tx_env.h"
 

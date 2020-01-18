@@ -43,8 +43,7 @@ static olint_t _compareData(const void * a, const void * b)
 }
 
 static void _dsPriceFromDayResult(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num)
+    data_stat_param_t * pdsp, data_stat_t * stat, da_day_summary_t * buffer, olint_t num)
 {
     da_day_summary_t * summary, * prev, * end = buffer + num - 1;
     da_day_summary_t * high;

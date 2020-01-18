@@ -14,7 +14,7 @@ TOPDIR := $(shell /bin/pwd)
 
 export TOPDIR
 
-SUBDIRS = jiutai stock parsedata rule trade model trade_persistency backtesting download \
+SUBDIRS = jiutai stock parsedata indi rule trade model trade_persistency backtesting download \
     bgad transd cli misc
 
 include $(TOPDIR)/mak/lnxsubdirs.mak

@@ -29,12 +29,12 @@
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
 
-#include "parsedata.h"
 #include "datastat.h"
 #include "clicmd.h"
 #include "regression.h"
 #include "statarbitrage.h"
 #include "tx_env.h"
+#include "tx_daysummary.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

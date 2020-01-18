@@ -23,8 +23,6 @@
 #include "jf_file.h"
 #include "jf_jiukun.h"
 
-#include "parsedata.h"
-#include "indicator.h"
 #include "datastat.h"
 #include "tx_stock.h"
 #include "clicmd.h"

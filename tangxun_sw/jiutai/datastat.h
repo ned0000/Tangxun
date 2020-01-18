@@ -17,7 +17,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-#include "parsedata.h"
+#include "tx_daysummary.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 

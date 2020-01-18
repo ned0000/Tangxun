@@ -28,7 +28,7 @@
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
 
-#include "indicator.h"
+#include "tx_indi.h"
 #include "statarbitrage.h"
 #include "datastat.h"
 

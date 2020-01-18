@@ -25,8 +25,7 @@
 #include "jf_date.h"
 
 #include "clicmd.h"
-#include "parsedata.h"
-#include "indicator.h"
+#include "tx_daysummary.h"
 #include "datastat.h"
 #include "tx_stock.h"
 #include "statarbitrage.h"

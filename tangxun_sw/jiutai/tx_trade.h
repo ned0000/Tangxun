@@ -20,7 +20,6 @@
 #include "jf_time.h"
 
 #include "tx_stock.h"
-#include "parsedata.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 

@@ -1,7 +1,7 @@
 /**
- *  @file indicator.h
+ *  @file tx_indi.h
  *
- *  @brief Indicator system
+ *  @brief Indicator system.
  *
  *  @author Min Zhang
  *
@@ -66,32 +66,33 @@
  *       -# Initial version
  */
 
-#ifndef TANGXUN_JIUTAI_INDICATOR_H
-#define TANGXUN_JIUTAI_INDICATOR_H
+#ifndef TANGXUN_INDI_H
+#define TANGXUN_INDI_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "parsedata.h"
+
+#include "tx_daysummary.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-enum stock_indicator
+typedef enum tx_indi_type
 {
-    STOCK_INDICATOR_UNKNOWN = 0,
-    STOCK_INDICATOR_DMI,
-    STOCK_INDICATOR_MACD,
-    STOCK_INDICATOR_MTM,
-    STOCK_INDICATOR_KDJ,
-    STOCK_INDICATOR_RSI,
-    STOCK_INDICATOR_ASI,
-    STOCK_INDICATOR_ATR,
-    STOCK_INDICATOR_OBV,
-    STOCK_INDICATOR_MAX,
-};
+    TX_INDI_TYPE_UNKNOWN = 0,
+    TX_INDI_TYPE_DMI,
+    TX_INDI_TYPE_MACD,
+    TX_INDI_TYPE_MTM,
+    TX_INDI_TYPE_KDJ,
+    TX_INDI_TYPE_RSI,
+    TX_INDI_TYPE_ASI,
+    TX_INDI_TYPE_ATR,
+    TX_INDI_TYPE_OBV,
+    TX_INDI_TYPE_MAX,
+} tx_indi_type_t;
 
 typedef struct da_adxr
 {
@@ -317,13 +318,14 @@ u32 freeDaDaySummaryIndicator(da_day_summary_t *summary, olint_t num);
 u32 getIndicatorAdxrTrend(da_day_summary_t * buffer, olint_t num);
 
 olchar_t * getStringKcp(olint_t nKcp);
+
 olchar_t * getAbbrevStringKcp(olint_t nKcp);
 
 olchar_t * getStringIndicatorName(olint_t nIndicator);
 
 olchar_t * getStringIndiType(olint_t type);
 
-#endif /*TANGXUN_JIUTAI_INDICATOR_H*/
+#endif /*TANGXUN_INDI_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

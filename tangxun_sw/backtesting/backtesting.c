@@ -28,8 +28,6 @@
 #include "jf_date.h"
 
 #include "tx_stock.h"
-#include "parsedata.h"
-#include "indicator.h"
 #include "datastat.h"
 #include "statarbitrage.h"
 #include "tx_model.h"

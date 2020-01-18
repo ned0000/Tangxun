@@ -27,7 +27,8 @@
 #include "jf_time.h"
 #include "jf_jiukun.h"
 
-#include "parsedata.h"
+#include "tx_daysummary.h"
+#include "tx_quo.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

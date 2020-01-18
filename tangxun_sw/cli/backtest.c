@@ -24,8 +24,7 @@
 #include "jf_time.h"
 
 #include "clicmd.h"
-#include "parsedata.h"
-#include "indicator.h"
+#include "tx_daysummary.h"
 #include "datastat.h"
 #include "statarbitrage.h"
 #include "tx_env.h"

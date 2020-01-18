@@ -20,7 +20,6 @@
 #include "jf_file.h"
 #include "jf_mem.h"
 
-#include "parsedata.h"
 #include "regression.h"
 #include "datastat.h"
 #include "tx_stock.h"
