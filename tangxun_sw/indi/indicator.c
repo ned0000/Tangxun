@@ -31,7 +31,6 @@
 #include "jf_jiukun.h"
 
 #include "tx_indi.h"
-#include "datastat.h"
 #include "tx_stock.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

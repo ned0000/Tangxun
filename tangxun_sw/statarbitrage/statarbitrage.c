@@ -29,8 +29,8 @@
 #include "jf_jiukun.h"
 
 #include "tx_indi.h"
-#include "statarbitrage.h"
-#include "datastat.h"
+#include "tx_statarbitrage.h"
+#include "tx_datastat.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

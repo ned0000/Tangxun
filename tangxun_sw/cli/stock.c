@@ -29,10 +29,10 @@
 #include "jf_jiukun.h"
 
 #include "tx_stock.h"
-#include "statarbitrage.h"
-#include "clicmd.h"
-#include "damethod.h"
+#include "tx_statarbitrage.h"
 #include "tx_env.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_jccStockInfoAdditionalVerbose[] =

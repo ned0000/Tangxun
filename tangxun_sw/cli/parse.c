@@ -31,11 +31,12 @@
 
 #include "tx_daysummary.h"
 #include "tx_quo.h"
-#include "datastat.h"
-#include "clicmd.h"
-#include "regression.h"
+#include "tx_datastat.h"
+#include "tx_regression.h"
 #include "tx_stock.h"
 #include "tx_env.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

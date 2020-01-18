@@ -37,8 +37,9 @@
 #include "tx_stock.h"
 #include "tx_env.h"
 #include "tx_rule.h"
-#include "trade_persistency.h"
+#include "tx_persistency.h"
 #include "tx_model.h"
+
 #include "clicmd.h"
 #include "main.h"
 

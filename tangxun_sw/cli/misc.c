@@ -20,10 +20,9 @@
 #include "jf_file.h"
 #include "jf_mem.h"
 
-#include "regression.h"
-#include "datastat.h"
 #include "tx_stock.h"
 #include "tx_env.h"
+
 #include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

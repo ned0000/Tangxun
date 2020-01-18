@@ -23,13 +23,13 @@
 #include "jf_file.h"
 #include "jf_jiukun.h"
 
-#include "datastat.h"
 #include "tx_stock.h"
-#include "clicmd.h"
-#include "statarbitrage.h"
+#include "tx_statarbitrage.h"
 #include "tx_env.h"
 #include "tx_model.h"
-#include "trade_persistency.h"
+#include "tx_persistency.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_clieng_caption_t ls_ccTradingStockBrief[] =

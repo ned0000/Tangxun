@@ -9,8 +9,8 @@
  *  
  */
 
-#ifndef TRADE_PERSISTENCY_COMMON_H
-#define TRADE_PERSISTENCY_COMMON_H
+#ifndef PERSISTENCY_COMMON_H
+#define PERSISTENCY_COMMON_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_sqlite.h"
 
-#include "trade_persistency.h"
+#include "tx_persistency.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -114,7 +114,7 @@ typedef struct tp_manager
 /* --- functional routines ---------------------------------------------------------------------- */
 
 
-#endif /*TRADE_PERSISTENCY_COMMON_H*/
+#endif /*PERSISTENCY_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

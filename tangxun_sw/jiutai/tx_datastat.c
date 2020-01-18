@@ -1,7 +1,7 @@
 /**
- *  @file datastat.c
+ *  @file tx_datastat.c
  *
- *  @brief data statistic
+ *  @brief Data statistic.
  *
  *  @author Min Zhang
  *
@@ -26,7 +26,7 @@
 #include "jf_string.h"
 #include "jf_mem.h"
 
-#include "datastat.h"
+#include "tx_datastat.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

@@ -20,9 +20,10 @@
 #include "jf_string.h"
 #include "jf_sqlite.h"
 
+#include "tx_persistency.h"
+
 #include "sqlitepersistency.h"
 #include "persistencycommon.h"
-#include "trade_persistency.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

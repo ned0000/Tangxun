@@ -1,5 +1,5 @@
 /**
- *  @file fixdata.c
+ *  @file tx_fixdata.c
  *
  *  @brief routine for fix data, the data from files or ...
  *
@@ -16,11 +16,12 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "fixdata.h"
 #include "jf_err.h"
 #include "jf_file.h"
 #include "jf_string.h"
 #include "jf_mem.h"
+
+#include "tx_fixdata.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

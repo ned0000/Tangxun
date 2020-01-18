@@ -38,11 +38,12 @@
 #include "jf_thread.h"
 
 #include "tx_env.h"
-#include "datastat.h"
 #include "tx_trade.h"
 #include "tx_daysummary.h"
 #include "tx_quo.h"
 #include "tx_stock.h"
+#include "tx_datastat.h"
+
 #include "datransd.h"
 
 /* --- private data structures ------------------------------------------------------------------ */

@@ -1,7 +1,7 @@
 /**
- *  @file trade_persistency.h
+ *  @file tx_persistency.h
  *
- *  @brief trade persistency library
+ *  @brief persistency library
  *
  *  @author Min Zhang
  *
@@ -9,8 +9,8 @@
  *  
  */
  
-#ifndef TANGXUN_TRADE_PERSISTENCY_H
-#define TANGXUN_TRADE_PERSISTENCY_H
+#ifndef TANGXUN_PERSISTENCY_H
+#define TANGXUN_PERSISTENCY_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -39,17 +39,15 @@ u32 replacePoolStockIntoTradePersistency(trade_pool_stock_t * pStock);
 u32 insertPoolStockIntoTradePersistency(trade_pool_stock_t * pStock);
 u32 removePoolStockFromTradePersistency(trade_pool_stock_t * pStock);
 u32 updatePoolStockInTradePersistency(trade_pool_stock_t * pStock);
-u32 getAllPoolStockInTradePersistency(
-    trade_pool_stock_t * pStock, olint_t * pnNum);
+u32 getAllPoolStockInTradePersistency(trade_pool_stock_t * pStock, olint_t * pnNum);
 u32 getPoolStockInTradePersistency(trade_pool_stock_t * pStock);
 olint_t getNumOfPoolStockInTradePersistency(void);
 
 olint_t getNumOfTradingRecordInTradePersistency(void);
-u32 getAllTradingRecordInTradePersistency(
-    trade_trading_record_t * pRecord, olint_t * pnNum);
+u32 getAllTradingRecordInTradePersistency(trade_trading_record_t * pRecord, olint_t * pnNum);
 u32 insertTradingRecordIntoTradePersistency(trade_trading_record_t * pRecord);
 
-#endif   /*TANGXUN_TRADE_PERSISTENCY_H*/
+#endif   /*TANGXUN_PERSISTENCY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

@@ -1,7 +1,7 @@
 /**
- *  @file regression.c
+ *  @file tx_regression.c
  *
- *  @brief Regression analysis
+ *  @brief Regression analysis.
  *
  *  @author Min Zhang
  *
@@ -17,11 +17,12 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "regression.h"
 #include "jf_mem.h"
 #include "jf_clieng.h"
-#include "datastat.h"
 #include "jf_matrix.h"
+
+#include "tx_datastat.h"
+#include "tx_regression.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 #define DEBUG_REGRESSION_ANALYSIS  0

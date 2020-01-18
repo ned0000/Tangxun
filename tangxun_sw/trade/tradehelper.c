@@ -22,7 +22,7 @@
 #include "jf_date.h"
 
 #include "tx_daysummary.h"
-#include "trade_persistency.h"
+#include "tx_persistency.h"
 #include "tx_trade.h"
 #include "tx_daysummary.h"
 

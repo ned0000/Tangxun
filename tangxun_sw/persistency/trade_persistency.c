@@ -18,7 +18,8 @@
 #include "jf_err.h"
 #include "jf_mem.h"
 
-#include "trade_persistency.h"
+#include "tx_persistency.h"
+
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
 

@@ -10,7 +10,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SOURCES = fixdata.c datastat.c regression.c tx_env.c statarbitrage.c damethod.c 
+SOURCES = tx_fixdata.c tx_datastat.c tx_regression.c tx_env.c
 
 EXTRA_INC_DIR += -I../jtk/inc
 

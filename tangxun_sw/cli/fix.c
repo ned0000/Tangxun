@@ -17,11 +17,13 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
-#include "clicmd.h"
 #include "jf_string.h"
 #include "jf_file.h"
 #include "jf_mem.h"
-#include "fixdata.h"
+
+#include "tx_fixdata.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

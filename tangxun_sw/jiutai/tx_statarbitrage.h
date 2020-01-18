@@ -134,6 +134,10 @@ u32 freeSaStockInfo(sa_stock_info_t ** ppsastock);
 
 oldouble_t getSaStockInfoCorrelation(sa_stock_info_t * sastock, olint_t nDaySummary);
 
+oldouble_t getCorrelationWithIndex(tx_stock_info_t * info);
+
+oldouble_t getCorrelationWithSmeIndex(tx_stock_info_t * info);
+
 #endif /*TANGXUN_JIUTAI_STATARBITRAGE_H*/
 
 /*------------------------------------------------------------------------------------------------*/

@@ -31,11 +31,11 @@
 
 #include "tx_daysummary.h"
 #include "tx_quo.h"
-#include "damethod.h"
-#include "clicmd.h"
 #include "tx_env.h"
-#include "datastat.h"
-#include "statarbitrage.h"
+#include "tx_datastat.h"
+#include "tx_statarbitrage.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

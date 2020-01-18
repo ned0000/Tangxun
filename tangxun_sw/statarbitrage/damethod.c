@@ -31,8 +31,7 @@
 
 #include "tx_env.h"
 #include "tx_stock.h"
-#include "tx_indi.h"
-#include "statarbitrage.h"
+#include "tx_statarbitrage.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

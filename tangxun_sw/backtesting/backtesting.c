@@ -28,10 +28,8 @@
 #include "jf_date.h"
 
 #include "tx_stock.h"
-#include "datastat.h"
-#include "statarbitrage.h"
 #include "tx_model.h"
-#include "trade_persistency.h"
+#include "tx_persistency.h"
 #include "tx_backtesting.h"
 #include "tx_trade.h"
 
