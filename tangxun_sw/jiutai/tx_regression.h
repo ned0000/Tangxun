@@ -1,7 +1,7 @@
 /**
  *  @file regression.h
  *
- *  @brief Regression analysis
+ *  @brief Regression analysis.
  *
  *  @author Min Zhang
  *
@@ -23,76 +23,76 @@
 /* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
-    olchar_t rrc_strPredictor[16];
+    olchar_t trrc_strPredictor[16];
 
-    oldouble_t rrc_dbCoef;
-    oldouble_t rrc_dbSECoef;
-    oldouble_t rrc_dbT;
-    oldouble_t rrc_dbP;
+    oldouble_t trrc_dbCoef;
+    oldouble_t trrc_dbSECoef;
+    oldouble_t trrc_dbT;
+    oldouble_t trrc_dbP;
 
-    olint_t rrc_nDF;
-    oldouble_t rrc_dbSeqSS;
-} ra_result_coef_t;
-
-typedef struct
-{
-    olint_t rra_nRegressionDF;   /*degree of freedom, = number of predictors */
-    oldouble_t rra_dbRegressionSS;  /*sum of square */
-    oldouble_t rra_dbRegressionMS;  /*mean square = SS / DF*/
-    oldouble_t rra_dbRegressionF;
-    oldouble_t rra_dbRegressionP;
-
-    olint_t rra_nResidErrorDF;
-    oldouble_t rra_dbResidErrorSS;
-    oldouble_t rra_dbResidErrorMS;
-
-    olint_t rra_nTotalDF;
-    oldouble_t rra_dbTotalSS;
-
-
-} ra_result_anova_t;
+    olint_t trrc_nDF;
+    oldouble_t trrc_dbSeqSS;
+} tx_regression_result_coef_t;
 
 typedef struct
 {
-    olint_t rruo_nObs;
-#define RA_UNUSUAL_OBSERV_LARGE_REDIDUAL  0x1
-#define RA_UNUSUAL_OBSERV_X               0x2
-    olint_t rruo_nType;
-    oldouble_t rruo_dbResponse;
-    oldouble_t rruo_dbFit;
-    oldouble_t rruo_dbSEFit;
-    oldouble_t rruo_dbResid;
-    oldouble_t rruo_dbStResid;
+    olint_t trra_nRegressionDF;   /*degree of freedom, = number of predictors */
+    oldouble_t trra_dbRegressionSS;  /*sum of square */
+    oldouble_t trra_dbRegressionMS;  /*mean square = SS / DF*/
+    oldouble_t trra_dbRegressionF;
+    oldouble_t trra_dbRegressionP;
 
-} ra_result_unusual_observ_t;
+    olint_t trra_nResidErrorDF;
+    oldouble_t trra_dbResidErrorSS;
+    oldouble_t trra_dbResidErrorMS;
+
+    olint_t trra_nTotalDF;
+    oldouble_t trra_dbTotalSS;
+
+
+} tx_regression_result_anova_t;
 
 typedef struct
 {
-    olchar_t rr_strResponse[16];
-    ra_result_coef_t rr_rrcConstant;
-    olint_t rr_nCoef;
-    ra_result_coef_t * rr_prrcCoef;
+    olint_t trruo_nObs;
+#define TX_REGRESSION_UNUSUAL_OBSERV_LARGE_REDIDUAL  (0x1)
+#define TX_REGRESSION_UNUSUAL_OBSERV_X               (0x2)
+    olint_t trruo_nType;
+    oldouble_t trruo_dbResponse;
+    oldouble_t trruo_dbFit;
+    oldouble_t trruo_dbSEFit;
+    oldouble_t trruo_dbResid;
+    oldouble_t trruo_dbStResid;
 
-    oldouble_t rr_dbS;  /*standard error of regression */
-    oldouble_t rr_dbRSq;  /*the percent of the variation in Response
+} tx_regression_result_unusual_observ_t;
+
+typedef struct
+{
+    olchar_t trr_strResponse[16];
+    tx_regression_result_coef_t trr_trrcConstant;
+    olint_t trr_nCoef;
+    tx_regression_result_coef_t * trr_ptrrcCoef;
+
+    oldouble_t trr_dbS;  /*standard error of regression */
+    oldouble_t trr_dbRSq;  /*the percent of the variation in Response
                        that is is explained*/
-    oldouble_t rr_dbRSqAdj;
+    oldouble_t trr_dbRSqAdj;
 
-    ra_result_anova_t rr_rraAnova;
+    tx_regression_result_anova_t trr_trraAnova;
 
-    olint_t rr_nMaxObserv;
-    olint_t rr_nObserv;
-    ra_result_unusual_observ_t * rr_prruoObserv;
+    olint_t trr_nMaxObserv;
+    olint_t trr_nObserv;
+    tx_regression_result_unusual_observ_t * trr_ptrruoObserv;
 
-} ra_result_t;
+} tx_regression_result_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
-u32 regressionAnalysis(
-    olchar_t * rname, oldouble_t * response, olchar_t ** pname,
-    oldouble_t ** predictors, olint_t countp, olint_t num,
-    ra_result_t * result);
 
-void printRaResult(ra_result_t * result);
+u32 tx_regression_analysis(
+    olchar_t * rname, oldouble_t * response, olchar_t ** pname, oldouble_t ** predictors,
+    olint_t countp, olint_t num, tx_regression_result_t * result);
+
+void tx_regression_printResult(tx_regression_result_t * result);
 
 #endif /*TANGXUN_JIUTAI_REGRESSION_H*/
 

@@ -15,7 +15,7 @@
 SONAME = tx_stock
 
 # Source files
-SOURCES = stocklist.c 
+SOURCES = common.c stocklist.c stockindu.c stockindex.c txstock.c
 
 # Jiutai source files
 JIUTAI_SRCS =

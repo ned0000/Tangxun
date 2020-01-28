@@ -199,11 +199,11 @@ static u32 _caluRaLeverage(oldouble_t * response, oldouble_t ** predictors,
 
 static u32 _caluRaResultUnusualObserv(
     oldouble_t * response, oldouble_t ** predictors,
-    olint_t countp, olint_t num, ra_result_t * result, desc_stat_t * rdesc,
+    olint_t countp, olint_t num, tx_regression_result_t * result, tx_datastat_desc_t * rdesc,
     oldouble_t * dbfit)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    ra_result_unusual_observ_t * observ;
+    tx_regression_result_unusual_observ_t * observ;
     oldouble_t * hii = NULL;
     oldouble_t dbt, hir;
     olint_t i, ntype;
@@ -225,26 +225,26 @@ static u32 _caluRaResultUnusualObserv(
             dbt = 0;
             if (hii[i] < 1.0)
                 dbt = (response[i] - dbfit[i]) /
-                    sqrt(result->rr_rraAnova.rra_dbResidErrorMS * (1 - hii[i]));
+                    sqrt(result->trr_trraAnova.trra_dbResidErrorMS * (1 - hii[i]));
 
             if (hii[i] > hir)
-                ntype |= RA_UNUSUAL_OBSERV_X;
+                ntype |= TX_REGRESSION_UNUSUAL_OBSERV_X;
             if ((dbt > 2.0 ) || (dbt < -2.0))
-                ntype |= RA_UNUSUAL_OBSERV_LARGE_REDIDUAL;
+                ntype |= TX_REGRESSION_UNUSUAL_OBSERV_LARGE_REDIDUAL;
 
             if (ntype != 0)
             {
-                observ = &result->rr_prruoObserv[result->rr_nObserv];
+                observ = &result->trr_ptrruoObserv[result->trr_nObserv];
 
-                observ->rruo_nObs = i;
-                observ->rruo_dbResponse = response[i];
-                observ->rruo_dbFit = dbfit[i];
-                observ->rruo_dbResid = response[i] - dbfit[i];
-                observ->rruo_dbStResid = dbt;
-                observ->rruo_nType = ntype;
+                observ->trruo_nObs = i;
+                observ->trruo_dbResponse = response[i];
+                observ->trruo_dbFit = dbfit[i];
+                observ->trruo_dbResid = response[i] - dbfit[i];
+                observ->trruo_dbStResid = dbt;
+                observ->trruo_nType = ntype;
 
-                result->rr_nObserv ++;
-                if (result->rr_nObserv >= result->rr_nMaxObserv)
+                result->trr_nObserv ++;
+                if (result->trr_nObserv >= result->trr_nMaxObserv)
                     break;
             }
         }
@@ -258,7 +258,7 @@ static u32 _caluRaResultUnusualObserv(
 
 static u32 _caluRaResultAnova(
     oldouble_t * response, oldouble_t ** predictors,
-    olint_t countp, olint_t num, ra_result_t * result, desc_stat_t * rdesc,
+    olint_t countp, olint_t num, tx_regression_result_t * result, tx_datastat_desc_t * rdesc,
     oldouble_t * dbfit)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -267,36 +267,36 @@ static u32 _caluRaResultAnova(
     for (i = 0; i < num; i ++)
     {
         /* the mean of dbfit[] is 0 */
-        result->rr_rraAnova.rra_dbRegressionSS +=
-            (dbfit[i] - rdesc->ds_dbMean) * (dbfit[i] - rdesc->ds_dbMean);
-        result->rr_rraAnova.rra_dbResidErrorSS +=
+        result->trr_trraAnova.trra_dbRegressionSS +=
+            (dbfit[i] - rdesc->tdd_dbMean) * (dbfit[i] - rdesc->tdd_dbMean);
+        result->trr_trraAnova.trra_dbResidErrorSS +=
             (response[i] - dbfit[i]) * (response[i] - dbfit[i]);
     }
-    result->rr_rraAnova.rra_nRegressionDF = countp;
-    result->rr_rraAnova.rra_dbRegressionMS =
-        result->rr_rraAnova.rra_dbRegressionSS /
-        result->rr_rraAnova.rra_nRegressionDF;
+    result->trr_trraAnova.trra_nRegressionDF = countp;
+    result->trr_trraAnova.trra_dbRegressionMS =
+        result->trr_trraAnova.trra_dbRegressionSS /
+        result->trr_trraAnova.trra_nRegressionDF;
 
-    result->rr_rraAnova.rra_nResidErrorDF = num - countp - 1;
-    result->rr_rraAnova.rra_dbResidErrorMS =
-        result->rr_rraAnova.rra_dbResidErrorSS /
-        result->rr_rraAnova.rra_nResidErrorDF;
+    result->trr_trraAnova.trra_nResidErrorDF = num - countp - 1;
+    result->trr_trraAnova.trra_dbResidErrorMS =
+        result->trr_trraAnova.trra_dbResidErrorSS /
+        result->trr_trraAnova.trra_nResidErrorDF;
 
-    result->rr_rraAnova.rra_nTotalDF = num - 1;
-    result->rr_rraAnova.rra_dbTotalSS =
-        result->rr_rraAnova.rra_dbRegressionSS +
-        result->rr_rraAnova.rra_dbResidErrorSS;
+    result->trr_trraAnova.trra_nTotalDF = num - 1;
+    result->trr_trraAnova.trra_dbTotalSS =
+        result->trr_trraAnova.trra_dbRegressionSS +
+        result->trr_trraAnova.trra_dbResidErrorSS;
 
-    result->rr_rraAnova.rra_dbRegressionF =
-        result->rr_rraAnova.rra_dbRegressionMS /
-        result->rr_rraAnova.rra_dbResidErrorMS;
+    result->trr_trraAnova.trra_dbRegressionF =
+        result->trr_trraAnova.trra_dbRegressionMS /
+        result->trr_trraAnova.trra_dbResidErrorMS;
 
     return u32Ret;
 }
 
 static u32 _caluRaResultCoefSeqSS(
     oldouble_t * response, oldouble_t ** predictors,
-    olint_t countp, olint_t num, ra_result_t * result, desc_stat_t * rdesc,
+    olint_t countp, olint_t num, tx_regression_result_t * result, tx_datastat_desc_t * rdesc,
     oldouble_t * dbfit)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -306,26 +306,26 @@ static u32 _caluRaResultCoefSeqSS(
 
 static u32 _caluRaResult(
     oldouble_t * response, oldouble_t ** predictors,
-    olint_t countp, olint_t num, ra_result_t * result)
+    olint_t countp, olint_t num, tx_regression_result_t * result)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    desc_stat_t rdescstat;
+    tx_datastat_desc_t rdescstat;
     oldouble_t * temp = NULL, dbt;
     olint_t i, j;
 
     u32Ret = jf_mem_duplicate(
         (void **)&temp, (const u8 *)response, sizeof(oldouble_t) * num);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = descStatFromData(&rdescstat, temp, num);
+        u32Ret = tx_datastat_descData(&rdescstat, temp, num);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < num; i ++)
         {
-            temp[i] = result->rr_rrcConstant.rrc_dbCoef;
+            temp[i] = result->trr_trrcConstant.trrc_dbCoef;
             for (j = 0; j < countp; j ++)
             {
-                temp[i] += result->rr_prrcCoef[j].rrc_dbCoef * predictors[j][i];
+                temp[i] += result->trr_ptrrcCoef[j].trrc_dbCoef * predictors[j][i];
             }
         }
 
@@ -341,11 +341,11 @@ static u32 _caluRaResult(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        result->rr_dbS = sqrt(result->rr_rraAnova.rra_dbResidErrorMS);
-        result->rr_dbRSq = result->rr_rraAnova.rra_dbRegressionSS * 100 /
-            result->rr_rraAnova.rra_dbTotalSS;
-        dbt = result->rr_dbS / rdescstat.ds_dbStDev;
-        result->rr_dbRSqAdj = (1 - dbt * dbt) * 100;
+        result->trr_dbS = sqrt(result->trr_trraAnova.trra_dbResidErrorMS);
+        result->trr_dbRSq = result->trr_trraAnova.trra_dbRegressionSS * 100 /
+            result->trr_trraAnova.trra_dbTotalSS;
+        dbt = result->trr_dbS / rdescstat.tdd_dbStDev;
+        result->trr_dbRSqAdj = (1 - dbt * dbt) * 100;
 
     }
 
@@ -361,7 +361,7 @@ static u32 _caluRaResult(
     return u32Ret;
 }
 
-static void _printRaResultCoefBrief(ra_result_coef_t * coef)
+static void _printRaResultCoefBrief(tx_regression_result_coef_t * coef)
 {
     jf_clieng_caption_t * pcc = &ls_jccRaResultCoefBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -369,33 +369,33 @@ static void _printRaResultCoefBrief(ra_result_coef_t * coef)
     strInfo[0] = '\0';
 
     /* Predictor */
-    jf_clieng_appendBriefColumn(pcc, strInfo, coef->rrc_strPredictor);
+    jf_clieng_appendBriefColumn(pcc, strInfo, coef->trrc_strPredictor);
     pcc++;
 
     /* Coef */
-    ol_sprintf(strField, "%.7f", coef->rrc_dbCoef);
+    ol_sprintf(strField, "%.7f", coef->trrc_dbCoef);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SECoef */
-    ol_sprintf(strField, "%.7f", coef->rrc_dbSECoef);
+    ol_sprintf(strField, "%.7f", coef->trrc_dbSECoef);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* T */
-    ol_sprintf(strField, "%.2f", coef->rrc_dbT);
+    ol_sprintf(strField, "%.2f", coef->trrc_dbT);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* P */
-    ol_sprintf(strField, "%.2f", coef->rrc_dbP);
+    ol_sprintf(strField, "%.2f", coef->trrc_dbP);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     jf_clieng_outputRawLine(strInfo);
 }
 
-static void _printRaResultAnovaBrief(ra_result_t * result)
+static void _printRaResultAnovaBrief(tx_regression_result_t * result)
 {
     jf_clieng_caption_t * pcc = &ls_jccRaResultAnovaBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -407,27 +407,27 @@ static void _printRaResultAnovaBrief(ra_result_t * result)
     pcc++;
 
     /* DF */
-    ol_sprintf(strField, "%d", result->rr_rraAnova.rra_nRegressionDF);
+    ol_sprintf(strField, "%d", result->trr_trraAnova.trra_nRegressionDF);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SS */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbRegressionSS);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbRegressionSS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* MS */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbRegressionMS);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbRegressionMS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* F */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbRegressionF);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbRegressionF);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* P */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbRegressionP);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbRegressionP);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -442,17 +442,17 @@ static void _printRaResultAnovaBrief(ra_result_t * result)
     pcc++;
 
     /* DF */
-    ol_sprintf(strField, "%d", result->rr_rraAnova.rra_nResidErrorDF);
+    ol_sprintf(strField, "%d", result->trr_trraAnova.trra_nResidErrorDF);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SS */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbResidErrorSS);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbResidErrorSS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* MS */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbResidErrorMS);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbResidErrorMS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -467,19 +467,19 @@ static void _printRaResultAnovaBrief(ra_result_t * result)
     pcc++;
 
     /* DF */
-    ol_sprintf(strField, "%d", result->rr_rraAnova.rra_nTotalDF);
+    ol_sprintf(strField, "%d", result->trr_trraAnova.trra_nTotalDF);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SS */
-    ol_sprintf(strField, "%.3f", result->rr_rraAnova.rra_dbTotalSS);
+    ol_sprintf(strField, "%.3f", result->trr_trraAnova.trra_dbTotalSS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     jf_clieng_outputRawLine(strInfo);
 }
 
-static void _printRaResultCoefSeqSSBrief(ra_result_coef_t * coef)
+static void _printRaResultCoefSeqSSBrief(tx_regression_result_coef_t * coef)
 {
     jf_clieng_caption_t * pcc = &ls_jccRaResultCoefSeqSSBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -487,16 +487,16 @@ static void _printRaResultCoefSeqSSBrief(ra_result_coef_t * coef)
     strInfo[0] = '\0';
 
     /* Source */
-    jf_clieng_appendBriefColumn(pcc, strInfo, coef->rrc_strPredictor);
+    jf_clieng_appendBriefColumn(pcc, strInfo, coef->trrc_strPredictor);
     pcc++;
 
     /* DF */
-    ol_sprintf(strField, "%d", coef->rrc_nDF);
+    ol_sprintf(strField, "%d", coef->trrc_nDF);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SeqSS */
-    ol_sprintf(strField, "%.3f", coef->rrc_dbSeqSS);
+    ol_sprintf(strField, "%.3f", coef->trrc_dbSeqSS);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -504,7 +504,7 @@ static void _printRaResultCoefSeqSSBrief(ra_result_coef_t * coef)
 }
 
 static void _printRaResultUnusualObservBrief(
-    ra_result_unusual_observ_t * observ)
+    tx_regression_result_unusual_observ_t * observ)
 {
     jf_clieng_caption_t * pcc = &ls_jccRaResultUnusualObservBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -512,35 +512,35 @@ static void _printRaResultUnusualObservBrief(
     strInfo[0] = '\0';
 
     /* Obs */
-    ol_sprintf(strField, "%d", observ->rruo_nObs);
+    ol_sprintf(strField, "%d", observ->trruo_nObs);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Response */
-    ol_sprintf(strField, "%.4f", observ->rruo_dbResponse);
+    ol_sprintf(strField, "%.4f", observ->trruo_dbResponse);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Fit */
-    ol_sprintf(strField, "%.4f", observ->rruo_dbFit);
+    ol_sprintf(strField, "%.4f", observ->trruo_dbFit);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* SEFit */
-    ol_sprintf(strField, "%.4f", observ->rruo_dbSEFit);
+    ol_sprintf(strField, "%.4f", observ->trruo_dbSEFit);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Resid */
-    ol_sprintf(strField, "%.4f", observ->rruo_dbResid);
+    ol_sprintf(strField, "%.4f", observ->trruo_dbResid);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* StResid */
-    ol_sprintf(strField, "%.2f", observ->rruo_dbStResid);
-    if (observ->rruo_nType & RA_UNUSUAL_OBSERV_LARGE_REDIDUAL)
+    ol_sprintf(strField, "%.2f", observ->trruo_dbStResid);
+    if (observ->trruo_nType & TX_REGRESSION_UNUSUAL_OBSERV_LARGE_REDIDUAL)
         ol_strcat(strField, "R");
-    if (observ->rruo_nType & RA_UNUSUAL_OBSERV_X)
+    if (observ->trruo_nType & TX_REGRESSION_UNUSUAL_OBSERV_X)
         ol_strcat(strField, "X");
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
@@ -549,21 +549,23 @@ static void _printRaResultUnusualObservBrief(
 }
 
 static void _preSetRaResult(olchar_t * rname, olchar_t ** pname,
-    olint_t countp, ra_result_t * result)
+    olint_t countp, tx_regression_result_t * result)
 {
     olint_t i;
 
-    ol_strncpy(result->rr_strResponse, rname,
-            sizeof(result->rr_strResponse) - 1);
+    ol_strncpy(
+        result->trr_strResponse, rname, sizeof(result->trr_strResponse) - 1);
 
-    ol_strncpy(result->rr_rrcConstant.rrc_strPredictor, "Constant",
-            sizeof(result->rr_rrcConstant.rrc_strPredictor) - 1);
+    ol_strncpy(
+        result->trr_trrcConstant.trrc_strPredictor, "Constant",
+        sizeof(result->trr_trrcConstant.trrc_strPredictor) - 1);
 
-    result->rr_nCoef = countp;
+    result->trr_nCoef = countp;
     for (i = 0; i < countp; i ++)
     {
-        ol_strncpy(result->rr_prrcCoef[i].rrc_strPredictor, pname[i],
-                sizeof(result->rr_prrcCoef[i].rrc_strPredictor) - 1);
+        ol_strncpy(
+            result->trr_ptrrcCoef[i].trrc_strPredictor, pname[i],
+            sizeof(result->trr_ptrrcCoef[i].trrc_strPredictor) - 1);
     }
 
 }
@@ -633,9 +635,9 @@ static void _makeMatrix(
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
-u32 regressionAnalysis(
+u32 tx_regression_analysis(
     olchar_t * rname, oldouble_t * response, olchar_t ** pname,
-    oldouble_t ** predictors, olint_t countp, olint_t num, ra_result_t * result)
+    oldouble_t ** predictors, olint_t countp, olint_t num, tx_regression_result_t * result)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t * dbx = NULL, * dby = NULL;
@@ -660,10 +662,10 @@ u32 regressionAnalysis(
     u32Ret = agaus(dbx, dby, countp + 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        result->rr_rrcConstant.rrc_dbCoef = dby[0];
+        result->trr_trrcConstant.trrc_dbCoef = dby[0];
         for (i = 0; i < countp; i ++)
         {
-            result->rr_prrcCoef[i].rrc_dbCoef = dby[i + 1];
+            result->trr_ptrrcCoef[i].trrc_dbCoef = dby[i + 1];
         }
 #if DEBUG_REGRESSION_ANALYSIS
         for (i = 0; i < countp + 1; i ++)
@@ -683,17 +685,17 @@ out:
     return u32Ret;
 }
 
-void printRaResult(ra_result_t * result)
+void tx_regression_printResult(tx_regression_result_t * result)
 {
     olint_t i;
     olchar_t str[512], strt[64];
 
     memset(str, 0, sizeof(str));
-    ol_sprintf(str, "Regression Analysis: %s versus ", result->rr_strResponse);
-    for (i = 0; i < result->rr_nCoef; i ++)
+    ol_sprintf(str, "Regression Analysis: %s versus ", result->trr_strResponse);
+    for (i = 0; i < result->trr_nCoef; i ++)
     {
-        ol_strcat(str, result->rr_prrcCoef[i].rrc_strPredictor);
-        if (i != result->rr_nCoef - 1)
+        ol_strcat(str, result->trr_ptrrcCoef[i].trrc_strPredictor);
+        if (i != result->trr_nCoef - 1)
             ol_strcat(str, ", ");
     }
     jf_clieng_outputLine("%s\n", str);
@@ -701,32 +703,32 @@ void printRaResult(ra_result_t * result)
     ol_sprintf(str, "The regression equation is");
     jf_clieng_outputLine("%s", str);
 
-    ol_sprintf(str, "%s = %.6f", result->rr_strResponse,
-            result->rr_rrcConstant.rrc_dbCoef);
-    for (i = 0; i < result->rr_nCoef; i ++)
+    ol_sprintf(str, "%s = %.6f", result->trr_strResponse,
+            result->trr_trrcConstant.trrc_dbCoef);
+    for (i = 0; i < result->trr_nCoef; i ++)
     {
-        if (result->rr_prrcCoef[i].rrc_dbCoef >= 0.0)
+        if (result->trr_ptrrcCoef[i].trrc_dbCoef >= 0.0)
             ol_strcat(str, " + ");
         else
             ol_strcat(str, " - ");
-        ol_sprintf(strt, "%.6f", fabs(result->rr_prrcCoef[i].rrc_dbCoef));
+        ol_sprintf(strt, "%.6f", fabs(result->trr_ptrrcCoef[i].trrc_dbCoef));
         ol_strcat(str, strt);
         ol_strcat(str, " ");
-        ol_strcat(str, result->rr_prrcCoef[i].rrc_strPredictor);
+        ol_strcat(str, result->trr_ptrrcCoef[i].trrc_strPredictor);
     }
     jf_clieng_outputLine("%s\n\n", str);
 
     jf_clieng_printHeader(ls_jccRaResultCoefBrief,
              sizeof(ls_jccRaResultCoefBrief) / sizeof(jf_clieng_caption_t));
-    _printRaResultCoefBrief(&result->rr_rrcConstant);
-    for (i = 0; i < result->rr_nCoef; i ++)
+    _printRaResultCoefBrief(&result->trr_trrcConstant);
+    for (i = 0; i < result->trr_nCoef; i ++)
     {
-        _printRaResultCoefBrief(&result->rr_prrcCoef[i]);        
+        _printRaResultCoefBrief(&result->trr_ptrrcCoef[i]);        
     }
 
 
     ol_sprintf(str, "\n\nS = %.5f   R-Sq = %.1f%%   R-Sq(adj) = %.1f%%",
-            result->rr_dbS, result->rr_dbRSq, result->rr_dbRSqAdj);
+            result->trr_dbS, result->trr_dbRSq, result->trr_dbRSqAdj);
     jf_clieng_outputRawLine(str);
 
     jf_clieng_outputLine("\n\nAnalysis of Variance\n");
@@ -737,14 +739,14 @@ void printRaResult(ra_result_t * result)
     jf_clieng_outputLine("\n\n");
     jf_clieng_printHeader(ls_jccRaResultCoefSeqSSBrief,
         sizeof(ls_jccRaResultCoefSeqSSBrief) / sizeof(jf_clieng_caption_t));
-    for (i = 0; i < result->rr_nCoef; i ++)
-        _printRaResultCoefSeqSSBrief(&result->rr_prrcCoef[i]);
+    for (i = 0; i < result->trr_nCoef; i ++)
+        _printRaResultCoefSeqSSBrief(&result->trr_ptrrcCoef[i]);
 
     jf_clieng_outputLine("\n\nUnusual Observations\n");
     jf_clieng_printHeader(ls_jccRaResultUnusualObservBrief,
         sizeof(ls_jccRaResultUnusualObservBrief) / sizeof(jf_clieng_caption_t));
-    for (i = 0; i < result->rr_nObserv; i ++)
-        _printRaResultUnusualObservBrief(&result->rr_prruoObserv[i]);
+    for (i = 0; i < result->trr_nObserv; i ++)
+        _printRaResultUnusualObservBrief(&result->trr_ptrruoObserv[i]);
 
 }
 

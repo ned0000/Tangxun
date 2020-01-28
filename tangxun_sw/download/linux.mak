@@ -15,7 +15,7 @@
 SONAME = tx_download
 
 # Source files
-SOURCES = downloaddata.c 
+SOURCES = tradesummary_netease.c tradedetail_sina.c
 
 # Jiutai source files
 JIUTAI_SRCS =

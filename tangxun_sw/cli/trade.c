@@ -24,7 +24,6 @@
 #include "jf_jiukun.h"
 
 #include "tx_stock.h"
-#include "tx_statarbitrage.h"
 #include "tx_env.h"
 #include "tx_model.h"
 #include "tx_persistency.h"
@@ -88,26 +87,26 @@ trade [-l] [-r] [-h] [-v]");
 }
 
 static u32 _throwStockIntoModel(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_model_t * model = NULL;
-    trade_pool_stock_t tps;
-    da_day_summary_t * end;
+    tx_trade_pool_stock_t ttps;
+    tx_ds_t * end;
 
     end = buffer + num - 1;
-    jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->dds_strDate);
+    jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->td_strDate);
 
     model = tx_model_getFirstModel();
     while (model != NULL)
     {
-        u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
+        u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &ttps, buffer, num);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
-            ol_strcpy(tps.tps_strModel, model->tm_strName);
-            u32Ret = getPoolStockInTradePersistency(&tps);
+            bzero(&ttps, sizeof(tx_trade_pool_stock_t));
+            ol_strcpy(ttps.ttps_strStock, stockinfo->tsi_strCode);
+            ol_strcpy(ttps.ttps_strModel, model->tm_strName);
+            u32Ret = tx_persistency_getPoolStock(&ttps);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 jf_logger_logInfoMsg("%s is already in pool", stockinfo->tsi_strCode);
@@ -117,12 +116,12 @@ static u32 _throwStockIntoModel(
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
-            ol_strcpy(tps.tps_strAddDate, end->dds_strDate);
-            ol_strcpy(tps.tps_strModel, model->tm_strName);
+            bzero(&ttps, sizeof(tx_trade_pool_stock_t));
+            ol_strcpy(ttps.ttps_strStock, stockinfo->tsi_strCode);
+            ol_strcpy(ttps.ttps_strAddDate, end->td_strDate);
+            ol_strcpy(ttps.ttps_strModel, model->tm_strName);
 
-            u32Ret = insertPoolStockIntoTradePersistency(&tps);
+            u32Ret = tx_persistency_insertPoolStock(&ttps);
         }
 
         model = tx_model_getNextModel(model);
@@ -133,12 +132,12 @@ static u32 _throwStockIntoModel(
 
 static u32 _tradeStocks(
     cli_trade_param_t * pctp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
-    da_day_summary_t * buffer, olint_t num)
+    tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = num;
 
-    u32Ret = readTradeDaySummaryWithFRoR(pstrDataDir, buffer, &total);
+    u32Ret = tx_ds_readDsWithFRoR(pstrDataDir, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _throwStockIntoModel(stockinfo, buffer, total);
@@ -154,12 +153,12 @@ static u32 _startTradeInStockPool(cli_trade_param_t * pctp, tx_cli_master_t * pt
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olint_t total = 400; //MAX_NUM_OF_DAY_SUMMARY;
-    da_day_summary_t * buffer = NULL;
+    tx_ds_t * buffer = NULL;
     tx_stock_info_t * stockinfo;
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(tx_ds_t) * total);
 
-    stockinfo = getFirstStockInfo();
+    stockinfo = tx_stock_getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -174,7 +173,7 @@ static u32 _startTradeInStockPool(cli_trade_param_t * pctp, tx_cli_master_t * pt
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            stockinfo = getNextStockInfo(stockinfo);
+            stockinfo = tx_stock_getNextStockInfo(stockinfo);
         }
     }
 
@@ -183,7 +182,7 @@ static u32 _startTradeInStockPool(cli_trade_param_t * pctp, tx_cli_master_t * pt
     return u32Ret;
 }
 
-static void _printTradingStockBrief(olint_t id, trade_pool_stock_t * info)
+static void _printTradingStockBrief(olint_t id, tx_trade_pool_stock_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccTradingStockBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -196,37 +195,37 @@ static void _printTradingStockBrief(olint_t id, trade_pool_stock_t * info)
     pcc++;
 
     /*TradeDate*/
-    ol_sprintf(strField, "%s", info->tps_strTradeDate);
+    ol_sprintf(strField, "%s", info->ttps_strTradeDate);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Stock*/
-    ol_sprintf(strField, "%s", info->tps_strStock);
+    ol_sprintf(strField, "%s", info->ttps_strStock);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Model*/
-    ol_sprintf(strField, "%s", info->tps_strModel);
+    ol_sprintf(strField, "%s", info->ttps_strModel);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Op*/
-    ol_sprintf(strField, "%s", info->tps_strOp);
+    ol_sprintf(strField, "%s", info->ttps_strOp);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Position*/
-    ol_sprintf(strField, "%s", info->tps_strPosition);
+    ol_sprintf(strField, "%s", info->ttps_strPosition);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Volume*/
-    ol_sprintf(strField, "%d", info->tps_nVolume);
+    ol_sprintf(strField, "%d", info->ttps_nVolume);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Price*/
-    ol_sprintf(strField, "%.2f", info->tps_dbPrice);
+    ol_sprintf(strField, "%.2f", info->ttps_dbPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -237,18 +236,18 @@ static u32 _listTradingStock(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
-    trade_pool_stock_t * ptps = NULL, * pStock = NULL;
+    tx_trade_pool_stock_t * pttps = NULL, * pStock = NULL;
 
-    count = getNumOfPoolStockInTradePersistency();
+    count = tx_persistency_getNumOfPoolStock();
     jf_clieng_outputLine("Total %u trading stocks.", count);
 
     if (count == 0)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&ptps, count * sizeof(trade_pool_stock_t));
+        (void **)&pttps, count * sizeof(tx_trade_pool_stock_t));
 
-    u32Ret = getAllPoolStockInTradePersistency(ptps, &count);
+    u32Ret = tx_persistency_getAllPoolStock(pttps, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
     {
         if (pctp->ctp_bVerbose)
@@ -261,7 +260,7 @@ static u32 _listTradingStock(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
             jf_clieng_printHeader(
                 ls_ccTradingStockBrief,
                 sizeof(ls_ccTradingStockBrief) / sizeof(jf_clieng_caption_t));
-            pStock = ptps;
+            pStock = pttps;
             for (index = 0; index < count; index ++)
             {
                 _printTradingStockBrief(index + 1, pStock);
@@ -271,12 +270,12 @@ static u32 _listTradingStock(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
         }
     }
 
-    jf_jiukun_freeMemory((void **)&ptps);
+    jf_jiukun_freeMemory((void **)&pttps);
 
     return u32Ret;
 }
 
-static void _printTradingRecordBrief(olint_t id, trade_trading_record_t * info)
+static void _printTradingRecordBrief(olint_t id, tx_trade_trading_record_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccTradingRecordBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -289,49 +288,49 @@ static void _printTradingRecordBrief(olint_t id, trade_trading_record_t * info)
     pcc++;
 
     /*Stock*/
-    ol_sprintf(strField, "%s", info->ttr_strStock);
+    ol_sprintf(strField, "%s", info->tttr_strStock);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Model*/
-    ol_sprintf(strField, "%s", info->ttr_strModel);
+    ol_sprintf(strField, "%s", info->tttr_strModel);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*TradeDate*/
-    ol_sprintf(strField, "%s", info->ttr_strTradeDate);
+    ol_sprintf(strField, "%s", info->tttr_strTradeDate);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Op*/
-    ol_sprintf(strField, "%s", info->ttr_strOp);
+    ol_sprintf(strField, "%s", info->tttr_strOp);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Remark*/
-    ol_sprintf(strField, "%s", info->ttr_strOpRemark);
+    ol_sprintf(strField, "%s", info->tttr_strOpRemark);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Position*/
-    ol_sprintf(strField, "%s", info->ttr_strPosition);
+    ol_sprintf(strField, "%s", info->tttr_strPosition);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Volume*/
-    ol_sprintf(strField, "%d", info->ttr_nVolume);
+    ol_sprintf(strField, "%d", info->tttr_nVolume);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Price*/
-    ol_sprintf(strField, "%.2f", info->ttr_dbPrice);
+    ol_sprintf(strField, "%.2f", info->tttr_dbPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     jf_clieng_outputLine(strInfo);
 }
 
-static void _printTradingRecordVerbose(olint_t id, trade_trading_record_t * info)
+static void _printTradingRecordVerbose(olint_t id, tx_trade_trading_record_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccTradingRecordVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -347,36 +346,36 @@ static void _printTradingRecordVerbose(olint_t id, trade_trading_record_t * info
     pcc += 1;
 
     /*Stock*/
-    ol_sprintf(strLeft, "%s", info->ttr_strStock);
-    ol_sprintf(strRight, "%s", info->ttr_strModel);
+    ol_sprintf(strLeft, "%s", info->tttr_strStock);
+    ol_sprintf(strRight, "%s", info->tttr_strModel);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*ModelParam*/
-    ol_snprintf(strLeft, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->ttr_strModelParam);
+    ol_snprintf(strLeft, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->tttr_strModelParam);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*AddDate*/
-    ol_sprintf(strLeft, "%s", info->ttr_strAddDate);
+    ol_sprintf(strLeft, "%s", info->tttr_strAddDate);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Op*/
-    ol_sprintf(strLeft, "%s", info->ttr_strOp);
-    ol_sprintf(strRight, "%s", info->ttr_strOpRemark);
+    ol_sprintf(strLeft, "%s", info->tttr_strOp);
+    ol_sprintf(strRight, "%s", info->tttr_strOpRemark);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*TradeDate*/
-    ol_sprintf(strLeft, "%s", info->ttr_strTradeDate);
-    ol_sprintf(strRight, "%s", info->ttr_strPosition);
+    ol_sprintf(strLeft, "%s", info->tttr_strTradeDate);
+    ol_sprintf(strRight, "%s", info->tttr_strPosition);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*Volume*/
-    ol_sprintf(strLeft, "%d", info->ttr_nVolume);
-    ol_sprintf(strRight, "%.2f", info->ttr_dbPrice);
+    ol_sprintf(strLeft, "%d", info->tttr_nVolume);
+    ol_sprintf(strRight, "%.2f", info->tttr_dbPrice);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
@@ -387,18 +386,18 @@ static u32 _listTradingRecord(cli_trade_param_t * pctp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
-    trade_trading_record_t * ptrr = NULL, * pRecord = NULL;
+    tx_trade_trading_record_t * ptrr = NULL, * pRecord = NULL;
 
-    count = getNumOfTradingRecordInTradePersistency();
+    count = tx_persistency_getNumOfTradingRecord();
     jf_clieng_outputLine("Total %u trading records.", count);
 
     if (count == 0)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&ptrr, count * sizeof(trade_trading_record_t));
+        (void **)&ptrr, count * sizeof(tx_trade_trading_record_t));
 
-    u32Ret = getAllTradingRecordInTradePersistency(ptrr, &count);
+    u32Ret = tx_persistency_getAllTradingRecord(ptrr, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
     {
         if (pctp->ctp_bVerbose)

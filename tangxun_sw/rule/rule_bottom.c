@@ -27,19 +27,19 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static boolean_t _isInBottomArea(da_day_summary_t * buffer, int total, double maxuprate)
+static boolean_t _isInBottomArea(tx_ds_t * buffer, int total, double maxuprate)
 {
     boolean_t bRet = TRUE;
-    da_day_summary_t * low;
+    tx_ds_t * low;
     double dbInc;
-    da_day_summary_t * cur = buffer + total - 1;
+    tx_ds_t * cur = buffer + total - 1;
 
     if (total == 0)
         return bRet;
 
-    low = getDaySummaryWithLowestClosingPrice(buffer, total);
+    low = tx_ds_getDsWithLowestClosingPrice(buffer, total);
 
-    dbInc = (cur->dds_dbClosingPrice - low->dds_dbClosingPrice) * 100 / low->dds_dbClosingPrice;
+    dbInc = (cur->td_dbClosingPrice - low->td_dbClosingPrice) * 100 / low->td_dbClosingPrice;
     if (dbInc > maxuprate)
         bRet = FALSE;
 
@@ -48,11 +48,11 @@ static boolean_t _isInBottomArea(da_day_summary_t * buffer, int total, double ma
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleInBottomArea(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleInBottomArea(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    tx_rule_in_bottom_area_param_t * param = (tx_rule_in_bottom_area_param_t *)ptrp;
+    tx_rule_in_bottom_area_param_t * param = pParam;
 
     if (! _isInBottomArea(buffer, total, param->tribap_u8Threshold))
         u32Ret = JF_ERR_NOT_MATCH;

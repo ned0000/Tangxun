@@ -30,8 +30,8 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 static u32 _saveOneLine(
-    fix_param_t * pfp, olchar_t * line,
-    olsize_t llen, olchar_t * time, jf_file_t fdt, fix_result_t * pResult)
+    tx_fixdata_param_t * ptfp, olchar_t * line,
+    olsize_t llen, olchar_t * time, jf_file_t fdt, tx_fixdata_result_t * pResult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * result;
@@ -93,14 +93,14 @@ static u32 _saveOneLine(
         if (action == SAVE_LINE)
             jf_file_writen(fdt, line, llen);
         else if (action == DELETE_LINE)
-            pResult->fr_nDeletedLine ++;
+            pResult->tfr_nDeletedLine ++;
     }
 
     return u32Ret;
 }
 
 static u32 _verifyFirstLine(
-    fix_param_t * pfp, olchar_t * line, olsize_t size, olchar_t * time)
+    tx_fixdata_param_t * ptfp, olchar_t * line, olsize_t size, olchar_t * time)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -115,7 +115,8 @@ static u32 _verifyFirstLine(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
+u32 tx_fixdata_fixDataFile(
+    olchar_t * file, tx_fixdata_param_t * ptfp, tx_fixdata_result_t * pResult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_t fd;
@@ -153,10 +154,10 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _verifyFirstLine(pfp, line, llen, strTime);
+        u32Ret = _verifyFirstLine(ptfp, line, llen, strTime);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, pResult);
+        u32Ret = _saveOneLine(ptfp, line, llen, strTime, fdt, pResult);
 
     while (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -164,7 +165,7 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
         u32Ret = jf_file_readLine(fd, line, &llen);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _saveOneLine(pfp, line, llen, strTime, fdt, pResult);
+            u32Ret = _saveOneLine(ptfp, line, llen, strTime, fdt, pResult);
         }
     } 
 
@@ -176,7 +177,7 @@ u32 fixDataFile(olchar_t * file, fix_param_t * pfp, fix_result_t * pResult)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (pfp->fp_bOverwrite)
+        if (ptfp->tfp_bOverwrite)
         {
             jf_file_remove(file);
             jf_file_rename(filename, file);

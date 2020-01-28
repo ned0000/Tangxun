@@ -191,7 +191,7 @@ parse [-e stock] [-t threshold] \n\
     return u32Ret;
 }
 
-static void _printTradeDayDetailBrief(da_day_result_t * cur)
+static void _printTradeDayDetailBrief(tx_dr_t * cur)
 {
     jf_clieng_caption_t * pcc = &ls_ccTradeDayDetailBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -199,47 +199,47 @@ static void _printTradeDayDetailBrief(da_day_result_t * cur)
     strInfo[0] = '\0';
 
     /* Day */
-    ol_sprintf(strField, "%d", cur->ddr_nIndex);
+    ol_sprintf(strField, "%d", cur->td_nIndex);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Date */
-    jf_clieng_appendBriefColumn(pcc, strInfo, cur->ddr_strDate);
+    jf_clieng_appendBriefColumn(pcc, strInfo, cur->td_strDate);
     pcc++;
 
     /* Buy */
     ol_sprintf(
         strField, "%llu",
-        cur->ddr_u64Buy + cur->ddr_u64CloseHighLimitSold + cur->ddr_u64CloseHighLimitLambSold);
+        cur->td_u64Buy + cur->td_u64CloseHighLimitSold + cur->td_u64CloseHighLimitLambSold);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Sold */
     ol_sprintf(
         strField, "%llu",
-        cur->ddr_u64Sold + cur->ddr_u64CloseLowLimitBuy + cur->ddr_u64CloseLowLimitLambBuy);
+        cur->td_u64Sold + cur->td_u64CloseLowLimitBuy + cur->td_u64CloseLowLimitLambBuy);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* LambBuy */
-    ol_sprintf(strField, "%llu", cur->ddr_u64LambBuy);
+    ol_sprintf(strField, "%llu", cur->td_u64LambBuy);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* LambSold */
-    ol_sprintf(strField, "%llu", cur->ddr_u64LambSold);
+    ol_sprintf(strField, "%llu", cur->td_u64LambSold);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* ClosePriceInc */
-    ol_sprintf(strField, "%.2f", cur->ddr_dbClosingPriceInc - cur->ddr_dbClosingPriceDec);
+    ol_sprintf(strField, "%.2f", cur->td_dbClosingPriceInc - cur->td_dbClosingPriceDec);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     jf_clieng_outputLine(strInfo);
 }
 
-static void _printTradeDayDetailVerbose(da_day_result_t * result)
+static void _printTradeDayDetailVerbose(tx_dr_t * result)
 {
     jf_clieng_caption_t * pcc = &ls_ccDataVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -247,196 +247,196 @@ static void _printTradeDayDetailVerbose(da_day_result_t * result)
     jf_clieng_printDivider();
 
     /*Day*/
-    ol_sprintf(strLeft, "%d", result->ddr_nIndex);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, result->ddr_strDate);
+    ol_sprintf(strLeft, "%d", result->td_nIndex);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, result->td_strDate);
     pcc += 2;
 
     /*OpeningPrice*/
-    ol_sprintf(strLeft, "%.2f", result->ddr_dbOpeningPrice);
-    ol_sprintf(strRight, "%.2f", result->ddr_dbClosingPrice);
+    ol_sprintf(strLeft, "%.2f", result->td_dbOpeningPrice);
+    ol_sprintf(strRight, "%.2f", result->td_dbClosingPrice);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*HighPrice*/
-    ol_sprintf(strLeft, "%.2f", result->ddr_dbHighPrice);
-    ol_sprintf(strRight, "%.2f", result->ddr_dbLowPrice);
+    ol_sprintf(strLeft, "%.2f", result->td_dbHighPrice);
+    ol_sprintf(strRight, "%.2f", result->td_dbLowPrice);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*ClosingPriceInc*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbClosingPriceInc);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbClosingPriceDec);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbClosingPriceInc);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbClosingPriceDec);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*HighPriceInc*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbHighPriceInc);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbLowPriceDec);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbHighPriceInc);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbLowPriceDec);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseHighLimit*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->ddr_bCloseHighLimit));
-    jf_clieng_printTwoHalfLine(pcc, strLeft, result->ddr_strTimeCloseHighLimit);
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->td_bCloseHighLimit));
+    jf_clieng_printTwoHalfLine(pcc, strLeft, result->td_strTimeCloseHighLimit);
     pcc += 2;
 
     /*CloseLowLimit*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->ddr_bCloseLowLimit));
-    jf_clieng_printTwoHalfLine(pcc, strLeft, result->ddr_strTimeCloseLowLimit);
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->td_bCloseLowLimit));
+    jf_clieng_printTwoHalfLine(pcc, strLeft, result->td_strTimeCloseLowLimit);
     pcc += 2;
 
     /*Gap*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->ddr_bGap));
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(result->td_bGap));
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*All*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64All);
+    ol_sprintf(strLeft, "%llu", result->td_u64All);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Buy*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64Buy);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbBuyPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64Buy);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbBuyPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*PercentOfBuyInAM*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbBuyInAmPercent);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbBuyInAmPercent);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Sold*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64Sold);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbSoldPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64Sold);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbSoldPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*PercentOfSoldInAM*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbSoldInAmPercent);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbSoldInAmPercent);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*LambBuy*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64LambBuy);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbLambBuyPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64LambBuy);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbLambBuyPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*PercentOfLambBuyBelow100*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbLambBuyBelow100Percent);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbLambBuyBelow100Percent);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*LambSold*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64LambSold);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbLambSoldPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64LambSold);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbLambSoldPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*PercentOfLambSoldBelow100*/
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbLambSoldBelow100Percent);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbLambSoldBelow100Percent);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*Na*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64Na);
-    ol_sprintf(strRight, "%llu", result->ddr_u64LambNa);
+    ol_sprintf(strLeft, "%llu", result->td_u64Na);
+    ol_sprintf(strRight, "%llu", result->td_u64LambNa);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*AboveLastClosingPrice*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64AboveLastClosingPrice);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbAboveLastClosingPricePercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64AboveLastClosingPrice);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbAboveLastClosingPricePercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseHighLimitSold*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseHighLimitSold);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbCloseHighLimitSoldPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseHighLimitSold);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbCloseHighLimitSoldPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseHighLimitLambSold*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseHighLimitLambSold);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbCloseHighLimitLambSoldPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseHighLimitLambSold);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbCloseHighLimitLambSoldPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseLowLimitBuy*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseLowLimitBuy);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbCloseLowLimitBuyPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseLowLimitBuy);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbCloseLowLimitBuyPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseLowLimitLambBuy*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseLowLimitLambBuy);
-    ol_sprintf(strRight, "%.2f%%", result->ddr_dbCloseLowLimitLambBuyPercent);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseLowLimitLambBuy);
+    ol_sprintf(strRight, "%.2f%%", result->td_dbCloseLowLimitLambBuyPercent);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*VolumeRatio*/
-    ol_sprintf(strLeft, "%.2f", result->ddr_dbVolumeRatio);
+    ol_sprintf(strLeft, "%.2f", result->td_dbVolumeRatio);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*SoldVolumeRatio*/
-    ol_sprintf(strLeft, "%.2f", result->ddr_dbSoldVolumeRatio);
-    ol_sprintf(strRight, "%.2f", result->ddr_dbLambSoldVolumeRatio);
+    ol_sprintf(strLeft, "%.2f", result->td_dbSoldVolumeRatio);
+    ol_sprintf(strRight, "%.2f", result->td_dbLambSoldVolumeRatio);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*AllA*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64AllA);
+    ol_sprintf(strLeft, "%llu", result->td_u64AllA);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*BuyA*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64BuyA);
-    ol_sprintf(strRight, "%llu", result->ddr_u64SoldA);
+    ol_sprintf(strLeft, "%llu", result->td_u64BuyA);
+    ol_sprintf(strRight, "%llu", result->td_u64SoldA);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*LambBuyA*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64LambBuyA);
-    ol_sprintf(strRight, "%llu", result->ddr_u64LambSoldA);
+    ol_sprintf(strLeft, "%llu", result->td_u64LambBuyA);
+    ol_sprintf(strRight, "%llu", result->td_u64LambSoldA);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseHighLimitSoldA*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseHighLimitSoldA);
-    ol_sprintf(strRight, "%llu", result->ddr_u64CloseHighLimitLambSoldA);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseHighLimitSoldA);
+    ol_sprintf(strRight, "%llu", result->td_u64CloseHighLimitLambSoldA);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseLowLimitBuyA*/
-    ol_sprintf(strLeft, "%llu", result->ddr_u64CloseLowLimitBuyA);
-    ol_sprintf(strRight, "%llu", result->ddr_u64CloseLowLimitLambBuyA);
+    ol_sprintf(strLeft, "%llu", result->td_u64CloseLowLimitBuyA);
+    ol_sprintf(strRight, "%llu", result->td_u64CloseLowLimitLambBuyA);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*UpperShadowRatio*/
-    ol_sprintf(strLeft, "%.2f", result->ddr_dbUpperShadowRatio);
-    ol_sprintf(strRight, "%.2f", result->ddr_dbLowerShadowRatio);
+    ol_sprintf(strLeft, "%.2f", result->td_dbUpperShadowRatio);
+    ol_sprintf(strRight, "%.2f", result->td_dbLowerShadowRatio);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /* LastTimeOfLowPrice */
-    ol_sprintf(strRight, "%.2f", result->ddr_dbLastXLowPrice);
-    jf_clieng_printTwoHalfLine(pcc, result->ddr_strLastTimeLowPrice, strRight);
+    ol_sprintf(strRight, "%.2f", result->td_dbLastXLowPrice);
+    jf_clieng_printTwoHalfLine(pcc, result->td_strLastTimeLowPrice, strRight);
     pcc += 2;
 
     /* LastLowPriceInc */
-    ol_sprintf(strLeft, "%.2f%%", result->ddr_dbLastXInc);
+    ol_sprintf(strLeft, "%.2f%%", result->td_dbLastXInc);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
 }
 
 static void _printTradeDetailFile(
-    cli_parse_param_t * pcpp, da_day_result_t * buffer, olint_t total)
+    cli_parse_param_t * pcpp, tx_dr_t * buffer, olint_t total)
 {
-    da_day_result_t * cur;
+    tx_dr_t * cur;
     olint_t i;
 
     if (! pcpp->cpp_bVerbose)
@@ -465,32 +465,32 @@ static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = MAX_NUM_OF_TRADE_DETAIL_FILE;
-    da_day_result_t * buffer = NULL;
-    parse_param_t pp;
+    tx_dr_t * buffer = NULL;
+    tx_dr_parse_param_t tdpp;
     olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
     tx_stock_info_t * stockinfo;
 
-    u32Ret = jf_mem_alloc((void **)&buffer, sizeof(da_day_result_t) * total);
+    u32Ret = jf_mem_alloc((void **)&buffer, sizeof(tx_dr_t) * total);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = getStockInfo(pcpp->cpp_pstrStock, &stockinfo);
+    u32Ret = tx_stock_getStockInfo(pcpp->cpp_pstrStock, &stockinfo);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&pp, 0, sizeof(pp));
-        pp.pp_nThres = pcpp->cpp_nThres;
-        if (pp.pp_nThres == 0)
-            pp.pp_nThres = getStockShareThres(stockinfo);
-        pp.pp_nStart = 1; //pcpp->cpp_nStart;
-        pp.pp_nEnd = pp.pp_nStart + total - 1; //pcpp->cpp_nEnd;
-        pp.pp_nLastCount = pcpp->cpp_nLastCount;
-        pp.pp_pstrDateFrom = pcpp->cpp_pstrDate;
-        ol_strcpy(pp.pp_strLastX, "14:45:00");
+        memset(&tdpp, 0, sizeof(tdpp));
+        tdpp.tdpp_nThres = pcpp->cpp_nThres;
+        if (tdpp.tdpp_nThres == 0)
+            tdpp.tdpp_nThres = tx_stock_getStockShareThres(stockinfo);
+        tdpp.tdpp_nStart = 1; //pcpp->cpp_nStart;
+        tdpp.tdpp_nEnd = tdpp.tdpp_nStart + total - 1; //pcpp->cpp_nEnd;
+        tdpp.tdpp_nLastCount = pcpp->cpp_nLastCount;
+        tdpp.tdpp_pstrDateFrom = pcpp->cpp_pstrDate;
+        ol_strcpy(tdpp.tdpp_strLastX, "14:45:00");
         ol_snprintf(
             dirpath, JF_LIMIT_MAX_PATH_LEN, "%s%c%s",
             tx_env_getVar(TX_ENV_VAR_DATA_PATH), PATH_SEPARATOR, pcpp->cpp_pstrStock);
 
-        u32Ret = readTradeDayDetail(dirpath, &pp, buffer, &total);
+        u32Ret = tx_dr_readDrDir(dirpath, &tdpp, buffer, &total);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -504,7 +504,7 @@ static u32 _readTradeDetailFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
     return u32Ret;
 }
 
-static void _printTradeDaySummaryBrief(da_day_summary_t * cur)
+static void _printTradeDaySummaryBrief(tx_ds_t * cur)
 {
     jf_clieng_caption_t * pcc = &ls_ccTradeDaySummaryBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -512,58 +512,58 @@ static void _printTradeDaySummaryBrief(da_day_summary_t * cur)
     strInfo[0] = '\0';
 
     /* Day */
-    ol_sprintf(strField, "%d", cur->dds_nIndex);
+    ol_sprintf(strField, "%d", cur->td_nIndex);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Date */
-    jf_clieng_appendBriefColumn(pcc, strInfo, cur->dds_strDate);
+    jf_clieng_appendBriefColumn(pcc, strInfo, cur->td_strDate);
     pcc++;
 
     /* OpeningPrice */
-    ol_sprintf(strField, "%.2f", cur->dds_dbOpeningPrice);
+    ol_sprintf(strField, "%.2f", cur->td_dbOpeningPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* ClosingPrice */
-    ol_sprintf(strField, "%.2f", cur->dds_dbClosingPrice);
+    ol_sprintf(strField, "%.2f", cur->td_dbClosingPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* HighPrice */
-    ol_sprintf(strField, "%.2f", cur->dds_dbHighPrice);
+    ol_sprintf(strField, "%.2f", cur->td_dbHighPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* LowPrice */
-    ol_sprintf(strField, "%.2f", cur->dds_dbLowPrice);
+    ol_sprintf(strField, "%.2f", cur->td_dbLowPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* ClosePriceRate */
-    ol_sprintf(strField, "%.2f", cur->dds_dbClosingPriceRate);
+    ol_sprintf(strField, "%.2f", cur->td_dbClosingPriceRate);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* GeneralCapital */
-    ol_sprintf(strField, "%lld", cur->dds_u64GeneralCapital);
+    ol_sprintf(strField, "%lld", cur->td_u64GeneralCapital);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* TradableShare */
-    ol_sprintf(strField, "%lld", cur->dds_u64TradableShare);
+    ol_sprintf(strField, "%lld", cur->td_u64TradableShare);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Status*/
-    getStringDaySummaryStatus(cur, strField);
+    tx_ds_getStringDsStatus(cur, strField);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     jf_clieng_outputLine(strInfo);
 }
 
-static void _printDaDaySummaryVerbose(da_day_summary_t * summary)
+static void _printDaDaySummaryVerbose(tx_ds_t * summary)
 {
     jf_clieng_caption_t * pcc = &ls_ccDaySummaryVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -571,88 +571,88 @@ static void _printDaDaySummaryVerbose(da_day_summary_t * summary)
     jf_clieng_printDivider();
 
     /*Day*/
-    ol_sprintf(strLeft, "%d", summary->dds_nIndex);
-    jf_clieng_printTwoHalfLine(pcc, strLeft, summary->dds_strDate);
+    ol_sprintf(strLeft, "%d", summary->td_nIndex);
+    jf_clieng_printTwoHalfLine(pcc, strLeft, summary->td_strDate);
     pcc += 2;
 
     /*OpeningPrice*/
-    ol_sprintf(strLeft, "%.2f", summary->dds_dbOpeningPrice);
-    ol_sprintf(strRight, "%.2f", summary->dds_dbClosingPrice);
+    ol_sprintf(strLeft, "%.2f", summary->td_dbOpeningPrice);
+    ol_sprintf(strRight, "%.2f", summary->td_dbClosingPrice);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*HighPrice*/
-    ol_sprintf(strLeft, "%.2f", summary->dds_dbHighPrice);
-    ol_sprintf(strRight, "%.2f", summary->dds_dbLowPrice);
+    ol_sprintf(strLeft, "%.2f", summary->td_dbHighPrice);
+    ol_sprintf(strRight, "%.2f", summary->td_dbLowPrice);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*LastClosingPrice*/
-    ol_sprintf(strLeft, "%.2f", summary->dds_dbLastClosingPrice);
+    ol_sprintf(strLeft, "%.2f", summary->td_dbLastClosingPrice);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*ClosingPriceRate*/
-    ol_sprintf(strLeft, "%.2f%%", summary->dds_dbClosingPriceRate);
-    ol_sprintf(strRight, "%.2f%%", summary->dds_dbHighPriceRate);
+    ol_sprintf(strLeft, "%.2f%%", summary->td_dbClosingPriceRate);
+    ol_sprintf(strRight, "%.2f%%", summary->td_dbHighPriceRate);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*CloseHighLimit*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->dds_bCloseHighLimit));
-    ol_sprintf(strRight, "%s", jf_string_getStringPositive(summary->dds_bCloseLowLimit));
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->td_bCloseHighLimit));
+    ol_sprintf(strRight, "%s", jf_string_getStringPositive(summary->td_bCloseLowLimit));
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*HighHighLimit*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->dds_bHighHighLimit));
-    ol_sprintf(strRight, "%s", jf_string_getStringPositive(summary->dds_bLowLowLimit));
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->td_bHighHighLimit));
+    ol_sprintf(strRight, "%s", jf_string_getStringPositive(summary->td_bLowLowLimit));
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*Gap*/
-    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->dds_bGap));
+    ol_sprintf(strLeft, "%s", jf_string_getStringPositive(summary->td_bGap));
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*All*/
-    ol_sprintf(strLeft, "%llu", summary->dds_u64All);
-    ol_sprintf(strRight, "%.2f", summary->dds_dbVolumeRatio);
+    ol_sprintf(strLeft, "%llu", summary->td_u64All);
+    ol_sprintf(strRight, "%.2f", summary->td_dbVolumeRatio);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*TurnoverRate*/
-    ol_sprintf(strLeft, "%.2f", summary->dds_dbTurnoverRate);
+    ol_sprintf(strLeft, "%.2f", summary->td_dbTurnoverRate);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*AllA*/
-    ol_sprintf(strLeft, "%llu", summary->dds_u64AllA);
+    ol_sprintf(strLeft, "%llu", summary->td_u64AllA);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
     /*UpperShadowRatio*/
-    ol_sprintf(strLeft, "%.2f", summary->dds_dbUpperShadowRatio);
-    ol_sprintf(strRight, "%.2f", summary->dds_dbLowerShadowRatio);
+    ol_sprintf(strLeft, "%.2f", summary->td_dbUpperShadowRatio);
+    ol_sprintf(strRight, "%.2f", summary->td_dbLowerShadowRatio);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*GeneralCapital*/
-    ol_sprintf(strLeft, "%lld", summary->dds_u64GeneralCapital);
-    ol_sprintf(strRight, "%lld", summary->dds_u64TradableShare);
+    ol_sprintf(strLeft, "%lld", summary->td_u64GeneralCapital);
+    ol_sprintf(strRight, "%lld", summary->td_u64TradableShare);
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
     /*Status*/
-    getStringDaySummaryStatus(summary, strLeft);
+    tx_ds_getStringDsStatus(summary, strLeft);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 }
 
 static void _printTradeDaySummary(
-    cli_parse_param_t * pcpp, da_day_summary_t * buffer, olint_t total)
+    cli_parse_param_t * pcpp, tx_ds_t * buffer, olint_t total)
 {
-    da_day_summary_t * cur;
+    tx_ds_t * cur;
     olint_t i;
 
     if (! pcpp->cpp_bVerbose)
@@ -681,13 +681,13 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 400; //MAX_NUM_OF_RESULT;
-    da_day_summary_t * buffer = NULL;
+    tx_ds_t * buffer = NULL;
     olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
 
     if (pcpp->cpp_nLastCount != 0)
         total = pcpp->cpp_nLastCount;
 
-    u32Ret = jf_mem_alloc((void **)&buffer, sizeof(da_day_summary_t) * total);
+    u32Ret = jf_mem_alloc((void **)&buffer, sizeof(tx_ds_t) * total);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
@@ -698,24 +698,24 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm
 	if (pcpp->cpp_bFRoR)
     {
         if (pcpp->cpp_bStartDate)
-            u32Ret = readTradeDaySummaryFromDateWithFRoR(
+            u32Ret = tx_ds_readDsFromDateWithFRoR(
                 dirpath, pcpp->cpp_pstrDate, buffer, &total);
         else if (pcpp->cpp_bEndDate)
-            u32Ret = readTradeDaySummaryUntilDateWithFRoR(
+            u32Ret = tx_ds_readDsUntilDateWithFRoR(
                 dirpath, pcpp->cpp_pstrDate, pcpp->cpp_u32Count, buffer, &total);
         else
-            u32Ret = readTradeDaySummaryWithFRoR(dirpath, buffer, &total);
+            u32Ret = tx_ds_readDsWithFRoR(dirpath, buffer, &total);
     }
 	else
     {
         if (pcpp->cpp_bStartDate)
-            u32Ret = readTradeDaySummaryFromDate(
+            u32Ret = tx_ds_readDsFromDate(
                 dirpath, pcpp->cpp_pstrDate, buffer, &total);
         else if (pcpp->cpp_bEndDate)
-            u32Ret = readTradeDaySummaryUntilDate(
+            u32Ret = tx_ds_readDsUntilDate(
                 dirpath, pcpp->cpp_pstrDate, pcpp->cpp_u32Count, buffer, &total);
         else
-            u32Ret = readTradeDaySummary(dirpath, buffer, &total);
+            u32Ret = tx_ds_readDs(dirpath, buffer, &total);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -728,7 +728,7 @@ static u32 _readTradeSummaryFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm
     return u32Ret;
 }
 
-static void _printQuoEntryBrief(quo_entry_t * entry)
+static void _printQuoEntryBrief(tx_quo_entry_t * entry)
 {
     jf_clieng_caption_t * pcc = &ls_ccQuoEntryBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -736,32 +736,32 @@ static void _printQuoEntryBrief(quo_entry_t * entry)
     strInfo[0] = '\0';
 
     /* time */
-    ol_sprintf(strField, "%s", entry->qe_strTime);
+    ol_sprintf(strField, "%s", entry->tqe_strTime);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* CurP */
-    ol_sprintf(strField, "%.2f", entry->qe_dbCurPrice);
+    ol_sprintf(strField, "%.2f", entry->tqe_dbCurPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* HighP */
-    ol_sprintf(strField, "%.2f", entry->qe_dbHighPrice);
+    ol_sprintf(strField, "%.2f", entry->tqe_dbHighPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* LowP */
-    ol_sprintf(strField, "%.2f", entry->qe_dbLowPrice);
+    ol_sprintf(strField, "%.2f", entry->tqe_dbLowPrice);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Volumn */
-    ol_sprintf(strField, "%llu", entry->qe_u64Volume);
+    ol_sprintf(strField, "%llu", entry->tqe_u64Volume);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /* Amount */
-    ol_sprintf(strField, "%.2f", entry->qe_dbAmount);
+    ol_sprintf(strField, "%.2f", entry->tqe_dbAmount);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -796,7 +796,7 @@ static void _printStockQuoVerbose(stock_quo_t * psq)
     jf_clieng_outputLine("");
 }
 
-static void _analysisStockQuo(stock_quo_t * pstockquo, quo_entry_t ** pqe, olint_t total)
+static void _analysisStockQuo(stock_quo_t * pstockquo, tx_quo_entry_t ** ptqe, olint_t total)
 {
 //    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
@@ -804,31 +804,31 @@ static void _analysisStockQuo(stock_quo_t * pstockquo, quo_entry_t ** pqe, olint
     olint_t start, end;
 
     jf_clieng_outputLine(
-        "%s, %.2f, %lld", pqe[0]->qe_strTime, pqe[0]->qe_dbCurPrice, pqe[0]->qe_u64Volume);
-    u64Vol = pqe[0]->qe_u64Volume;
+        "%s, %.2f, %lld", ptqe[0]->tqe_strTime, ptqe[0]->tqe_dbCurPrice, ptqe[0]->tqe_u64Volume);
+    u64Vol = ptqe[0]->tqe_u64Volume;
     for (i = 1; i < total; i ++)
     {
-        if (pqe[i]->qe_dbCurPrice > pqe[i - 1]->qe_dbCurPrice)
+        if (ptqe[i]->tqe_dbCurPrice > ptqe[i - 1]->tqe_dbCurPrice)
         {
-            u64Vol = u64Vol + (pqe[i]->qe_u64Volume - pqe[i - 1]->qe_u64Volume);
+            u64Vol = u64Vol + (ptqe[i]->tqe_u64Volume - ptqe[i - 1]->tqe_u64Volume);
         }
         else
         {
-            u64Vol = u64Vol - (pqe[i]->qe_u64Volume - pqe[i - 1]->qe_u64Volume);
+            u64Vol = u64Vol - (ptqe[i]->tqe_u64Volume - ptqe[i - 1]->tqe_u64Volume);
         }
-        jf_clieng_outputLine("%s, %.2f, %lld", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice, u64Vol);
+        jf_clieng_outputLine("%s, %.2f, %lld", ptqe[i]->tqe_strTime, ptqe[i]->tqe_dbCurPrice, u64Vol);
     }
 
     jf_clieng_outputLine("");
     start = 0;
-    jf_clieng_outputLine("%s, %.2f", pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice);
+    jf_clieng_outputLine("%s, %.2f", ptqe[start]->tqe_strTime, ptqe[start]->tqe_dbCurPrice);
     while (start < total)
     {
-        end = getNextTopBottomQuoEntry(pqe, total, start);
+        end = getNextTopBottomQuoEntry(ptqe, total, start);
 
         jf_clieng_outputLine(
-            "%s(%.2f) --> %s(%.2f)", pqe[start]->qe_strTime, pqe[start]->qe_dbCurPrice,
-            pqe[end]->qe_strTime, pqe[end]->qe_dbCurPrice);
+            "%s(%.2f) --> %s(%.2f)", ptqe[start]->tqe_strTime, ptqe[start]->tqe_dbCurPrice,
+            ptqe[end]->tqe_strTime, ptqe[end]->tqe_dbCurPrice);
 
         /*Do something from start to end*/
 
@@ -840,12 +840,12 @@ static void _analysisStockQuo(stock_quo_t * pstockquo, quo_entry_t ** pqe, olint
 
 #if 0
 static void _analysisStockQuo(
-    stock_quo_t * pstockquo, quo_entry_t ** pqe, olint_t total)
+    stock_quo_t * pstockquo, tx_quo_entry_t ** ptqe, olint_t total)
 {
     oldouble_t * pdba = NULL, * pdbb = NULL, dbr;
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, max;
-    quo_entry_t * start;
+    tx_quo_entry_t * start;
 
     jf_jiukun_allocMemory((void **)&pdba, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry);
     jf_jiukun_allocMemory((void **)&pdbb, sizeof(oldouble_t) * pstockquo->sq_nNumOfEntry);
@@ -853,17 +853,17 @@ static void _analysisStockQuo(
     for (i = 1; i < total; i ++)
     {
 
-        start = &pstockquo->sq_pqeEntry[2];
-        if (pqe[i] <= start)
+        start = &pstockquo->sq_ptqeEntry[2];
+        if (ptqe[i] <= start)
             dbr = 0;
         else
         {
-            max = pqe[i] - &pstockquo->sq_pqeEntry[1];
+            max = ptqe[i] - &pstockquo->sq_ptqeEntry[1];
 
             for (j = 0; j < max; j ++)
             {
-                pdba[j] = start->qe_dbCurPrice;
-                pdbb[j] = (oldouble_t)(start->qe_u64Volume - (start - 1)->qe_u64Volume);
+                pdba[j] = start->tqe_dbCurPrice;
+                pdbb[j] = (oldouble_t)(start->tqe_u64Volume - (start - 1)->tqe_u64Volume);
                 start ++;
 //                jf_clieng_outputLine("%.2f, %.2f", pdba[j], pdbb[j]);
             }
@@ -872,7 +872,7 @@ static void _analysisStockQuo(
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            jf_clieng_outputLine("%s, Price & Volumn: %.2f", pqe[i]->qe_strTime, dbr);
+            jf_clieng_outputLine("%s, Price & Volumn: %.2f", ptqe[i]->tqe_strTime, dbr);
         }
     }
 
@@ -886,15 +886,15 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total, i;
-    quo_entry_t ** pqe = NULL;
+    tx_quo_entry_t ** ptqe = NULL;
     stock_quo_t stockquo;
     tx_stock_info_t * stockinfo;
     olchar_t dirpath[JF_LIMIT_MAX_PATH_LEN];
-    quo_entry_t * entry;
+    tx_quo_entry_t * entry;
 
     memset(&stockquo, 0, sizeof(stock_quo_t));
 
-    u32Ret = getStockInfo(pcpp->cpp_pstrStock, &stockinfo);
+    u32Ret = tx_stock_getStockInfo(pcpp->cpp_pstrStock, &stockinfo);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         stockquo.sq_nMaxEntry = 3500; //4 * 60 * 60 / 6; /*6 items per minutes*/
@@ -903,7 +903,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
             ol_strcpy(stockquo.sq_strDate, pcpp->cpp_pstrDate);
 
         u32Ret = jf_mem_alloc(
-            (void **)&stockquo.sq_pqeEntry, sizeof(quo_entry_t) * stockquo.sq_nMaxEntry);
+            (void **)&stockquo.sq_ptqeEntry, sizeof(tx_quo_entry_t) * stockquo.sq_nMaxEntry);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -920,7 +920,7 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
         jf_clieng_printHeader(
             ls_ccQuoEntryBrief, sizeof(ls_ccQuoEntryBrief) / sizeof(jf_clieng_caption_t));
 
-        entry = stockquo.sq_pqeEntry;
+        entry = stockquo.sq_ptqeEntry;
         for (i = 0; i < stockquo.sq_nNumOfEntry; i++)
         {
             _printQuoEntryBrief(entry);
@@ -933,25 +933,25 @@ static u32 _readQuotationFile(cli_parse_param_t * pcpp, tx_cli_master_t * pdm)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         total = stockquo.sq_nNumOfEntry;
-        jf_jiukun_allocMemory((void **)&pqe, sizeof(quo_entry_t *) * total);
+        jf_jiukun_allocMemory((void **)&ptqe, sizeof(tx_quo_entry_t *) * total);
         jf_clieng_outputLine("");
-        getQuoEntryInflexionPoint(stockquo.sq_pqeEntry, stockquo.sq_nNumOfEntry, pqe, &total);
+        getQuoEntryInflexionPoint(stockquo.sq_ptqeEntry, stockquo.sq_nNumOfEntry, ptqe, &total);
         jf_clieng_outputLine("Total %d points", total);
 
         for (i = 0; i < total; i ++)
         {
-            jf_clieng_outputLine("%s %.2f", pqe[i]->qe_strTime, pqe[i]->qe_dbCurPrice);
+            jf_clieng_outputLine("%s %.2f", ptqe[i]->tqe_strTime, ptqe[i]->tqe_dbCurPrice);
         }
         jf_clieng_outputLine("");
 
-        _analysisStockQuo(&stockquo, pqe, total);
+        _analysisStockQuo(&stockquo, ptqe, total);
         jf_clieng_outputLine("");
 
-        jf_jiukun_freeMemory((void **)&pqe);
+        jf_jiukun_freeMemory((void **)&ptqe);
     }
 
-    if (stockquo.sq_pqeEntry != NULL)
-        jf_mem_free((void **)&stockquo.sq_pqeEntry);
+    if (stockquo.sq_ptqeEntry != NULL)
+        jf_mem_free((void **)&stockquo.sq_ptqeEntry);
 
     return u32Ret;
 }

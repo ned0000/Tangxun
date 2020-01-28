@@ -39,10 +39,11 @@
 #include "tx_rule.h"
 #include "tx_persistency.h"
 #include "tx_model.h"
+#include "tx_err.h"
+#include "tx_config.h"
 
 #include "clicmd.h"
 #include "main.h"
-
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -52,6 +53,10 @@ static const olchar_t * ls_pstrTxCliProgramName = "tx_cli";
 static const olchar_t * ls_pstrTxCliVersion = "1.0.0";
 static const olchar_t * ls_pstrTxCliBuildData = "7/21/2019";
 
+/** The directory includes library which contain model.
+ */
+#define MODEL_LIB_DIR "../lib/model"
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printTxCliUsage(void)
@@ -59,10 +64,11 @@ static void _printTxCliUsage(void)
     ol_printf("\
 Usage: %s [logger options] \n\
 logger options:\n\
-    -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
+    -T <0|1|2|3> the log level. 0: no log, 1: error, 2: warning, 3: info, 4: debug, 5: data.\n\
     -F <log file> the log file.\n\
+    -O output log to stdout.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_pstrTxCliProgramName);
+              ls_pstrTxCliProgramName);
 
     ol_printf("\n");
 
@@ -123,35 +129,46 @@ static u32 _initAndRunTxCli(tx_cli_master_t * ptcmCli, jf_clieng_init_param_t * 
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     da_cli_param_t dcpParam;
+    tx_stock_init_param_t tsipParam;
 
-        u32Ret = jf_clieng_init(pjcip);
+    u32Ret = jf_clieng_init(pjcip);
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initStockList();
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = tx_err_init();
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = tx_env_initPersistency();
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&tsipParam, sizeof(tsipParam));
+        tsipParam.tsip_pstrStockListFile = TX_CONFIG_STOCK_LIST_FILE;
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initTradePersistency();
+        u32Ret = tx_stock_init(&tsipParam);
+    }
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = tx_model_initModelFramework();
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = tx_env_initPersistency();
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = tx_rule_init();
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = tx_persistency_init();
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = addDaCmd(ptcmCli, &dcpParam);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = tx_model_initFramework(MODEL_LIB_DIR);
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_clieng_run();
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = tx_rule_init();
 
-        jf_clieng_fini();
-        tx_env_finiPersistency();
-        finiStockList();
-        tx_model_finiModelFramework();
-        tx_rule_fini();
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = addDaCmd(ptcmCli, &dcpParam);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_clieng_run();
+
+    jf_clieng_fini();
+    tx_env_finiPersistency();
+    tx_stock_fini();
+    tx_model_finiFramework();
+    tx_rule_fini();
+    tx_persistency_fini();
+    tx_err_fini();
 
     return u32Ret;
 }

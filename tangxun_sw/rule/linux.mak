@@ -16,7 +16,7 @@ SONAME = tx_rule
 
 # Source files
 SOURCES = rule_vol.c rule_vol.c rule_indi_macd.c rule_st.c rule_rectangle.c rule_limit.c \
-    rule_price.c rule_bottom.c rule_misc.c rule_line.c darule.c
+    rule_price.c rule_bottom.c rule_misc.c rule_line.c txrule.c
 
 # Jiutai source files
 JIUTAI_SRCS =

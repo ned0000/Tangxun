@@ -38,21 +38,23 @@ static u32 _fnHandleModelFile(
     jf_listhead_t * pjl = (jf_listhead_t *)pArg;
     olchar_t strName[128];
     
+    JF_LOGGER_DEBUG("path: %s", pstrFullpath);
+
     jf_file_getFileName(strName, sizeof(strName), pstrFullpath);
 
-    if (isDaModelLibFile(strName))
+    if (isTxModelLibFile(strName))
     {
-        handleDaModelLibFile(pstrFullpath, pStat, pjl);
+        handleTxModelLibFile(pstrFullpath, pStat, pjl);
     }
-    else if (isDaModelXmlFile(strName))
+    else if (isTxModelXmlFile(strName))
     {
-        handleDaModelXmlFile(pstrFullpath, pStat, pjl);
+        handleTxModelXmlFile(pstrFullpath, pStat, pjl);
     }
 
     return u32Ret;
 }
 
-static u32 _parseModelDir(jf_listhead_t * pjl, const char * pstrLibDir)
+static u32 _parseModelDir(jf_listhead_t * pjl, const olchar_t * pstrLibDir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -63,7 +65,7 @@ static u32 _parseModelDir(jf_listhead_t * pjl, const char * pstrLibDir)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 addDaModel(jf_listhead_t * pjl, const char * pstrLibDir)
+u32 addDaModel(jf_listhead_t * pjl, const olchar_t * pstrLibDir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -85,7 +87,7 @@ u32 removeDaModel(jf_listhead_t * pjl)
 
         ptm->tm_fnFiniModel(ptm);
 
-        destroyDaModel(&ptm);
+        destroyTxModel(&ptm);
     }
 
     return u32Ret;

@@ -20,7 +20,6 @@
 #include "jf_listhead.h"
 #include "jf_string.h"
 #include "jf_file.h"
-#include "jf_mem.h"
 #include "jf_jiukun.h"
 #include "jf_process.h"
 
@@ -44,9 +43,9 @@ SH, SZ index if no option is specified.\n\
 download [-s stock] [-e] [-i] [-d dir] [-o]\n\
     [-f first-date] [-l last-date] [-t count] [-p sleep-second] ");
     jf_clieng_outputRawLine2("\
-  -s: download the specified stock. By default, download trade summary.\n\
+  -s: Specify the stock to download data. By default, download trade summary.\n\
   -e: download trade detail.\n\
-  -i: download index.\n\
+  -i: download trade summary of all index.\n\
   -d: directory containing data.");
     jf_clieng_outputRawLine2("\
   -t: iterative count.\n\
@@ -63,27 +62,26 @@ download [-s stock] [-e] [-i] [-d dir] [-o]\n\
 static u32 _dlStock(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    tx_download_data_param_t tddp;
+    tx_download_trade_summary_param_t tdtsp;
 
     if (pcdp->cdp_pstrStock == NULL)
     {
-        memset(&tddp, 0, sizeof(tddp));
+        memset(&tdtsp, 0, sizeof(tdtsp));
 
-        tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-        tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
+        tdtsp.tdtsp_pstrDataDir = pcdp->cdp_pstrDataDir;
+        tdtsp.tdtsp_bOverwrite = pcdp->cdp_bOverwrite;
 
-        tx_download_dlStockIndex(&tddp);
+        tx_download_dlIndexTradeSummary(&tdtsp);
     }
 
-    memset(&tddp, 0, sizeof(tddp));
+    memset(&tdtsp, 0, sizeof(tdtsp));
 
-    tddp.tddp_pstrStock = pcdp->cdp_pstrStock;
-    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
-    tddp.tddp_bTradeSummary = TRUE;
+    tdtsp.tdtsp_pstrStock = pcdp->cdp_pstrStock;
+    tdtsp.tdtsp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tdtsp.tdtsp_bOverwrite = pcdp->cdp_bOverwrite;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = tx_download_dlData(&tddp);
+        u32Ret = tx_download_dlTradeSummary(&tdtsp);
 
     jf_clieng_outputLine("");
 
@@ -121,7 +119,7 @@ static u32 _dlStockIterative(cli_download_param_t * pcdp)
 static u32 _dlStockDetail(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    tx_download_data_param_t tddp;
+    tx_download_trade_detail_param_t tdtdp;
 
     if (pcdp->cdp_pstrStock == NULL)
         return JF_ERR_INVALID_PARAM;
@@ -129,17 +127,16 @@ static u32 _dlStockDetail(cli_download_param_t * pcdp)
     if ((pcdp->cdp_pstrStartDate == NULL) || (pcdp->cdp_pstrEndDate == NULL))
         return JF_ERR_INVALID_PARAM;
 
-    memset(&tddp, 0, sizeof(tddp));
+    memset(&tdtdp, 0, sizeof(tdtdp));
 
-    tddp.tddp_pstrStartDate = pcdp->cdp_pstrStartDate;
-    tddp.tddp_pstrEndDate = pcdp->cdp_pstrEndDate;
-    tddp.tddp_pstrStock = pcdp->cdp_pstrStock;
-    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
-    tddp.tddp_bTradeDetail = TRUE;
+    tdtdp.tdtdp_pstrStartDate = pcdp->cdp_pstrStartDate;
+    tdtdp.tdtdp_pstrEndDate = pcdp->cdp_pstrEndDate;
+    tdtdp.tdtdp_pstrStock = pcdp->cdp_pstrStock;
+    tdtdp.tdtdp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tdtdp.tdtdp_bOverwrite = pcdp->cdp_bOverwrite;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = tx_download_dlData(&tddp);
+        u32Ret = tx_download_dlTradeDetail(&tdtdp);
 
     return u32Ret;
 }
@@ -147,14 +144,14 @@ static u32 _dlStockDetail(cli_download_param_t * pcdp)
 static u32 _dlStockIndex(cli_download_param_t * pcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    tx_download_data_param_t tddp;
+    tx_download_trade_summary_param_t tdtsp;
 
-    memset(&tddp, 0, sizeof(tddp));
+    memset(&tdtsp, 0, sizeof(tdtsp));
 
-    tddp.tddp_pstrDataDir = pcdp->cdp_pstrDataDir;
-    tddp.tddp_bOverwrite = pcdp->cdp_bOverwrite;
+    tdtsp.tdtsp_pstrDataDir = pcdp->cdp_pstrDataDir;
+    tdtsp.tdtsp_bOverwrite = pcdp->cdp_bOverwrite;
 
-    u32Ret = tx_download_dlStockIndex(&tddp);
+    u32Ret = tx_download_dlIndexTradeSummary(&tdtsp);
 
     return u32Ret;
 }
@@ -208,8 +205,8 @@ u32 parseDownload(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "s:t:p:f:l:d:ieoh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "s:t:p:f:l:d:ieoh?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -217,12 +214,11 @@ u32 parseDownload(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
             pcdp->cdp_pstrStock = (olchar_t *)optarg;
             break;
         case 't':
-            jf_string_getU8FromString(
+            u32Ret = jf_string_getU8FromString(
                 (olchar_t *)optarg, ol_strlen((olchar_t *)optarg), &pcdp->cdp_u8IterativeCount);
             break;
         case 'p':
-            u32Ret = jf_string_getS32FromString(
-                optarg, ol_strlen(optarg), &pcdp->cdp_nSleep);
+            u32Ret = jf_string_getS32FromString(optarg, ol_strlen(optarg), &pcdp->cdp_nSleep);
             if ((u32Ret == JF_ERR_NO_ERROR) && (pcdp->cdp_nSleep <= 0))
             {
                 jf_clieng_reportInvalidOpt('p');

@@ -95,7 +95,7 @@ static u32 _finiSqliteTp(struct tp_manager * ptm)
 
 
 static u32 _replacePoolStockIntoSqliteTp(
-    struct tp_manager * ptm, trade_pool_stock_t * pStock)
+    struct tp_manager * ptm, tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -106,17 +106,17 @@ static u32 _replacePoolStockIntoSqliteTp(
     ol_snprintf(
         query, sizeof(query), "REPLACE INTO %s VALUES('%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%.2f');",
         TP_SQLITE_TABLE_POOL,
-        pStock->tps_strStock, pStock->tps_strModel, pStock->tps_strModelParam, pStock->tps_strAddDate,
-        pStock->tps_strStartDateOfDaySummary, pStock->tps_nNumOfDaySummary,
-        pStock->tps_strOp, pStock->tps_strOpRemark, pStock->tps_strTradeDate, pStock->tps_strPosition,
-        pStock->tps_nVolume, pStock->tps_dbPrice);
+        pStock->ttps_strStock, pStock->ttps_strModel, pStock->ttps_strModelParam, pStock->ttps_strAddDate,
+        pStock->ttps_strStartDateOfDaySummary, pStock->ttps_nNumOfDaySummary,
+        pStock->ttps_strOp, pStock->ttps_strOpRemark, pStock->ttps_strTradeDate, pStock->ttps_strPosition,
+        pStock->ttps_nVolume, pStock->ttps_dbPrice);
     u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
 
     return u32Ret;
 }
 
-static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stock_t * pStock)
+static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -127,10 +127,10 @@ static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stoc
     ol_snprintf(
         query, sizeof(query), "INSERT INTO %s VALUES('%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%.2f');",
         TP_SQLITE_TABLE_POOL,
-        pStock->tps_strStock, pStock->tps_strModel, pStock->tps_strModelParam, pStock->tps_strAddDate,
-        pStock->tps_strStartDateOfDaySummary, pStock->tps_nNumOfDaySummary,
-        pStock->tps_strOp, pStock->tps_strOpRemark, pStock->tps_strTradeDate, pStock->tps_strPosition,
-        pStock->tps_nVolume, pStock->tps_dbPrice);
+        pStock->ttps_strStock, pStock->ttps_strModel, pStock->ttps_strModelParam, pStock->ttps_strAddDate,
+        pStock->ttps_strStartDateOfDaySummary, pStock->ttps_nNumOfDaySummary,
+        pStock->ttps_strOp, pStock->ttps_strOpRemark, pStock->ttps_strTradeDate, pStock->ttps_strPosition,
+        pStock->ttps_nVolume, pStock->ttps_dbPrice);
 
     u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
@@ -138,7 +138,7 @@ static u32 _insertPoolStockIntoSqliteTp(struct tp_manager * ptm, trade_pool_stoc
     return u32Ret;
 }
 
-static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_t * pStock)
+static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -149,14 +149,14 @@ static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_
     ol_snprintf(
         query, sizeof(query), "UPDATE %s SET %s='%s', %s='%s', %s='%s', %s='%s', %s='%d', %s='%.2f' WHERE %s='%s' AND %s='%s';",
         TP_SQLITE_TABLE_POOL,
-        TP_SQLITE_TABLE_POOL_COLUMN_OP, pStock->tps_strOp,
-        TP_SQLITE_TABLE_POOL_COLUMN_OP_REMARK, pStock->tps_strOpRemark,
-        TP_SQLITE_TABLE_POOL_COLUMN_TRADE_DATE, pStock->tps_strTradeDate,
-        TP_SQLITE_TABLE_POOL_COLUMN_POSITION, pStock->tps_strPosition,
-        TP_SQLITE_TABLE_POOL_COLUMN_VOLUME, pStock->tps_nVolume,
-        TP_SQLITE_TABLE_POOL_COLUMN_PRICE, pStock->tps_dbPrice,
-        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->tps_strStock,
-        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->tps_strModel);
+        TP_SQLITE_TABLE_POOL_COLUMN_OP, pStock->ttps_strOp,
+        TP_SQLITE_TABLE_POOL_COLUMN_OP_REMARK, pStock->ttps_strOpRemark,
+        TP_SQLITE_TABLE_POOL_COLUMN_TRADE_DATE, pStock->ttps_strTradeDate,
+        TP_SQLITE_TABLE_POOL_COLUMN_POSITION, pStock->ttps_strPosition,
+        TP_SQLITE_TABLE_POOL_COLUMN_VOLUME, pStock->ttps_nVolume,
+        TP_SQLITE_TABLE_POOL_COLUMN_PRICE, pStock->ttps_dbPrice,
+        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->ttps_strStock,
+        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->ttps_strModel);
 
     u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));
@@ -165,7 +165,7 @@ static u32 _updatePoolStockInSqliteTp(struct tp_manager * ptm, trade_pool_stock_
 }
 
 static u32 _removePoolStockFromSqliteTp(
-    struct tp_manager * ptm, trade_pool_stock_t * pStock)
+    struct tp_manager * ptm, tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -176,8 +176,8 @@ static u32 _removePoolStockFromSqliteTp(
     ol_snprintf(
         query, sizeof(query), "DELETE FROM %s WHERE %s='%s' and %s='%s';",
         TP_SQLITE_TABLE_POOL,
-        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->tps_strStock,
-        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->tps_strModel);
+        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->ttps_strStock,
+        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->ttps_strModel);
     u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryRet, sizeof(queryRet));
 
@@ -206,7 +206,7 @@ static u32 _commitSqliteTpTransaction(struct tp_manager * ptm)
 }
 
 static u32 _getAllPoolStockInSqliteTp(
-    struct tp_manager * ptm, trade_pool_stock_t * pStock, olint_t * pnNum)
+    struct tp_manager * ptm, tx_trade_pool_stock_t * pStock, olint_t * pnNum)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
@@ -214,7 +214,7 @@ static u32 _getAllPoolStockInSqliteTp(
     sqlite3_stmt * statement;
     olint_t retCode = SQLITE_OK;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
-    trade_pool_stock_t * ptps = NULL;
+    tx_trade_pool_stock_t * pttps = NULL;
 
     if (*pnNum == 0)
         return u32Ret;
@@ -233,29 +233,29 @@ static u32 _getAllPoolStockInSqliteTp(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ptps = pStock;
-        ol_bzero(ptps, sizeof(*ptps));
+        pttps = pStock;
+        ol_bzero(pttps, sizeof(*pttps));
         while ((retCode = sqlite3_step(statement)) == SQLITE_ROW)
         {
-            ol_strncpy(ptps->tps_strStock, (olchar_t *)sqlite3_column_text(statement, 0), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(ptps->tps_strModel, (olchar_t *)sqlite3_column_text(statement, 1), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(ptps->tps_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), MAX_TRADE_MODEL_PARAM_LEN - 1);
-            ol_strncpy(ptps->tps_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(ptps->tps_strStartDateOfDaySummary, (olchar_t *)sqlite3_column_text(statement, 4), MAX_TRADE_FIELD_LEN - 1);
-            ptps->tps_nNumOfDaySummary = sqlite3_column_int(statement, 5);
-            ol_strncpy(ptps->tps_strOp, (olchar_t *)sqlite3_column_text(statement, 6), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(ptps->tps_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 7), MAX_TRADE_OP_REMARK_LEN - 1);
-            ol_strncpy(ptps->tps_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 8), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(ptps->tps_strPosition, (olchar_t *)sqlite3_column_text(statement, 9), MAX_TRADE_FIELD_LEN - 1);
-            ptps->tps_nVolume = sqlite3_column_int(statement, 10);
-            ptps->tps_dbPrice = sqlite3_column_double(statement, 11);
+            ol_strncpy(pttps->ttps_strStock, (olchar_t *)sqlite3_column_text(statement, 0), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pttps->ttps_strModel, (olchar_t *)sqlite3_column_text(statement, 1), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pttps->ttps_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), TX_TRADE_MAX_MODEL_PARAM_LEN - 1);
+            ol_strncpy(pttps->ttps_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pttps->ttps_strStartDateOfDaySummary, (olchar_t *)sqlite3_column_text(statement, 4), TX_TRADE_MAX_FIELD_LEN - 1);
+            pttps->ttps_nNumOfDaySummary = sqlite3_column_int(statement, 5);
+            ol_strncpy(pttps->ttps_strOp, (olchar_t *)sqlite3_column_text(statement, 6), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pttps->ttps_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 7), TX_TRADE_MAX_OP_REMARK_LEN - 1);
+            ol_strncpy(pttps->ttps_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 8), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pttps->ttps_strPosition, (olchar_t *)sqlite3_column_text(statement, 9), TX_TRADE_MAX_FIELD_LEN - 1);
+            pttps->ttps_nVolume = sqlite3_column_int(statement, 10);
+            pttps->ttps_dbPrice = sqlite3_column_double(statement, 11);
 
 
             count ++;
             if (count >= *pnNum)
                 break;
 
-            ptps ++;
+            pttps ++;
         }
         sqlite3_finalize(statement);
 
@@ -272,7 +272,7 @@ static u32 _getAllPoolStockInSqliteTp(
 }
 
 static u32 _getPoolStockInSqliteTp(
-    struct tp_manager * ptm, trade_pool_stock_t * pStock)
+    struct tp_manager * ptm, tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -283,8 +283,8 @@ static u32 _getPoolStockInSqliteTp(
     ol_snprintf(
         query, sizeof(query), "SELECT * FROM %s WHERE %s='%s' and %s='%s';",
         TP_SQLITE_TABLE_POOL,
-        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->tps_strStock,
-        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->tps_strModel);
+        TP_SQLITE_TABLE_POOL_COLUMN_STOCK, pStock->ttps_strStock,
+        TP_SQLITE_TABLE_POOL_COLUMN_MODEL, pStock->ttps_strModel);
 
     retCode = sqlite3_prepare_v2(
         pSqlite->ts_jsSqlite.js_psSqlite, query, -1, &statement, NULL);
@@ -300,18 +300,18 @@ static u32 _getPoolStockInSqliteTp(
         retCode = sqlite3_step(statement);
         if (retCode == SQLITE_ROW)
         {
-            ol_strncpy(pStock->tps_strStock, (olchar_t *)sqlite3_column_text(statement, 0), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pStock->tps_strModel, (olchar_t *)sqlite3_column_text(statement, 1), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pStock->tps_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), MAX_TRADE_MODEL_PARAM_LEN - 1);
-            ol_strncpy(pStock->tps_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pStock->tps_strStartDateOfDaySummary, (olchar_t *)sqlite3_column_text(statement, 4), MAX_TRADE_FIELD_LEN - 1);
-            pStock->tps_nNumOfDaySummary = sqlite3_column_int(statement, 5);
-            ol_strncpy(pStock->tps_strOp, (olchar_t *)sqlite3_column_text(statement, 6), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pStock->tps_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 7), MAX_TRADE_OP_REMARK_LEN - 1);
-            ol_strncpy(pStock->tps_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 8), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pStock->tps_strPosition, (olchar_t *)sqlite3_column_text(statement, 9), MAX_TRADE_FIELD_LEN - 1);
-            pStock->tps_nVolume = sqlite3_column_int(statement, 10);
-            pStock->tps_dbPrice = sqlite3_column_double(statement, 11);
+            ol_strncpy(pStock->ttps_strStock, (olchar_t *)sqlite3_column_text(statement, 0), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pStock->ttps_strModel, (olchar_t *)sqlite3_column_text(statement, 1), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pStock->ttps_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), TX_TRADE_MAX_MODEL_PARAM_LEN - 1);
+            ol_strncpy(pStock->ttps_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pStock->ttps_strStartDateOfDaySummary, (olchar_t *)sqlite3_column_text(statement, 4), TX_TRADE_MAX_FIELD_LEN - 1);
+            pStock->ttps_nNumOfDaySummary = sqlite3_column_int(statement, 5);
+            ol_strncpy(pStock->ttps_strOp, (olchar_t *)sqlite3_column_text(statement, 6), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pStock->ttps_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 7), TX_TRADE_MAX_OP_REMARK_LEN - 1);
+            ol_strncpy(pStock->ttps_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 8), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(pStock->ttps_strPosition, (olchar_t *)sqlite3_column_text(statement, 9), TX_TRADE_MAX_FIELD_LEN - 1);
+            pStock->ttps_nVolume = sqlite3_column_int(statement, 10);
+            pStock->ttps_dbPrice = sqlite3_column_double(statement, 11);
         }
         else
         {
@@ -346,7 +346,7 @@ static olint_t _getNumOfPoolStockInSqliteTp(struct tp_manager * ptm)
 }
 
 static u32 _getAllTradingRecordInSqliteTp(
-    struct tp_manager * ptm, trade_trading_record_t * pStock, olint_t * pnNum)
+    struct tp_manager * ptm, tx_trade_trading_record_t * pStock, olint_t * pnNum)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t count = 0;
@@ -354,7 +354,7 @@ static u32 _getAllTradingRecordInSqliteTp(
     sqlite3_stmt * statement;
     olint_t retCode = SQLITE_OK;
     tp_sqlite_t * pSqlite = &ptm->tm_tdData.td_tsSqlite;
-    trade_trading_record_t * pttr = NULL;
+    tx_trade_trading_record_t * ptttr = NULL;
 
     if (*pnNum == 0)
         return u32Ret;
@@ -374,26 +374,26 @@ static u32 _getAllTradingRecordInSqliteTp(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pttr = pStock;
-        ol_bzero(pttr, sizeof(*pttr));
+        ptttr = pStock;
+        ol_bzero(ptttr, sizeof(*ptttr));
         while ((retCode = sqlite3_step(statement)) == SQLITE_ROW)
         {
-            ol_strncpy(pttr->ttr_strStock, (olchar_t *)sqlite3_column_text(statement, 0), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pttr->ttr_strModel, (olchar_t *)sqlite3_column_text(statement, 1), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pttr->ttr_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), MAX_TRADE_MODEL_PARAM_LEN - 1);
-            ol_strncpy(pttr->ttr_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pttr->ttr_strOp, (olchar_t *)sqlite3_column_text(statement, 4), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pttr->ttr_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 5), MAX_TRADE_OP_REMARK_LEN - 1);
-            ol_strncpy(pttr->ttr_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 6), MAX_TRADE_FIELD_LEN - 1);
-            ol_strncpy(pttr->ttr_strPosition, (olchar_t *)sqlite3_column_text(statement, 7), MAX_TRADE_FIELD_LEN - 1);
-            pttr->ttr_nVolume = sqlite3_column_int(statement, 8);
-            pttr->ttr_dbPrice = sqlite3_column_double(statement, 9);
+            ol_strncpy(ptttr->tttr_strStock, (olchar_t *)sqlite3_column_text(statement, 0), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(ptttr->tttr_strModel, (olchar_t *)sqlite3_column_text(statement, 1), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(ptttr->tttr_strModelParam, (olchar_t *)sqlite3_column_text(statement, 2), TX_TRADE_MAX_MODEL_PARAM_LEN - 1);
+            ol_strncpy(ptttr->tttr_strAddDate, (olchar_t *)sqlite3_column_text(statement, 3), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(ptttr->tttr_strOp, (olchar_t *)sqlite3_column_text(statement, 4), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(ptttr->tttr_strOpRemark, (olchar_t *)sqlite3_column_text(statement, 5), TX_TRADE_MAX_OP_REMARK_LEN - 1);
+            ol_strncpy(ptttr->tttr_strTradeDate, (olchar_t *)sqlite3_column_text(statement, 6), TX_TRADE_MAX_FIELD_LEN - 1);
+            ol_strncpy(ptttr->tttr_strPosition, (olchar_t *)sqlite3_column_text(statement, 7), TX_TRADE_MAX_FIELD_LEN - 1);
+            ptttr->tttr_nVolume = sqlite3_column_int(statement, 8);
+            ptttr->tttr_dbPrice = sqlite3_column_double(statement, 9);
 
             count ++;
             if (count >= *pnNum)
                 break;
 
-            pttr ++;
+            ptttr ++;
         }
         sqlite3_finalize(statement);
 
@@ -432,7 +432,7 @@ static olint_t _getNumOfTradingRecordInSqliteTp(struct tp_manager * ptm)
 }
 
 static u32 _insertTradingRecordInSqliteTp(
-    struct tp_manager * ptm, trade_trading_record_t * pStock)
+    struct tp_manager * ptm, tx_trade_trading_record_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t query[512];
@@ -443,9 +443,9 @@ static u32 _insertTradingRecordInSqliteTp(
     ol_snprintf(
         query, sizeof(query), "INSERT INTO %s VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%.2f');",
         TP_SQLITE_TABLE_RECORD,
-        pStock->ttr_strStock, pStock->ttr_strModel, pStock->ttr_strModelParam, pStock->ttr_strAddDate,
-        pStock->ttr_strOp, pStock->ttr_strOpRemark, pStock->ttr_strTradeDate,
-        pStock->ttr_strPosition, pStock->ttr_nVolume, pStock->ttr_dbPrice);
+        pStock->tttr_strStock, pStock->tttr_strModel, pStock->tttr_strModelParam, pStock->tttr_strAddDate,
+        pStock->tttr_strOp, pStock->tttr_strOpRemark, pStock->tttr_strTradeDate,
+        pStock->tttr_strPosition, pStock->tttr_nVolume, pStock->tttr_dbPrice);
 
     u32Ret = jf_sqlite_execSql(
         &pSqlite->ts_jsSqlite, query, queryresult, sizeof(queryresult));

@@ -170,54 +170,40 @@ u32 addDaCmd(tx_cli_master_t * ptcm, da_cli_param_t * pdcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    jf_clieng_newCmd("exit", _setDefaultParamExit, _parseExit, _processExit, pdcp, NULL);
+
+    jf_clieng_newCmd("fix", setDefaultParamFix, parseFix, processFix, pdcp, NULL);
+
+    jf_clieng_newCmd("help", _setDefaultParamHelp, _parseHelp, _processHelp, pdcp, NULL);
+
     jf_clieng_newCmd(
-        "exit", _setDefaultParamExit,
-        _parseExit, _processExit, pdcp, NULL);
+        "analysis", setDefaultParamAnalysis, parseAnalysis, processAnalysis, pdcp, NULL);
 
-    jf_clieng_newCmd("fix", setDefaultParamFix,
-        parseFix, processFix, pdcp, NULL);
+    jf_clieng_newCmd("model", setDefaultParamModel, parseModel, processModel, pdcp, NULL);
 
-    jf_clieng_newCmd("help", _setDefaultParamHelp,
-        _parseHelp, _processHelp, pdcp, NULL);
+    jf_clieng_newCmd("stat", setDefaultParamStat, parseStat, processStat, pdcp, NULL);
 
-    jf_clieng_newCmd("analysis", setDefaultParamAnalysis,
-        parseAnalysis, processAnalysis, pdcp, NULL);
+    jf_clieng_newCmd("env", setDefaultParamEnv, parseEnv, processEnv, pdcp, NULL);
 
-    jf_clieng_newCmd("model", setDefaultParamModel,
-        parseModel, processModel, pdcp, NULL);
+    jf_clieng_newCmd(
+        "download", setDefaultParamDownload, parseDownload, processDownload, pdcp, NULL);
 
-    jf_clieng_newCmd("stat", setDefaultParamStat,
-        parseStat, processStat, pdcp, NULL);
+    jf_clieng_newCmd("find", setDefaultParamFind, parseFind, processFind, pdcp, NULL);
 
-    jf_clieng_newCmd("env", setDefaultParamEnv,
-        parseEnv, processEnv, pdcp, NULL);
+    jf_clieng_newCmd("stock", setDefaultParamStock, parseStock, processStock, pdcp, NULL);
 
-    jf_clieng_newCmd("download", setDefaultParamDownload,
-        parseDownload, processDownload, pdcp, NULL);
+    jf_clieng_newCmd("parse", setDefaultParamParse, parseParse, processParse, pdcp, NULL);
 
-    jf_clieng_newCmd("find", setDefaultParamFind,
-        parseFind, processFind, pdcp, NULL);
+    jf_clieng_newCmd("misc", setDefaultParamMisc, parseMisc, processMisc, pdcp, NULL);
 
-    jf_clieng_newCmd("stock", setDefaultParamStock,
-        parseStock, processStock, pdcp, NULL);
+    jf_clieng_newCmd("indi", setDefaultParamIndi, parseIndi, processIndi, pdcp, NULL);
 
-    jf_clieng_newCmd("parse", setDefaultParamParse,
-        parseParse, processParse, pdcp, NULL);
+    jf_clieng_newCmd("rule", setDefaultParamRule, parseRule, processRule, pdcp, NULL);
 
-    jf_clieng_newCmd("misc", setDefaultParamMisc,
-        parseMisc, processMisc, pdcp, NULL);
+    jf_clieng_newCmd("trade", setDefaultParamTrade, parseTrade, processTrade, pdcp, NULL);
 
-    jf_clieng_newCmd("indi", setDefaultParamIndi,
-        parseIndi, processIndi, pdcp, NULL);
-
-    jf_clieng_newCmd("rule", setDefaultParamRule,
-        parseRule, processRule, pdcp, NULL);
-
-    jf_clieng_newCmd("trade", setDefaultParamTrade,
-        parseTrade, processTrade, pdcp, NULL);
-
-    jf_clieng_newCmd("backtest", setDefaultParamBacktest,
-        parseBacktest, processBacktest, pdcp, NULL);
+    jf_clieng_newCmd(
+        "backtest", setDefaultParamBacktest, parseBacktest, processBacktest, pdcp, NULL);
 
     return u32Ret;
 }

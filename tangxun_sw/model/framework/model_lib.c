@@ -25,15 +25,15 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** The prefix string for model library file
+/** The prefix string for model library file.
  */
-#define MODEL_LIB_FILE_PREFIX  "libdamodel_"
+#define MODEL_LIB_FILE_PREFIX  "libtx_model_"
 
-/** the file extension of the model library file
+/** The file extension of the model library file.
  */
 #define MODEL_LIB_FILE_EXT     ".so"
 
-/** The entry name of the library, MUST be implemented
+/** The entry name of the library, MUST be implemented.
  */
 #define MODEL_LIB_ENTRY_NAME  "tx_model_fillModel"
 
@@ -46,19 +46,18 @@ static u32 _handleModelLibFile(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_model_t * ptm = NULL;
-    jf_dynlib_t * pDynlib = NULL;
     tx_model_fnFillModel_t fnFillModel;
-    
-    u32Ret = createDaModel(&ptm);
+
+    u32Ret = createTxModel(&ptm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_dynlib_load(pstrFullpath, &pDynlib);
+        u32Ret = jf_dynlib_load(pstrFullpath, &ptm->tm_pjdLib);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_dynlib_getSymbolAddress(
-            pDynlib, MODEL_LIB_ENTRY_NAME, (void **)&fnFillModel);
+            ptm->tm_pjdLib, MODEL_LIB_ENTRY_NAME, (void **)&fnFillModel);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -68,7 +67,7 @@ static u32 _handleModelLibFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = checkDaModelField(ptm);
+        u32Ret = checkTxModelField(ptm);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -78,7 +77,7 @@ static u32 _handleModelLibFile(
     else if (ptm != NULL)
     {
         jf_logger_logErrMsg(u32Ret, "failed to load model");
-        destroyDaModel(&ptm);
+        destroyTxModel(&ptm);
     }
 
     return u32Ret;
@@ -86,14 +85,16 @@ static u32 _handleModelLibFile(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-boolean_t isDaModelLibFile(const olchar_t * pstrName)
+boolean_t isTxModelLibFile(const olchar_t * pstrName)
 {
     return jf_file_isTypedFile(pstrName, MODEL_LIB_FILE_PREFIX, MODEL_LIB_FILE_EXT);
 }
 
-u32 handleDaModelLibFile(
+u32 handleTxModelLibFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl)
 {
+    JF_LOGGER_INFO("path: %s", pstrFullpath);
+
     return _handleModelLibFile(pstrFullpath, pStat, pjl);
 }
 

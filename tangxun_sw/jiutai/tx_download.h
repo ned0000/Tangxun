@@ -24,25 +24,42 @@
 
 typedef struct
 {
-    boolean_t tddp_bTradeSummary;
-    boolean_t tddp_bTradeDetail;
-    /*if true, overwrite the existing data file, otherwise ignore*/
-    boolean_t tddp_bOverwrite;
+    /**If true, overwrite the existing data file, otherwise ignore.*/
+    boolean_t tdtdp_bOverwrite;
 
-    u8 tddp_u8Reserved[5];
+    u8 tdtdp_u8Reserved[7];
 
-    olchar_t * tddp_pstrStartDate;
-    olchar_t * tddp_pstrEndDate;
-    olchar_t * tddp_pstrDataDir;
-    olchar_t * tddp_pstrStock;
-    u32 tddp_u32Reserved[2];
-} tx_download_data_param_t;
+    olchar_t * tdtdp_pstrStartDate;
+    olchar_t * tdtdp_pstrEndDate;
+    olchar_t * tdtdp_pstrDataDir;
+    olchar_t * tdtdp_pstrStock;
+    u32 tdtdp_u32Reserved[2];
+} tx_download_trade_detail_param_t;
+
+typedef struct
+{
+    /**If true, overwrite the existing data file, otherwise ignore.*/
+    boolean_t tdtsp_bOverwrite;
+    u8 tdtsp_u8Reserved[7];
+
+    olchar_t * tdtsp_pstrDataDir;
+    olchar_t * tdtsp_pstrStock;
+    u32 tdtsp_u32Reserved[4];
+} tx_download_trade_summary_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 tx_download_dlData(tx_download_data_param_t * param);
+/* download day result file.*/
 
-u32 tx_download_dlStockIndex(tx_download_data_param_t * param);
+u32 tx_download_dlTradeDetail(tx_download_trade_detail_param_t * param);
+
+/* download day summary file.*/
+
+u32 tx_download_dlTradeSummary(tx_download_trade_summary_param_t * param);
+
+/** Download day summary of all recorded index.
+ */
+u32 tx_download_dlIndexTradeSummary(tx_download_trade_summary_param_t * param);
 
 #endif /*TANGXUN_DOWNLOAD_H*/
 

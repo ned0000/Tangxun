@@ -44,13 +44,15 @@ static u32 _parseModelXmlFile(
     return u32Ret;
 }
 
-static u32 _handleDaModelXmlFile(
+static u32 _handleTxModelXmlFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_model_t * ptm = NULL;
     
-    u32Ret = createDaModel(&ptm);
+    JF_LOGGER_INFO("path: %s", pstrFullpath);
+
+    u32Ret = createTxModel(&ptm);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseModelXmlFile(pstrFullpath, pStat, pjl);
@@ -58,7 +60,7 @@ static u32 _handleDaModelXmlFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = checkDaModelField(ptm);
+        u32Ret = checkTxModelField(ptm);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -67,8 +69,8 @@ static u32 _handleDaModelXmlFile(
     }
     else if (ptm != NULL)
     {
-        jf_logger_logErrMsg(u32Ret, "failed to load model");
-        destroyDaModel(&ptm);
+        JF_LOGGER_ERR(u32Ret, "failed to load model");
+        destroyTxModel(&ptm);
     }
 
     return u32Ret;
@@ -76,15 +78,15 @@ static u32 _handleDaModelXmlFile(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-boolean_t isDaModelXmlFile(const olchar_t * pstrName)
+boolean_t isTxModelXmlFile(const olchar_t * pstrName)
 {
     return jf_file_isTypedFile(pstrName, MODEL_XML_FILE_PREFIX, MODEL_XML_FILE_EXT);
 }
 
-u32 handleDaModelXmlFile(
+u32 handleTxModelXmlFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl)
 {
-    return _handleDaModelXmlFile(pstrFullpath, pStat, pjl);
+    return _handleTxModelXmlFile(pstrFullpath, pStat, pjl);
 }
 
 

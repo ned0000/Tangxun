@@ -121,31 +121,26 @@ typedef struct
     u64 tsi_u64TradableShare;
     olint_t tsi_nIndustry;
     olint_t tsi_nReserved;
-    olchar_t tsi_strFirstTradeDate[16];
 
     /*runtime data*/
-    boolean_t tsi_bCsvUptodate;
+    /**The frist trade date read from day summary file.*/
+    olchar_t tsi_strFirstTradeDate[16];
+    /**The trade summary csv file is up to date if it's true. Use by download library.*/
+    boolean_t tsi_bCsvUpToDate;
     u8 tsi_u8Reserved[7];
     oldouble_t tsi_dbValue;
 } tx_stock_info_t;
 
 typedef struct
 {
-    tx_stock_info_t * tsl_ptsiStock;
-    olint_t tsl_nNumOfStock;
-    olint_t tsl_nMaxStock;
-    boolean_t tsl_bChanged;
-    boolean_t tsl_bReserved[7];
-} tx_stock_list_t;
-
-typedef struct
-{
     olchar_t tsii_strChinese[16];
-    olint_t tsii_nChineseDesc;
+    olsize_t tsii_sChineseDesc;
     olint_t tsii_nId;
     olchar_t * tsii_pstrDesc;
-    olint_t tsii_nStock;
-    olchar_t * tsii_pstrStocks;
+    /**Number of stock in this industry.*/
+    u32 tsii_u32Stock;
+    /**Pointer array to all stock info.*/
+    tx_stock_info_t ** tsii_pptsiStocks;
 } tx_stock_indu_info_t;
 
 #define TX_STOCK_SH_COMPOSITE_INDEX              "sh000001"
@@ -156,32 +151,54 @@ typedef struct
 #define TX_STOCK_STAT_ARBI_LIST_FILE_NAME  "StockStatArbiList.txt"
 #define TX_STOCK_TOUGH_LIST_FILE_NAME      "StockToughList.txt"
 
+typedef struct
+{
+    olchar_t * tsip_pstrStockListFile;
+    u32 tsip_u32Reserved[4];
+} tx_stock_init_param_t;
+
 /* --- functional routines ---------------------------------------------------------------------- */
-u32 initStockList(void);
-u32 finiStockList(void);
 
-tx_stock_info_t * getFirstStockInfo(void);
-tx_stock_info_t * getNextStockInfo(tx_stock_info_t * info);
-olint_t getNumOfStock(void);
+u32 tx_stock_init(tx_stock_init_param_t * param);
 
-u32 getIndustryInfo(olint_t id, tx_stock_indu_info_t ** info);
-tx_stock_indu_info_t * getFirstIndustryInfo(void);
-tx_stock_indu_info_t * getNextIndustryInfo(tx_stock_indu_info_t * info);
-olint_t getNumOfIndustry(void);
-olchar_t * getStringIndustry(olint_t nIndustry);
+u32 tx_stock_fini(void);
 
-void printStockInfoVerbose(tx_stock_info_t * info);
-u32 getStockInfo(olchar_t * name, tx_stock_info_t ** info);
-olint_t getStockShareThres(tx_stock_info_t * stockinfo);
-boolean_t isSmallMediumStock(tx_stock_info_t * stockinfo);
+/*The name can be stock or stock index.*/
+u32 tx_stock_getStockInfo(const olchar_t * name, tx_stock_info_t ** info);
 
-/*Stock Index Information*/
-tx_stock_info_t * getFirstStockInfoIndex(void);
-tx_stock_info_t * getNextStockInfoIndex(tx_stock_info_t * info);
-tx_stock_info_t * getStockInfoIndex(olchar_t * name);
-boolean_t isStockInfoIndex(olchar_t * stock);
+/*Stock.*/
+tx_stock_info_t * tx_stock_getFirstStockInfo(void);
 
-boolean_t isShStockExchange(olchar_t * stock);
+tx_stock_info_t * tx_stock_getNextStockInfo(tx_stock_info_t * info);
+
+olint_t tx_stock_getNumOfStock(void);
+
+olint_t tx_stock_getStockShareThres(tx_stock_info_t * stockinfo);
+
+boolean_t tx_stock_isSmallMediumStock(tx_stock_info_t * stockinfo);
+
+boolean_t tx_stock_isShStockExchange(olchar_t * stock);
+
+/*Stock industry.*/
+u32 tx_stock_getInduInfo(olint_t id, tx_stock_indu_info_t ** info);
+
+tx_stock_indu_info_t * tx_stock_getFirstInduInfo(void);
+
+tx_stock_indu_info_t * tx_stock_getNextInduInfo(tx_stock_indu_info_t * info);
+
+olint_t tx_stock_getNumOfIndu(void);
+
+olchar_t * tx_stock_getStringIndu(olint_t nIndustry);
+
+/*Stock Index.*/
+
+tx_stock_info_t * tx_stock_getFirstStockIndex(void);
+
+tx_stock_info_t * tx_stock_getNextStockIndex(tx_stock_info_t * info);
+
+tx_stock_info_t * tx_stock_getStockIndex(olchar_t * name);
+
+boolean_t tx_stock_isStockIndex(olchar_t * stock);
 
 #endif /*TANGXUN_STOCK_H*/
 

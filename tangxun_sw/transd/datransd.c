@@ -376,8 +376,8 @@ static u32 _newStockQuo(
             jf_logger_logInfoMsg("new stock quo for %s", psq->sq_strCode);
             psq->sq_nMaxEntry = nMaxEntry;
             u32Ret = jf_mem_alloc(
-                (void *)&psq->sq_pqeEntry,
-                sizeof(quo_entry_t) * psq->sq_nMaxEntry);
+                (void *)&psq->sq_ptqeEntry,
+                sizeof(tx_quo_entry_t) * psq->sq_nMaxEntry);
         }
     }
 
@@ -388,7 +388,7 @@ static u32 _newStockQuo(
         ol_sprintf(filepath, "quotation-%s.xls", psq->sq_strCode);
         nNumOfEntry = psq->sq_nMaxEntry;
         if (readStockQuotationFile(
-                filepath, psq->sq_pqeEntry,
+                filepath, psq->sq_ptqeEntry,
                 &nNumOfEntry) == JF_ERR_NO_ERROR)
         {
             jf_logger_logInfoMsg("Succeed to read %s", filepath);
@@ -409,7 +409,7 @@ static u32 _daSaveTrans(transd_stock_info_t * ptsi)
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     olsize_t size;
     stock_quo_t * psq = &ptsi->tsi_sqQuo;
-    quo_entry_t * entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+    tx_quo_entry_t * entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
 
     ol_sprintf(filepath, "%s", STOCK_TRANS_FILE_NAME);
     u32Ret = jf_file_openWithMode(
@@ -420,9 +420,9 @@ static u32 _daSaveTrans(transd_stock_info_t * ptsi)
         size = ol_sprintf(
             filepath,
             "%s\t%s\t%s\t%s\t%s\t%.2f\n",
-            psq->sq_strDate, entry->qe_strTime, psq->sq_strCode,
-            getStringStockOperation(ptsi->tsi_u8Operation),
-            getStringStockPosition(ptsi->tsi_u8Position),
+            psq->sq_strDate, entry->tqe_strTime, psq->sq_strCode,
+            tx_trade_getStringStockOperation(ptsi->tsi_u8Operation),
+            tx_trade_getStringStockPosition(ptsi->tsi_u8Position),
             ptsi->tsi_dbPrice);
         jf_file_writen(fd, filepath, size);
 
@@ -478,7 +478,7 @@ static u32 _daReadOpenTransLine(transd_stock_info_t * ptsi, olchar_t * line)
     jf_logger_logInfoMsg(
         "read open trans line, closeout %s, pos %s",
         jf_string_getStringPositive(ptsi->tsi_bToCloseout),
-        getStringStockPosition(ptsi->tsi_u8Position));
+        tx_trade_getStringStockPosition(ptsi->tsi_u8Position));
 
     return u32Ret;
 }
@@ -487,7 +487,7 @@ static u32 _daReadOpenTransLine(transd_stock_info_t * ptsi, olchar_t * line)
   Volume,Amount,(BuyVolume,BuyPrice)[5],(SoldVolume,SoldPrice)[5],Date,Time
  */
 static u32 _parseSinaQuotationDataOneLine(
-    olchar_t * buf, olsize_t sbuf, stock_quo_t * psq, quo_entry_t * cur)
+    olchar_t * buf, olsize_t sbuf, stock_quo_t * psq, tx_quo_entry_t * cur)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    oldouble_t dbamount, dbtemp;
@@ -530,17 +530,17 @@ static u32 _parseSinaQuotationDataOneLine(
             else if (index == 4)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_dbCurPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_dbCurPrice);
             }
             else if (index == 5)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_dbHighPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_dbHighPrice);
             }
             else if (index == 6)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_dbLowPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_dbLowPrice);
             }
             else if (index == 7)
                 ;
@@ -549,112 +549,112 @@ static u32 _parseSinaQuotationDataOneLine(
             else if (index == 9)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_u64Volume);
             }
             else if (index == 10)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_dbAmount);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_dbAmount);
             }
             else if (index == 11)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[0].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[0].tqp_u64Volume);
             }
             else if (index == 12)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[0].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[0].tqp_dbPrice);
             }
             else if (index == 13)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[1].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[1].tqp_u64Volume);
             }
             else if (index == 14)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[1].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[1].tqp_dbPrice);
             }
             else if (index == 15)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[2].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[2].tqp_u64Volume);
             }
             else if (index == 16)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[2].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[2].tqp_dbPrice);
             }
             else if (index == 17)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[3].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[3].tqp_u64Volume);
             }
             else if (index == 18)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[3].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[3].tqp_dbPrice);
             }
             else if (index == 19)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[4].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[4].tqp_u64Volume);
             }
             else if (index == 20)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpBuy[4].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpBuy[4].tqp_dbPrice);
             }
             else if (index == 21)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[0].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[0].tqp_u64Volume);
             }
             else if (index == 22)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[0].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[0].tqp_dbPrice);
             }
             else if (index == 23)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[1].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[1].tqp_u64Volume);
             }
             else if (index == 24)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[1].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[1].tqp_dbPrice);
             }
             else if (index == 25)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[2].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[2].tqp_u64Volume);
             }
             else if (index == 26)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[2].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[2].tqp_dbPrice);
             }
             else if (index == 27)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[3].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[3].tqp_u64Volume);
             }
             else if (index == 28)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[3].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[3].tqp_dbPrice);
             }
             else if (index == 29)
             {
                 u32Ret = jf_string_getU64FromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[4].qdp_u64Volume);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[4].tqp_u64Volume);
             }
             else if (index == 30)
             {
                 u32Ret = jf_string_getDoubleFromString(
-                    field->jsprf_pstrData, field->jsprf_sData, &cur->qe_qdpSold[4].qdp_dbPrice);
+                    field->jsprf_pstrData, field->jsprf_sData, &cur->tqe_tqpSold[4].tqp_dbPrice);
             }
             else if (index == 31)
             {
@@ -662,7 +662,7 @@ static u32 _parseSinaQuotationDataOneLine(
             }
             else if (index == 32)
             {
-                ol_strncpy(cur->qe_strTime, field->jsprf_pstrData, 8);
+                ol_strncpy(cur->tqe_strTime, field->jsprf_pstrData, 8);
             }
             else if (index == 33)
                 ;
@@ -690,7 +690,7 @@ static void _saveStockQuo(stock_quo_t * psq)
 
     jf_logger_logInfoMsg("save stock quo");
 
-    if ((psq->sq_pqeEntry == NULL) || (psq->sq_nNumOfEntry == 0))
+    if ((psq->sq_ptqeEntry == NULL) || (psq->sq_nNumOfEntry == 0))
         return;
 
     jf_date_getDateToday(&syear, &smonth, &sday);
@@ -711,30 +711,30 @@ static void _saveStockQuo(stock_quo_t * psq)
                 "%s\t%.2f\t%.2f\t%.2f\t%llu\t%.2f\t"
                 "%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\t"
                 "%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\t%.2f\t%llu\n",
-                psq->sq_pqeEntry[j].qe_strTime,
-                psq->sq_pqeEntry[j].qe_dbCurPrice,
-                psq->sq_pqeEntry[j].qe_dbHighPrice, psq->sq_pqeEntry[j].qe_dbLowPrice,
-                psq->sq_pqeEntry[j].qe_u64Volume, psq->sq_pqeEntry[j].qe_dbAmount,
-                psq->sq_pqeEntry[j].qe_qdpBuy[0].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpBuy[0].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpBuy[1].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpBuy[1].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpBuy[2].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpBuy[2].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpBuy[3].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpBuy[3].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpBuy[4].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpBuy[4].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpSold[0].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpSold[0].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpSold[1].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpSold[1].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpSold[2].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpSold[2].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpSold[3].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpSold[3].qdp_u64Volume,
-                psq->sq_pqeEntry[j].qe_qdpSold[4].qdp_dbPrice,
-                psq->sq_pqeEntry[j].qe_qdpSold[4].qdp_u64Volume);
+                psq->sq_ptqeEntry[j].tqe_strTime,
+                psq->sq_ptqeEntry[j].tqe_dbCurPrice,
+                psq->sq_ptqeEntry[j].tqe_dbHighPrice, psq->sq_ptqeEntry[j].tqe_dbLowPrice,
+                psq->sq_ptqeEntry[j].tqe_u64Volume, psq->sq_ptqeEntry[j].tqe_dbAmount,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[0].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[0].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[1].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[1].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[2].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[2].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[3].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[3].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[4].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpBuy[4].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[0].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[0].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[1].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[1].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[2].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[2].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[3].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[3].tqp_u64Volume,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[4].tqp_dbPrice,
+                psq->sq_ptqeEntry[j].tqe_tqpSold[4].tqp_u64Volume);
 
             jf_file_writen(fd, filepath, size);
         }
@@ -749,8 +749,8 @@ static void _freeStockQuo(stock_quo_t * psq)
 
     _saveStockQuo(psq);
 
-    if (psq->sq_pqeEntry != NULL)
-        jf_mem_free((void **)&psq->sq_pqeEntry);
+    if (psq->sq_ptqeEntry != NULL)
+        jf_mem_free((void **)&psq->sq_ptqeEntry);
 }
 
 static void _freeTransdStockInfo(transd_stock_info_t ** info)
@@ -888,7 +888,7 @@ static u32 _parseSinaQuotationData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     stock_quo_t * psq;
-    quo_entry_t * cur;
+    tx_quo_entry_t * cur;
     olchar_t * line, *start, * end;
     olchar_t * data = psqr->sqr_pstrData;
     olsize_t size = psqr->sqr_sData;
@@ -916,7 +916,7 @@ static u32 _parseSinaQuotationData(
                      ptsi->tsi_sqQuo.sq_nMaxEntry)
             {
                 psq = &ptsi->tsi_sqQuo;
-                cur = &psq->sq_pqeEntry[psq->sq_nNumOfEntry];
+                cur = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry];
                 memset(cur, 0, sizeof(*cur));
                 u32Ret = _parseSinaQuotationDataOneLine(
                     line, start - line, psq, cur);
@@ -1009,11 +1009,11 @@ static boolean_t _isDaTradingToday(stock_quo_t * psq)
 
 static boolean_t _isHighLimit(stock_quo_t * psq)
 {
-    quo_entry_t * entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+    tx_quo_entry_t * entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
     oldouble_t dbclose;
 
     dbclose = round(psq->sq_dbLastClosingPrice * 110) / 100;
-    if (entry->qe_dbCurPrice >= dbclose)
+    if (entry->tqe_dbCurPrice >= dbclose)
         return TRUE;
 
     return FALSE;
@@ -1021,11 +1021,11 @@ static boolean_t _isHighLimit(stock_quo_t * psq)
 
 static boolean_t _isLowLimit(stock_quo_t * psq)
 {
-    quo_entry_t * entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+    tx_quo_entry_t * entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
     oldouble_t dbclose;
 
     dbclose = round(psq->sq_dbLastClosingPrice * 90) / 100;
-    if (entry->qe_dbCurPrice <= dbclose)
+    if (entry->tqe_dbCurPrice <= dbclose)
         return TRUE;
 
     return FALSE;
@@ -1040,10 +1040,10 @@ static void _markTsiDelete(transd_stock_info_t * ptsi)
 static boolean_t _isReadyOpenPos(
     stock_quo_t * psq, boolean_t bHighLimit, jf_listhead_t * pjlIndex)
 {
-    quo_entry_t * entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+    tx_quo_entry_t * entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
     oldouble_t dbclose;
 #define READY_OPEN_POS_PRICE_RATE  7.0
-    dbclose = (entry->qe_dbCurPrice - psq->sq_dbLastClosingPrice) * 100 /
+    dbclose = (entry->tqe_dbCurPrice - psq->sq_dbLastClosingPrice) * 100 /
         psq->sq_dbLastClosingPrice;
 
     if (bHighLimit)
@@ -1065,21 +1065,21 @@ static boolean_t _isStockCorrelated(
 {
     stock_quo_t * psq1 = &ptsi1->tsi_sqQuo;
     stock_quo_t * psq2 = &ptsi2->tsi_sqQuo;
-    quo_entry_t * last1, * first1, * first2; // * last2;
+    tx_quo_entry_t * last1, * first1, * first2; // * last2;
     olint_t hour, min, sec, seconds1, seconds2;
     olint_t i;
     oldouble_t dbvalue;
 #define MIN_STOCK_QUO_CORRELATION  0.9
 #define MIN_STOCK_QUO_CORRELATION_TIME  (30 * 60) /*in seconds*/
     /*do we have enough data?*/
-    first1 = &psq1->sq_pqeEntry[0];
-    first2 = &psq2->sq_pqeEntry[0];
-    last1 = &psq1->sq_pqeEntry[psq1->sq_nNumOfEntry - 1];
-//    last2 = &psq2->sq_pqeEntry[psq2->sq_nNumOfEntry - 1];
+    first1 = &psq1->sq_ptqeEntry[0];
+    first2 = &psq2->sq_ptqeEntry[0];
+    last1 = &psq1->sq_ptqeEntry[psq1->sq_nNumOfEntry - 1];
+//    last2 = &psq2->sq_ptqeEntry[psq2->sq_nNumOfEntry - 1];
 
-    jf_time_getTimeFromString(first1->qe_strTime, &hour, &min, &sec);
+    jf_time_getTimeFromString(first1->tqe_strTime, &hour, &min, &sec);
     seconds1 = jf_time_convertTimeToSeconds(hour, min, sec);
-    jf_time_getTimeFromString(last1->qe_strTime, &hour, &min, &sec);
+    jf_time_getTimeFromString(last1->tqe_strTime, &hour, &min, &sec);
     seconds2 = jf_time_convertTimeToSeconds(hour, min, sec);
 
     /* would 30 minutes be OK*/
@@ -1088,11 +1088,11 @@ static boolean_t _isStockCorrelated(
 
     for (i = 0; i < psq1->sq_nNumOfEntry; i ++)
     {
-        ls_pdbStockArray1[i] = first1->qe_dbCurPrice;
-        ls_pdbStockArray2[i] = first2->qe_dbCurPrice;
+        ls_pdbStockArray1[i] = first1->tqe_dbCurPrice;
+        ls_pdbStockArray2[i] = first2->tqe_dbCurPrice;
     }
 
-    dbvalue = getCorrelation(
+    dbvalue = tx_datastat_getCorrelation(
         ls_pdbStockArray1, ls_pdbStockArray2, psq1->sq_nNumOfEntry, &dbvalue);
     jf_logger_logInfoMsg("is stock cor, %s:%s, %.2f", psq1->sq_strCode, psq2->sq_strCode, dbvalue);
     if (dbvalue < MIN_STOCK_QUO_CORRELATION)
@@ -1108,7 +1108,7 @@ static u32 _tryOpenPosForStock(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     stock_quo_t * psq = &ptsi->tsi_sqQuo;
-    quo_entry_t * entry;
+    tx_quo_entry_t * entry;
     boolean_t bHighLimit, bLowLimit;
     olint_t i, count;
     transd_stock_info_t * ptsi2;
@@ -1135,7 +1135,7 @@ static u32 _tryOpenPosForStock(
 
             bHasPair = TRUE;
             psq = &ptsi2->tsi_sqQuo;
-            entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+            entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
 
             if (! _isStockCorrelated(ptsi, ptsi2))
                 continue;
@@ -1144,21 +1144,21 @@ static u32 _tryOpenPosForStock(
                 continue;
 
             _markTsiDelete(ptsi2);
-            ptsi2->tsi_u8Operation = STOCK_OP_BUY;
+            ptsi2->tsi_u8Operation = TX_TRADE_STOCK_OP_BUY;
             if (bHighLimit)
             {
-                ptsi2->tsi_u8Position = STOCK_POSITION_FULL;
-                ptsi2->tsi_dbPrice = entry->qe_qdpSold[0].qdp_dbPrice;
+                ptsi2->tsi_u8Position = TX_TRADE_STOCK_POSITION_FULL;
+                ptsi2->tsi_dbPrice = entry->tqe_tqpSold[0].tqp_dbPrice;
             }
             else
             {
-                ptsi2->tsi_u8Position = STOCK_POSITION_SHORT;
-                ptsi2->tsi_dbPrice = entry->qe_qdpBuy[0].qdp_dbPrice;
+                ptsi2->tsi_u8Position = TX_TRADE_STOCK_POSITION_SHORT;
+                ptsi2->tsi_dbPrice = entry->tqe_tqpBuy[0].tqp_dbPrice;
             }
 
             jf_logger_logInfoMsg(
                 "try open pos stock, open %s for stock %s with price %.2f",
-                getStringStockPosition(ptsi2->tsi_u8Position),
+                tx_trade_getStringStockPosition(ptsi2->tsi_u8Position),
                 psq->sq_strCode, ptsi2->tsi_dbPrice);
 
             _daSaveOpenTrans(ptsi2);
@@ -1181,7 +1181,7 @@ static u32 _daCloseoutPosition(transd_stock_info_t * ptsi)
     olchar_t line[256];
     olsize_t sline;
     stock_quo_t * psq = &ptsi->tsi_sqQuo;
-    quo_entry_t * entry = &psq->sq_pqeEntry[psq->sq_nNumOfEntry - 1];
+    tx_quo_entry_t * entry = &psq->sq_ptqeEntry[psq->sq_nNumOfEntry - 1];
 
     jf_logger_logInfoMsg("closeout pos for stock %s", ptsi->tsi_sqQuo.sq_strCode);
 
@@ -1219,11 +1219,11 @@ static u32 _daCloseoutPosition(transd_stock_info_t * ptsi)
         jf_file_rename(filepath, STOCK_OPEN_POSITION_FILE_NAME);
     }
 
-    ptsi->tsi_u8Operation = STOCK_OP_SELL;
-    if (ptsi->tsi_u8Position == STOCK_POSITION_FULL)
-        ptsi->tsi_dbPrice = entry->qe_qdpBuy[0].qdp_dbPrice;
+    ptsi->tsi_u8Operation = TX_TRADE_STOCK_OP_SELL;
+    if (ptsi->tsi_u8Position == TX_TRADE_STOCK_POSITION_FULL)
+        ptsi->tsi_dbPrice = entry->tqe_tqpBuy[0].tqp_dbPrice;
     else
-        ptsi->tsi_dbPrice = entry->qe_qdpSold[0].qdp_dbPrice;
+        ptsi->tsi_dbPrice = entry->tqe_tqpSold[0].tqp_dbPrice;
 
     _daSaveTrans(ptsi);
 
@@ -1252,7 +1252,7 @@ static u32 _daStartPolicy(jf_listhead_t * head, olint_t num)
         jf_listhead_forEach(&head[i], pos)
         {
             ptsi = jf_listhead_getEntry(pos, transd_stock_info_t, tsi_jlList);
-            if (isStockInfoIndex(ptsi->tsi_sqQuo.sq_strCode))
+            if (tx_stock_isStockIndex(ptsi->tsi_sqQuo.sq_strCode))
                 /*Ignore index*/
                 continue;
 
@@ -1431,7 +1431,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
     u32Ret = jf_mem_calloc((void **)&ptsi, sizeof(transd_stock_info_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ptsi->tsi_psiStock = getStockInfoIndex(TX_STOCK_SH_COMPOSITE_INDEX);
+        ptsi->tsi_psiStock = tx_stock_getStockIndex(TX_STOCK_SH_COMPOSITE_INDEX);
         ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
         jf_listhead_addTail(head, &ptsi->tsi_jlList);
         nStock ++;
@@ -1441,7 +1441,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ptsi->tsi_psiStock = getStockInfoIndex(TX_STOCK_SZ_COMPOSITIONAL_INDEX);
+        ptsi->tsi_psiStock = tx_stock_getStockIndex(TX_STOCK_SZ_COMPOSITIONAL_INDEX);
         ol_strcpy(ptsi->tsi_sqQuo.sq_strCode, ptsi->tsi_psiStock->tsi_strCode);
         jf_listhead_addTail(head, &ptsi->tsi_jlList);
         nStock ++;
@@ -1460,7 +1460,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
                 u32Ret = jf_file_readLine(fd, line, &sline);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    getStockInfo(line, &stockinfo);
+                    tx_stock_getStockInfo(line, &stockinfo);
                     if (stockinfo == NULL)
                         continue;
 
@@ -1498,7 +1498,7 @@ static u32 _initFirstStockIndu(jf_listhead_t * head)
                 u32Ret = jf_file_readLine(fd, line, &sline);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    getStockInfo(line, &stockinfo);
+                    tx_stock_getStockInfo(line, &stockinfo);
                     if (stockinfo == NULL)
                         continue;
 
@@ -1577,7 +1577,7 @@ static u32 _addStockStatArbi(
                 }
 
                 ol_strncpy(code, line, 8);
-                getStockInfo(code, &psi);
+                tx_stock_getStockInfo(code, &psi);
                 if (psi == NULL)
                     continue;
 

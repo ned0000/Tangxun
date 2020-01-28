@@ -15,7 +15,7 @@
 SONAME = tx_parsedata
 
 # Source files
-SOURCES = parsedata.c 
+SOURCES = daysummary.c dayresult.c sector.c quo.c
 
 # Jiutai source files
 JIUTAI_SRCS =

@@ -18,7 +18,7 @@ SONAME = tx_statarbitrage
 SOURCES = statarbitrage.c damethod.c
 
 # Jiutai source files
-JIUTAI_SRCS =
+JIUTAI_SRCS = tx_datastat.c
 
 # For code complile
 EXTRA_INC_DIR += -I. -I../jtk/inc

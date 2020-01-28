@@ -37,24 +37,24 @@ typedef struct
 
 struct tx_model;
 
-typedef u32 (* fnInitDaModel_t)(struct tx_model * ptm);
-typedef u32 (* fnFiniDaModel_t)(struct tx_model * ptm);
-typedef u32 (* fnCanBeTradedInDaModel_t)(
-    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
-    da_day_summary_t * buffer, olint_t total);
-typedef u32 (* fnTradeInDaModel_t)(
-    struct tx_model * ptm, tx_stock_info_t * stockinfo, trade_pool_stock_t * ptps,
-    tx_model_trade_data_t * ptmtd, da_day_summary_t * buffer, olint_t total);
+typedef u32 (* tx_model_fnInit_t)(struct tx_model * ptm);
+typedef u32 (* tx_model_fnFini_t)(struct tx_model * ptm);
+typedef u32 (* tx_model_fnCanBeTraded_t)(
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
+    tx_ds_t * buffer, olint_t total);
+typedef u32 (* tx_model_fnTrade_t)(
+    struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
+    tx_model_trade_data_t * ptmtd, tx_ds_t * buffer, olint_t total);
 
 typedef struct tx_model
 {
     olchar_t tm_strName[8];
     olchar_t tm_strLongName[64];
 
-    fnInitDaModel_t tm_fnInitModel;
-    fnFiniDaModel_t tm_fnFiniModel;
-    fnCanBeTradedInDaModel_t tm_fnCanBeTraded;
-    fnTradeInDaModel_t tm_fnTrade;
+    tx_model_fnInit_t tm_fnInitModel;
+    tx_model_fnFini_t tm_fnFiniModel;
+    tx_model_fnCanBeTraded_t tm_fnCanBeTraded;
+    tx_model_fnTrade_t tm_fnTrade;
 
     void * tm_pData;
 
@@ -65,12 +65,14 @@ typedef struct tx_model
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 tx_model_initModelFramework(void);
-u32 tx_model_finiModelFramework(void);
+u32 tx_model_initFramework(const olchar_t * pstrModelDir);
+
+u32 tx_model_finiFramework(void);
 
 u32 tx_model_getModel(const olchar_t * name, tx_model_t ** ppModel);
 
 tx_model_t * tx_model_getFirstModel(void);
+
 tx_model_t * tx_model_getNextModel(tx_model_t * ptm);
 
 #endif /*TANGXUN_MODEL_H*/

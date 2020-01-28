@@ -30,11 +30,11 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleMinNumOfDaySummary(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleMinNumOfDaySummary(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    tx_rule_min_num_of_day_summary_param_t * param = (tx_rule_min_num_of_day_summary_param_t *)ptrp;
+    tx_rule_min_num_of_day_summary_param_t * param = pParam;
 
     if (total < param->trmnodsp_u32MinDay)
         return u32Ret;

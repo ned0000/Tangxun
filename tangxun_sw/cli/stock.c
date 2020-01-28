@@ -1,5 +1,5 @@
 /**
- *  @file stock.c
+ *  @file tangxun_sw/cli/stock.c
  *
  *  @brief The stock command implementation.
  *
@@ -29,7 +29,7 @@
 #include "jf_jiukun.h"
 
 #include "tx_stock.h"
-#include "tx_statarbitrage.h"
+#include "tx_statarbi.h"
 #include "tx_env.h"
 
 #include "clicmd.h"
@@ -98,8 +98,8 @@ static void _printStockInfoAdditionalVerbose(tx_stock_info_t * info)
     jf_clieng_printDivider();
 
     /*CorrelationWithIndex*/
-    ol_sprintf(strLeft, "%.2f", getCorrelationWithIndex(info));
-    ol_sprintf(strRight, "%.2f", getCorrelationWithSmeIndex(info));
+    ol_sprintf(strLeft, "%.2f", tx_statarbi_getCorrelationWithIndex(info));
+    ol_sprintf(strRight, "%.2f", tx_statarbi_getCorrelationWithSmeIndex(info));
     jf_clieng_printTwoHalfLine(pcc, strLeft, strRight);
     pcc += 2;
 
@@ -126,7 +126,7 @@ static void _printStockInfoVerbose(u32 u32Id, tx_stock_info_t * info)
     pcc += 2;
 
     /* Industry */
-    ol_sprintf(strLeft, "%s", getStringIndustry(info->tsi_nIndustry));
+    ol_sprintf(strLeft, "%s", tx_stock_getStringIndu(info->tsi_nIndustry));
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
@@ -138,7 +138,7 @@ static u32 _printStockVerbose(cli_stock_param_t * pcsp)
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_stock_info_t * info;
 
-    u32Ret = getStockInfo(pcsp->csp_pstrStock, &info);
+    u32Ret = tx_stock_getStockInfo(pcsp->csp_pstrStock, &info);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         _printStockInfoVerbose(1, info);
@@ -165,7 +165,7 @@ static void _printOneIndustryInfoBrief(tx_stock_indu_info_t * info)
     pcc++;
 
     /* NumOfStock */
-    ol_sprintf(strField, "%d", info->tsii_nStock);
+    ol_sprintf(strField, "%u", info->tsii_u32Stock);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -176,8 +176,8 @@ static void _printOneIndustryInfoVerbose(tx_stock_indu_info_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_jccIndustryInfoVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-    olint_t n, j, r, len;
-    olchar_t line[80];
+    olint_t j = 0;
+    olchar_t line[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     jf_clieng_printDivider();
 
@@ -191,7 +191,7 @@ static void _printOneIndustryInfoVerbose(tx_stock_indu_info_t * info)
     pcc += 1;
 
     /*NumOfStock*/
-    ol_sprintf(strLeft, "%d", info->tsii_nStock);
+    ol_sprintf(strLeft, "%u", info->tsii_u32Stock);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
@@ -199,19 +199,21 @@ static void _printOneIndustryInfoVerbose(tx_stock_indu_info_t * info)
     ol_sprintf(strLeft, "%s", " ");
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
-
-    len = ol_strlen(info->tsii_pstrStocks);
-    n = (len + 72 - 1) / 72;
-    for (j = 0; j < n; j ++)
+    
+    line[0] = '\0';
+    for (j = 0; j < info->tsii_u32Stock; j ++)
     {
-        r = len - j * 72;
-        if (r > 72)
-            r = 72;
+        ol_strcat(line, info->tsii_pptsiStocks[j]->tsi_strCode);
+        ol_strcat(line, " ");
 
-        memset(line, 0, sizeof(line));
-        ol_strncpy(line, info->tsii_pstrStocks + 72 * j, r);
-        jf_clieng_outputLine("%s", line);
+        if (((j + 1) % 10) == 0)
+        {
+            jf_clieng_outputLine("%s", line);
+            line[0] = '\0';
+        }
     }
+    if (line[0] != '\0')
+        jf_clieng_outputLine("%s", line);
 
     jf_clieng_outputLine("");
 }
@@ -230,7 +232,7 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
             sizeof(ls_jccIndustryInfoBrief) / sizeof(jf_clieng_caption_t));
     }
 
-    info = getFirstIndustryInfo();
+    info = tx_stock_getFirstInduInfo();
     while (info != NULL)
     {
         if (pcsp->csp_bVerbose)
@@ -238,9 +240,9 @@ static u32 _printIndustryInfo(cli_stock_param_t * pcsp)
         else
             _printOneIndustryInfoBrief(info);
 
-        total += info->tsii_nStock;
+        total += info->tsii_u32Stock;
 
-        info = getNextIndustryInfo(info);
+        info = tx_stock_getNextInduInfo(info);
     }
 
     jf_clieng_outputLine("");
@@ -288,13 +290,13 @@ static void _printStocksBrief(cli_stock_param_t * pcsp)
     jf_clieng_printHeader(
         ls_jccStockInfoBrief, sizeof(ls_jccStockInfoBrief) / sizeof(jf_clieng_caption_t));
 
-    info = getFirstStockInfo();
+    info = tx_stock_getFirstStockInfo();
     while (info != NULL)
     {
         _printOneStockInfoBrief(u32Id + 1, info);
         u32Id ++;
 
-        info = getNextStockInfo(info);
+        info = tx_stock_getNextStockInfo(info);
     }
 
     jf_clieng_outputLine("\nTotal %u stocks\n", u32Id);
@@ -305,13 +307,13 @@ static void _printStocksVerbose(cli_stock_param_t * pcsp)
     tx_stock_info_t * info;
     u32 u32Id = 0;
 
-    info = getFirstStockInfo();
+    info = tx_stock_getFirstStockInfo();
     while (info != NULL)
     {
         _printStockInfoVerbose(u32Id + 1, info);
         u32Id ++;
 
-        info = getNextStockInfo(info);
+        info = tx_stock_getNextStockInfo(info);
     }
 
     jf_clieng_outputLine("\nTotal %u stocks\n", u32Id);

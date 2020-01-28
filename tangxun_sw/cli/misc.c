@@ -52,7 +52,7 @@ static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     tx_stock_info_t * stockinfo;
 
-    stockinfo = getFirstStockInfo();
+    stockinfo = tx_stock_getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -68,7 +68,7 @@ static u32 _createExdrFile(cli_misc_param_t * pcmp, tx_cli_master_t * pdm)
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            stockinfo = getNextStockInfo(stockinfo);
+            stockinfo = tx_stock_getNextStockInfo(stockinfo);
         }
     }
 

@@ -31,16 +31,16 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleNotStRelated(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleNotStRelated(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * start = buffer;
-    da_day_summary_t * end = buffer + total - 1;
+    tx_ds_t * start = buffer;
+    tx_ds_t * end = buffer + total - 1;
 
     while (start <= end)
     {
-        if ((start->dds_bSt) || (start->dds_bStDelisting))
+        if ((start->td_bSt) || (start->td_bStDelisting))
             return u32Ret;
 
         start ++;
@@ -49,16 +49,16 @@ u32 daRuleNotStRelated(
     return JF_ERR_NO_ERROR;
 }
 
-u32 daRuleSt(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleSt(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_day_summary_t * start = buffer;
-    da_day_summary_t * end = buffer + total - 1;
+    tx_ds_t * start = buffer;
+    tx_ds_t * end = buffer + total - 1;
 
     while (start <= end)
     {
-        if (start->dds_bSt)
+        if (start->td_bSt)
             return u32Ret;
 
         start ++;
@@ -67,16 +67,16 @@ u32 daRuleSt(
     return JF_ERR_NOT_MATCH;
 }
 
-u32 daRuleStDelisting(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleStDelisting(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_day_summary_t * start = buffer;
-    da_day_summary_t * end = buffer + total - 1;
+    tx_ds_t * start = buffer;
+    tx_ds_t * end = buffer + total - 1;
 
     while (start <= end)
     {
-        if (start->dds_bStDelisting)
+        if (start->td_bStDelisting)
             return u32Ret;
 
         start ++;

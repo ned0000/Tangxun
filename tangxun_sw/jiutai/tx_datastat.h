@@ -1,7 +1,7 @@
 /**
- *  @file datastat.h
+ *  @file tx_datastat.h
  *
- *  @brief data statistic
+ *  @brief Data statistic.
  *
  *  @author Min Zhang
  *
@@ -22,158 +22,155 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct
 {
-    olchar_t ds_strName[16];
-    olint_t ds_nNumOfDay;
-    olint_t ds_nDayForTrend;
-    olchar_t ds_strStartDate[16];
-    olchar_t ds_strEndDate[16];
+    olchar_t tdd_strName[16];
+    olint_t tdd_nNumOfDay;
+    olint_t tdd_nDayForTrend;
+    olchar_t tdd_strStartDate[16];
+    olchar_t tdd_strEndDate[16];
 
     /*price*/
-    oldouble_t ds_dbMinClosingPriceRate;
-    oldouble_t ds_dbMaxClosingPriceRate;
+    oldouble_t tdd_dbMinClosingPriceRate;
+    oldouble_t tdd_dbMaxClosingPriceRate;
 
-    oldouble_t ds_dbMinTunePercent;
-    oldouble_t ds_dbMaxTunePercent;
+    oldouble_t tdd_dbMinTunePercent;
+    oldouble_t tdd_dbMaxTunePercent;
 
-    boolean_t ds_bCloseHighLimit;
-    u8 ds_u8Reserved3[7];
-    olchar_t ds_strLastTimeCloseHighLimit[16];
-    olint_t ds_nMaxTimeOpenCloseHighLimit; /* in second */
-    olint_t ds_nReserved5;
+    boolean_t tdd_bCloseHighLimit;
+    u8 tdd_u8Reserved3[7];
+    olchar_t tdd_strLastTimeCloseHighLimit[16];
+    olint_t tdd_nMaxTimeOpenCloseHighLimit; /* in second */
+    olint_t tdd_nReserved5;
 
     /*volume*/
-    u64 ds_u64AllBuy;
-    u64 ds_u64MinBuy;
-    u64 ds_u64MaxBuy;
-    u64 ds_u64AveBuy;
+    u64 tdd_u64AllBuy;
+    u64 tdd_u64MinBuy;
+    u64 tdd_u64MaxBuy;
+    u64 tdd_u64AveBuy;
 
-    u64 ds_u64AllSold;
-    u64 ds_u64MinSold;
-    u64 ds_u64MaxSold;
-    u64 ds_u64AveSold;
+    u64 tdd_u64AllSold;
+    u64 tdd_u64MinSold;
+    u64 tdd_u64MaxSold;
+    u64 tdd_u64AveSold;
 
-    u64 ds_u64AllLambBuy;
-    u64 ds_u64MinLambBuy;
-    u64 ds_u64MaxLambBuy;
-    u64 ds_u64AveLambBuy;
+    u64 tdd_u64AllLambBuy;
+    u64 tdd_u64MinLambBuy;
+    u64 tdd_u64MaxLambBuy;
+    u64 tdd_u64AveLambBuy;
 
-    u64 ds_u64AllLambSold;
-    u64 ds_u64MinLambSold;
-    u64 ds_u64MaxLambSold;
-    u64 ds_u64AveLambSold;
+    u64 tdd_u64AllLambSold;
+    u64 tdd_u64MinLambSold;
+    u64 tdd_u64MaxLambSold;
+    u64 tdd_u64AveLambSold;
 
-    oldouble_t ds_dbMinBuyPercent;
-    oldouble_t ds_dbMaxBuyPercent;
-    oldouble_t ds_dbAveBuyPercent;
-    oldouble_t ds_dbMinAveBuyPercentForTrend;
+    oldouble_t tdd_dbMinBuyPercent;
+    oldouble_t tdd_dbMaxBuyPercent;
+    oldouble_t tdd_dbAveBuyPercent;
+    oldouble_t tdd_dbMinAveBuyPercentForTrend;
 
-    oldouble_t ds_dbMinSoldPercent;
-    oldouble_t ds_dbMaxSoldPercent;
-    oldouble_t ds_dbAveSoldPercent;
+    oldouble_t tdd_dbMinSoldPercent;
+    oldouble_t tdd_dbMaxSoldPercent;
+    oldouble_t tdd_dbAveSoldPercent;
 
-    oldouble_t ds_dbMinLambBuyPercent;
-    oldouble_t ds_dbMaxLambBuyPercent;
-    oldouble_t ds_dbAveLambBuyPercent;
+    oldouble_t tdd_dbMinLambBuyPercent;
+    oldouble_t tdd_dbMaxLambBuyPercent;
+    oldouble_t tdd_dbAveLambBuyPercent;
 
-    oldouble_t ds_dbMinLambSoldPercent;
-    oldouble_t ds_dbMaxLambSoldPercent;
-    oldouble_t ds_dbAveLambSoldPercent;
+    oldouble_t tdd_dbMinLambSoldPercent;
+    oldouble_t tdd_dbMaxLambSoldPercent;
+    oldouble_t tdd_dbAveLambSoldPercent;
 
-    boolean_t ds_bBuyInAm;
-    u8 ds_u8Reserved[7];
+    boolean_t tdd_bBuyInAm;
+    u8 tdd_u8Reserved[7];
 
-    oldouble_t ds_dbMaxVolumeRatio;
-    oldouble_t ds_dbMaxSoldVolumeRatio;
-    oldouble_t ds_dbMaxLambSoldVolumeRatio;
-    oldouble_t ds_dbMaxCloseHighLimitVolumeRatio;
-    oldouble_t ds_dbMaxCloseHighLimitSoldVolumeRatio;
-    oldouble_t ds_dbMaxCloseHighLimitLambSoldVolumeRatio;
+    oldouble_t tdd_dbMaxVolumeRatio;
+    oldouble_t tdd_dbMaxSoldVolumeRatio;
+    oldouble_t tdd_dbMaxLambSoldVolumeRatio;
+    oldouble_t tdd_dbMaxCloseHighLimitVolumeRatio;
+    oldouble_t tdd_dbMaxCloseHighLimitSoldVolumeRatio;
+    oldouble_t tdd_dbMaxCloseHighLimitLambSoldVolumeRatio;
 
     /*amount*/
-    u64 ds_u64AllBuyA;
-    u64 ds_u64MinBuyA;
-    u64 ds_u64MaxBuyA;
-    u64 ds_u64AveBuyA;
+    u64 tdd_u64AllBuyA;
+    u64 tdd_u64MinBuyA;
+    u64 tdd_u64MaxBuyA;
+    u64 tdd_u64AveBuyA;
 
-    u64 ds_u64AllSoldA;
-    u64 ds_u64MinSoldA;
-    u64 ds_u64MaxSoldA;
-    u64 ds_u64AveSoldA;
+    u64 tdd_u64AllSoldA;
+    u64 tdd_u64MinSoldA;
+    u64 tdd_u64MaxSoldA;
+    u64 tdd_u64AveSoldA;
 
-    u64 ds_u64AllLambBuyA;
-    u64 ds_u64MinLambBuyA;
-    u64 ds_u64MaxLambBuyA;
-    u64 ds_u64AveLambBuyA;
+    u64 tdd_u64AllLambBuyA;
+    u64 tdd_u64MinLambBuyA;
+    u64 tdd_u64MaxLambBuyA;
+    u64 tdd_u64AveLambBuyA;
 
-    u64 ds_u64AllLambSoldA;
-    u64 ds_u64MinLambSoldA;
-    u64 ds_u64MaxLambSoldA;
-    u64 ds_u64AveLambSoldA;
+    u64 tdd_u64AllLambSoldA;
+    u64 tdd_u64MinLambSoldA;
+    u64 tdd_u64MaxLambSoldA;
+    u64 tdd_u64AveLambSoldA;
 
     /*upper shadow, lower shadow*/
-    oldouble_t ds_dbMaxUpperShadowRatio;
-    oldouble_t ds_dbMaxLowerShadowRatio;
+    oldouble_t tdd_dbMaxUpperShadowRatio;
+    oldouble_t tdd_dbMaxLowerShadowRatio;
 
     /*last time low price*/
-    olchar_t ds_strLastTimeLowPriceDate[16];
-    olchar_t ds_strLastTimeLowPrice[16];
-    oldouble_t ds_dbMaxLastXInc;
+    olchar_t tdd_strLastTimeLowPriceDate[16];
+    olchar_t tdd_strLastTimeLowPrice[16];
+    oldouble_t tdd_dbMaxLastXInc;
 
-} data_stat_t;
-
-typedef struct
-{
-    olchar_t * dsp_pstrName;
-    olint_t dsp_nDayForTrend;
-    boolean_t dsp_bWithoutCloseHighLimit;
-    u8 dsp_u8Reserved[3];
-    olint_t dsp_nReserved[6];
-} data_stat_param_t;
+} tx_datastat_daysummary_t;
 
 typedef struct
 {
-    olint_t ds_nCount;
+    olchar_t * tddp_pstrName;
+    olint_t tddp_nDayForTrend;
+    boolean_t tddp_bWithoutCloseHighLimit;
+    u8 tddp_u8Reserved[3];
+    olint_t tddp_nReserved[6];
+} tx_datastat_daysummary_param_t;
 
-    oldouble_t ds_dbAll;
-    oldouble_t ds_dbMean;
-    oldouble_t ds_dbSEMean;  // variance / sqrt(count)
+typedef struct
+{
+    olint_t tdd_nCount;
 
-    oldouble_t ds_dbVariance;
-    oldouble_t ds_dbStDev;
+    oldouble_t tdd_dbAll;
+    oldouble_t tdd_dbMean;
+    oldouble_t tdd_dbSEMean;  // variance / sqrt(count)
 
-    oldouble_t ds_dbMin;
-    oldouble_t ds_dbQ1;
-    oldouble_t ds_dbMedian;
-    oldouble_t ds_dbQ3;
-    oldouble_t ds_dbMax;
+    oldouble_t tdd_dbVariance;
+    oldouble_t tdd_dbStDev;
 
-    oldouble_t ds_dbStDev1Percent;
-    oldouble_t ds_dbStDev2Percent;
-} desc_stat_t;
+    oldouble_t tdd_dbMin;
+    oldouble_t tdd_dbQ1;
+    oldouble_t tdd_dbMedian;
+    oldouble_t tdd_dbQ3;
+    oldouble_t tdd_dbMax;
+
+    oldouble_t tdd_dbStDev1Percent;
+    oldouble_t tdd_dbStDev2Percent;
+} tx_datastat_desc_t;
 
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 dataStatFromDaySummary(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num);
+u32 tx_datastat_statDaySummary(
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat,
+    tx_ds_t * buffer, olint_t num);
 
-u32 descStatFromData(desc_stat_t * stat, oldouble_t * pdbdata, olint_t num);
+u32 tx_datastat_descData(tx_datastat_desc_t * stat, oldouble_t * pdbdata, olint_t num);
 
-void getDoubleFrequency(
-    oldouble_t * pdbValue, olint_t num, olint_t numofarea, olint_t * freq,
-    oldouble_t * area);
+void tx_datastat_getDoubleFrequency(
+    oldouble_t * pdbValue, olint_t num, olint_t numofarea, olint_t * freq, oldouble_t * area);
 
-void printDoubleFrequencyBrief(
-    olint_t numofarea, olint_t * freq, oldouble_t * area);
+u32 tx_datastat_getCorrelation2(
+    oldouble_t * pdba, tx_datastat_desc_t * ptdda, oldouble_t * pdbb, tx_datastat_desc_t * ptddb,
+    olint_t num, oldouble_t * pdbr);
 
-u32 getCorrelation2(
-    oldouble_t * pdba, desc_stat_t * pdsa, oldouble_t * pdbb,
-    desc_stat_t * pdsb, olint_t num, oldouble_t * pdbr);
-
-u32 getCorrelation(
+u32 tx_datastat_getCorrelation(
     oldouble_t * pdba, oldouble_t * pdbb, olint_t num, oldouble_t * pdbr);
 
 #endif /*TANGXUN_JIUTAI_DATASTAT_H*/

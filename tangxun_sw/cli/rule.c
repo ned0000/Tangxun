@@ -28,13 +28,14 @@
 #include "tx_env.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-static jf_clieng_caption_t ls_ccDaRuleVerbose[] =
+
+static jf_clieng_caption_t ls_ccTxRuleVerbose[] =
 {
     {"Id", JF_CLIENG_CAP_FULL_LINE},
     {"Name", JF_CLIENG_CAP_FULL_LINE},
 };
 
-static jf_clieng_caption_t ls_ccDaRuleBrief[] =
+static jf_clieng_caption_t ls_ccTxRuleBrief[] =
 {
     {"Id", 4},
     {"Name", 50},
@@ -59,15 +60,15 @@ rule [-l name] [-v] [-h]");
     return u32Ret;
 }
 
-static void _printOneDaRuleBrief(u32 id, tx_rule_t * info)
+static void _printOneTxRuleBrief(tx_rule_t * info)
 {
-    jf_clieng_caption_t * pcc = &ls_ccDaRuleBrief[0];
+    jf_clieng_caption_t * pcc = &ls_ccTxRuleBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
 
     /* Id */
-    ol_sprintf(strField, "%u", id);
+    ol_sprintf(strField, "%u", info->tr_u16Id);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -78,7 +79,7 @@ static void _printOneDaRuleBrief(u32 id, tx_rule_t * info)
     jf_clieng_outputLine(strInfo);
 }
 
-static void _printDaRuleBrief(tx_rule_t * pRule, u32 num)
+static void _printTxRuleBrief(tx_rule_t * pRule, u32 num)
 {
     u32 index = 0;
     tx_rule_t * pStart = pRule; 
@@ -86,12 +87,11 @@ static void _printDaRuleBrief(tx_rule_t * pRule, u32 num)
     jf_clieng_printDivider();
 
     jf_clieng_printHeader(
-        ls_ccDaRuleBrief,
-        sizeof(ls_ccDaRuleBrief) / sizeof(jf_clieng_caption_t));
+        ls_ccTxRuleBrief, sizeof(ls_ccTxRuleBrief) / sizeof(jf_clieng_caption_t));
 
     for (index = 0; index < num; index ++)
     {
-        _printOneDaRuleBrief(index + 1, pStart);
+        _printOneTxRuleBrief(pStart);
         pStart ++;
     }
 
@@ -99,15 +99,15 @@ static void _printDaRuleBrief(tx_rule_t * pRule, u32 num)
     jf_clieng_outputLine("Total %u rules\n", num);
 }
 
-static void _printOneDaRuleVerbose(u32 id, tx_rule_t * rule)
+static void _printOneTxRuleVerbose(tx_rule_t * rule)
 {
-    jf_clieng_caption_t * pcc = &ls_ccDaRuleVerbose[0];
+    jf_clieng_caption_t * pcc = &ls_ccTxRuleVerbose[0];
     olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN]; //, strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     jf_clieng_printDivider();
 
     /*Id*/
-    ol_sprintf(strLeft, "%u", id);
+    ol_sprintf(strLeft, "%u", rule->tr_u16Id);
     jf_clieng_printOneFullLine(pcc, strLeft);
     pcc += 1;
 
@@ -116,14 +116,14 @@ static void _printOneDaRuleVerbose(u32 id, tx_rule_t * rule)
     pcc += 1;
 }
 
-static void _printDaRuleVerbose(tx_rule_t * pRule, u32 num)
+static void _printTxRuleVerbose(tx_rule_t * pRule, u32 num)
 {
     u32 index = 0;
     tx_rule_t * pStart = pRule; 
 
     for (index = 0; index < num; index ++)
     {
-        _printOneDaRuleVerbose(index + 1, pStart);
+        _printOneTxRuleVerbose(pStart);
         pStart ++;
     }
 
@@ -141,9 +141,9 @@ static u32 _listAllRules(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcrp->crp_bVerbose)
-            _printDaRuleVerbose(rule, total);
+            _printTxRuleVerbose(rule, total);
         else
-            _printDaRuleBrief(rule, total);
+            _printTxRuleBrief(rule, total);
     }
 
     return u32Ret;
@@ -154,13 +154,13 @@ static u32 _listOneRule(cli_rule_param_t * pcrp, tx_cli_master_t * ptcm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_rule_t * pRule;
 
-    u32Ret = tx_rule_getRule(pcrp->crp_pstrRuleName, &pRule);
+    u32Ret = tx_rule_getRuleByName(pcrp->crp_pstrRuleName, &pRule);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pcrp->crp_bVerbose)
-            _printDaRuleVerbose(pRule, 1);
+            _printTxRuleVerbose(pRule, 1);
         else
-            _printDaRuleBrief(pRule, 1);
+            _printTxRuleBrief(pRule, 1);
     }
 
     return u32Ret;
@@ -212,8 +212,8 @@ u32 parseRule(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "l:hv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "l:hv?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {

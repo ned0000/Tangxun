@@ -47,25 +47,25 @@ typedef u32 (* fnRollbackTpTransaction_t)(struct tp_manager * pMananger);
 
 /*insert if pStock is not existing, otherwise replace the old one*/
 typedef u32 (* fnReplacePoolStockIntoTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock);
 /*insert if pStock is not existing, otherwise failed*/
 typedef u32 (* fnInsertPoolStockIntoTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock);
 typedef u32 (* fnUpdatePoolStockInTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock);
 typedef u32 (* fnRemovePoolStockFromTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock);
 typedef u32 (* fnGetAllPoolStockInTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock, olint_t * pnNum);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock, olint_t * pnNum);
 typedef u32 (* fnGetPoolStockInTp_t)(
-    struct tp_manager * pMananger, trade_pool_stock_t * pStock);
+    struct tp_manager * pMananger, tx_trade_pool_stock_t * pStock);
 typedef olint_t (* fnGetNumOfPoolStockInTp_t)(struct tp_manager * pMananger);
 
 typedef olint_t (* fnGetNumOfTradingRecordInTp_t)(struct tp_manager * pMananger);
 typedef u32 (* fnGetAllTradingRecordInTp_t)(
-    struct tp_manager * pMananger, trade_trading_record_t * pRecord, olint_t * pnNum);
+    struct tp_manager * pMananger, tx_trade_trading_record_t * pRecord, olint_t * pnNum);
 typedef u32 (* fnInsertTradingRecordIntoTp_t)(
-    struct tp_manager * pMananger, trade_trading_record_t * pRecord);
+    struct tp_manager * pMananger, tx_trade_trading_record_t * pRecord);
 
 
 typedef struct tp_sqlite

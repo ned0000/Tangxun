@@ -200,7 +200,6 @@ typedef struct
 {
 #define CLI_ACTION_INDI_LIST                 (0x80)
 #define CLI_ACTION_INDI_TEST                 (0x82)
-#define CLI_ACTION_INDI_ADXR                 (0x85)
     u8 cip_u8Action;
     boolean_t cip_bVerbose;
     boolean_t cip_bPrintData;

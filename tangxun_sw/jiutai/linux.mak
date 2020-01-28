@@ -10,7 +10,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SOURCES = tx_fixdata.c tx_datastat.c tx_regression.c tx_env.c
+SOURCES = tx_fixdata.c tx_datastat.c tx_regression.c tx_env.c tx_err.c
 
 EXTRA_INC_DIR += -I../jtk/inc
 

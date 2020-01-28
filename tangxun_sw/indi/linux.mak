@@ -15,7 +15,8 @@
 SONAME = tx_indi
 
 # Source files
-SOURCES = indicator.c
+SOURCES = common.c indicator_dmi.c indicator_macd.c indicator_mtm.c indicator_kdj.c \
+    indicator_rsi.c indicator_asi.c indicator_atr.c indicator_obv.c indicator.c
 
 # Jiutai source files
 JIUTAI_SRCS =

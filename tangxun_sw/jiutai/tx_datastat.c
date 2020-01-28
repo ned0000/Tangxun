@@ -43,66 +43,66 @@ static olint_t _compareData(const void * a, const void * b)
 }
 
 static void _dsPriceFromDayResult(
-    data_stat_param_t * pdsp, data_stat_t * stat, da_day_summary_t * buffer, olint_t num)
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat, tx_ds_t * buffer, olint_t num)
 {
-    da_day_summary_t * summary, * prev, * end = buffer + num - 1;
-    da_day_summary_t * high;
+    tx_ds_t * summary, * prev, * end = buffer + num - 1;
+    tx_ds_t * high;
     olint_t i;
     oldouble_t dblow = 0.0;
 
     summary = buffer;
     summary ++;
-    stat->ds_dbMinClosingPriceRate = 100;
-    stat->ds_dbMinClosingPriceRate = 100;
+    stat->tdd_dbMinClosingPriceRate = 100;
+    stat->tdd_dbMinClosingPriceRate = 100;
     for (i = 1; i < num; i ++)
     {
-        if (summary->dds_bCloseHighLimit)
+        if (summary->td_bCloseHighLimit)
         {
-            stat->ds_bCloseHighLimit = TRUE;
-            if ((stat->ds_strLastTimeCloseHighLimit[0] == '\0') ||
-                (strcmp(stat->ds_strLastTimeCloseHighLimit,
-                        summary->dds_ddrResult->ddr_strTimeCloseHighLimit) < 0))
-                ol_strcpy(stat->ds_strLastTimeCloseHighLimit,
-                       summary->dds_ddrResult->ddr_strTimeCloseHighLimit);
+            stat->tdd_bCloseHighLimit = TRUE;
+            if ((stat->tdd_strLastTimeCloseHighLimit[0] == '\0') ||
+                (strcmp(stat->tdd_strLastTimeCloseHighLimit,
+                        summary->td_ptdResult->td_strTimeCloseHighLimit) < 0))
+                ol_strcpy(stat->tdd_strLastTimeCloseHighLimit,
+                       summary->td_ptdResult->td_strTimeCloseHighLimit);
 
-            if (stat->ds_nMaxTimeOpenCloseHighLimit <
-                summary->dds_ddrResult->ddr_nMaxTimeOpenCloseHighLimit)
-                stat->ds_nMaxTimeOpenCloseHighLimit =
-                    summary->dds_ddrResult->ddr_nMaxTimeOpenCloseHighLimit;
+            if (stat->tdd_nMaxTimeOpenCloseHighLimit <
+                summary->td_ptdResult->td_nMaxTimeOpenCloseHighLimit)
+                stat->tdd_nMaxTimeOpenCloseHighLimit =
+                    summary->td_ptdResult->td_nMaxTimeOpenCloseHighLimit;
         }
 
-		if (stat->ds_dbMinClosingPriceRate > summary->dds_dbClosingPriceRate)
-			stat->ds_dbMinClosingPriceRate = summary->dds_dbClosingPriceRate;
-		if (stat->ds_dbMaxClosingPriceRate < summary->dds_dbClosingPriceRate)
-			stat->ds_dbMaxClosingPriceRate = summary->dds_dbClosingPriceRate;
+		if (stat->tdd_dbMinClosingPriceRate > summary->td_dbClosingPriceRate)
+			stat->tdd_dbMinClosingPriceRate = summary->td_dbClosingPriceRate;
+		if (stat->tdd_dbMaxClosingPriceRate < summary->td_dbClosingPriceRate)
+			stat->tdd_dbMaxClosingPriceRate = summary->td_dbClosingPriceRate;
 
         summary ++;
     }
 
     prev = summary = buffer;
     summary ++;
-    stat->ds_dbMinTunePercent = 100;
+    stat->tdd_dbMinTunePercent = 100;
     while (summary <= end)
     {
-        if (summary->dds_dbClosingPrice < prev->dds_dbClosingPrice)
+        if (summary->td_dbClosingPrice < prev->td_dbClosingPrice)
         {
             high = prev;
-            dblow = prev->dds_dbClosingPrice;
+            dblow = prev->td_dbClosingPrice;
 
             while (summary <= end)
             {
-                if (dblow > summary->dds_dbLowPrice)
-                    dblow = summary->dds_dbLowPrice;
+                if (dblow > summary->td_dbLowPrice)
+                    dblow = summary->td_dbLowPrice;
 
-                if (high->dds_dbClosingPrice < summary->dds_dbClosingPrice)
+                if (high->td_dbClosingPrice < summary->td_dbClosingPrice)
                 {
-                    dblow = (high->dds_dbClosingPrice - dblow) * 100 /
-                        high->dds_dbClosingPrice;
+                    dblow = (high->td_dbClosingPrice - dblow) * 100 /
+                        high->td_dbClosingPrice;
 
-                    if (stat->ds_dbMinTunePercent > dblow)
-                        stat->ds_dbMinTunePercent = dblow;
-                    if (stat->ds_dbMaxTunePercent < dblow)
-                        stat->ds_dbMaxTunePercent = dblow;
+                    if (stat->tdd_dbMinTunePercent > dblow)
+                        stat->tdd_dbMinTunePercent = dblow;
+                    if (stat->tdd_dbMaxTunePercent < dblow)
+                        stat->tdd_dbMaxTunePercent = dblow;
 
                     break;
                 }
@@ -120,122 +120,122 @@ static void _dsPriceFromDayResult(
 }
 
 static void _dsVolFromDayResult(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num, boolean_t bWithCloseHighLimit)
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat,
+    tx_ds_t * buffer, olint_t num, boolean_t bWithCloseHighLimit)
 {
-    da_day_summary_t * summary, * end;
-	da_day_result_t * result;
+    tx_ds_t * summary, * end;
+	tx_dr_t * result;
     olint_t i, j, count;
     oldouble_t dbtmp = 0.0;
 
     summary = buffer;
-	result = summary->dds_ddrResult;
+	result = summary->td_ptdResult;
     count = 0;
-    stat->ds_nDayForTrend = pdsp->dsp_nDayForTrend;
-    stat->ds_u64MinBuy = result->ddr_u64Buy;
-    stat->ds_u64MinSold = result->ddr_u64Sold;
-    stat->ds_u64MinLambBuy = result->ddr_u64LambBuy;
-    stat->ds_u64MinLambSold = result->ddr_u64LambSold;
-    stat->ds_dbMinBuyPercent = result->ddr_dbBuyPercent;
-    stat->ds_dbMinAveBuyPercentForTrend = 100;
-    stat->ds_dbMinSoldPercent = result->ddr_dbSoldPercent;
-    stat->ds_dbMinLambBuyPercent = result->ddr_dbLambBuyPercent;
-    stat->ds_dbMinLambSoldPercent = result->ddr_dbLambSoldPercent;
-    stat->ds_bBuyInAm = TRUE;
+    stat->tdd_nDayForTrend = ptddp->tddp_nDayForTrend;
+    stat->tdd_u64MinBuy = result->td_u64Buy;
+    stat->tdd_u64MinSold = result->td_u64Sold;
+    stat->tdd_u64MinLambBuy = result->td_u64LambBuy;
+    stat->tdd_u64MinLambSold = result->td_u64LambSold;
+    stat->tdd_dbMinBuyPercent = result->td_dbBuyPercent;
+    stat->tdd_dbMinAveBuyPercentForTrend = 100;
+    stat->tdd_dbMinSoldPercent = result->td_dbSoldPercent;
+    stat->tdd_dbMinLambBuyPercent = result->td_dbLambBuyPercent;
+    stat->tdd_dbMinLambSoldPercent = result->td_dbLambSoldPercent;
+    stat->tdd_bBuyInAm = TRUE;
     for (i = 0; i < num; i ++)
     {
-		result = summary->dds_ddrResult;
-        if (summary->dds_bCloseHighLimit)
+		result = summary->td_ptdResult;
+        if (summary->td_bCloseHighLimit)
         {
-            if (stat->ds_dbMaxCloseHighLimitVolumeRatio < summary->dds_dbVolumeRatio)
-                stat->ds_dbMaxCloseHighLimitVolumeRatio = summary->dds_dbVolumeRatio;
+            if (stat->tdd_dbMaxCloseHighLimitVolumeRatio < summary->td_dbVolumeRatio)
+                stat->tdd_dbMaxCloseHighLimitVolumeRatio = summary->td_dbVolumeRatio;
 
-            if (stat->ds_dbMaxCloseHighLimitSoldVolumeRatio < result->ddr_dbSoldVolumeRatio)
-                stat->ds_dbMaxCloseHighLimitSoldVolumeRatio = result->ddr_dbSoldVolumeRatio;
+            if (stat->tdd_dbMaxCloseHighLimitSoldVolumeRatio < result->td_dbSoldVolumeRatio)
+                stat->tdd_dbMaxCloseHighLimitSoldVolumeRatio = result->td_dbSoldVolumeRatio;
 
-            if (stat->ds_dbMaxCloseHighLimitLambSoldVolumeRatio < result->ddr_dbLambSoldVolumeRatio)
-                stat->ds_dbMaxCloseHighLimitLambSoldVolumeRatio = result->ddr_dbLambSoldVolumeRatio;
+            if (stat->tdd_dbMaxCloseHighLimitLambSoldVolumeRatio < result->td_dbLambSoldVolumeRatio)
+                stat->tdd_dbMaxCloseHighLimitLambSoldVolumeRatio = result->td_dbLambSoldVolumeRatio;
         }
         else
         {
-            if (stat->ds_dbMaxVolumeRatio < summary->dds_dbVolumeRatio)
-                stat->ds_dbMaxVolumeRatio = summary->dds_dbVolumeRatio;
+            if (stat->tdd_dbMaxVolumeRatio < summary->td_dbVolumeRatio)
+                stat->tdd_dbMaxVolumeRatio = summary->td_dbVolumeRatio;
 
-            if (stat->ds_dbMaxSoldVolumeRatio < result->ddr_dbSoldVolumeRatio)
-                stat->ds_dbMaxSoldVolumeRatio = result->ddr_dbSoldVolumeRatio;
+            if (stat->tdd_dbMaxSoldVolumeRatio < result->td_dbSoldVolumeRatio)
+                stat->tdd_dbMaxSoldVolumeRatio = result->td_dbSoldVolumeRatio;
 
-            if (stat->ds_dbMaxLambSoldVolumeRatio < result->ddr_dbLambSoldVolumeRatio)
-                stat->ds_dbMaxLambSoldVolumeRatio = result->ddr_dbLambSoldVolumeRatio;
+            if (stat->tdd_dbMaxLambSoldVolumeRatio < result->td_dbLambSoldVolumeRatio)
+                stat->tdd_dbMaxLambSoldVolumeRatio = result->td_dbLambSoldVolumeRatio;
         }
 
-        if (stat->ds_u64MinBuy > result->ddr_u64Buy)
-            stat->ds_u64MinBuy = result->ddr_u64Buy;
-        if (stat->ds_u64MaxBuy < result->ddr_u64Buy)
-            stat->ds_u64MaxBuy = result->ddr_u64Buy;
+        if (stat->tdd_u64MinBuy > result->td_u64Buy)
+            stat->tdd_u64MinBuy = result->td_u64Buy;
+        if (stat->tdd_u64MaxBuy < result->td_u64Buy)
+            stat->tdd_u64MaxBuy = result->td_u64Buy;
 
-        if (stat->ds_u64MinSold > result->ddr_u64Sold)
-            stat->ds_u64MinSold = result->ddr_u64Sold;
-        if (stat->ds_u64MaxSold < result->ddr_u64Sold)
-            stat->ds_u64MaxSold = result->ddr_u64Sold;
+        if (stat->tdd_u64MinSold > result->td_u64Sold)
+            stat->tdd_u64MinSold = result->td_u64Sold;
+        if (stat->tdd_u64MaxSold < result->td_u64Sold)
+            stat->tdd_u64MaxSold = result->td_u64Sold;
 
-        if (stat->ds_u64MinLambBuy > result->ddr_u64LambBuy)
-            stat->ds_u64MinLambBuy = result->ddr_u64LambBuy;
-        if (stat->ds_u64MaxLambBuy < result->ddr_u64LambBuy)
-            stat->ds_u64MaxLambBuy = result->ddr_u64LambBuy;
+        if (stat->tdd_u64MinLambBuy > result->td_u64LambBuy)
+            stat->tdd_u64MinLambBuy = result->td_u64LambBuy;
+        if (stat->tdd_u64MaxLambBuy < result->td_u64LambBuy)
+            stat->tdd_u64MaxLambBuy = result->td_u64LambBuy;
 
-        if (stat->ds_u64MinLambSold > result->ddr_u64LambSold)
-            stat->ds_u64MinLambSold = result->ddr_u64LambSold;
-        if (stat->ds_u64MaxLambSold < result->ddr_u64LambSold)
-            stat->ds_u64MaxLambSold = result->ddr_u64LambSold;
+        if (stat->tdd_u64MinLambSold > result->td_u64LambSold)
+            stat->tdd_u64MinLambSold = result->td_u64LambSold;
+        if (stat->tdd_u64MaxLambSold < result->td_u64LambSold)
+            stat->tdd_u64MaxLambSold = result->td_u64LambSold;
 
-        if (stat->ds_dbMinBuyPercent > result->ddr_dbBuyPercent)
-            stat->ds_dbMinBuyPercent = result->ddr_dbBuyPercent;
-        if (stat->ds_dbMaxBuyPercent < result->ddr_dbBuyPercent)
-            stat->ds_dbMaxBuyPercent = result->ddr_dbBuyPercent;
+        if (stat->tdd_dbMinBuyPercent > result->td_dbBuyPercent)
+            stat->tdd_dbMinBuyPercent = result->td_dbBuyPercent;
+        if (stat->tdd_dbMaxBuyPercent < result->td_dbBuyPercent)
+            stat->tdd_dbMaxBuyPercent = result->td_dbBuyPercent;
 
-        if (i >= pdsp->dsp_nDayForTrend)
+        if (i >= ptddp->tddp_nDayForTrend)
         {
             end = summary;
             dbtmp = 0;
-            for (j = 0; j < pdsp->dsp_nDayForTrend; j ++)
+            for (j = 0; j < ptddp->tddp_nDayForTrend; j ++)
             {
-                dbtmp += end->dds_ddrResult->ddr_dbBuyPercent;
+                dbtmp += end->td_ptdResult->td_dbBuyPercent;
                 end --;
             }
-            dbtmp /= pdsp->dsp_nDayForTrend;
-            if (stat->ds_dbMinAveBuyPercentForTrend > dbtmp)
-                stat->ds_dbMinAveBuyPercentForTrend = dbtmp;
+            dbtmp /= ptddp->tddp_nDayForTrend;
+            if (stat->tdd_dbMinAveBuyPercentForTrend > dbtmp)
+                stat->tdd_dbMinAveBuyPercentForTrend = dbtmp;
         }
 
-        if (stat->ds_dbMinSoldPercent > result->ddr_dbSoldPercent)
-            stat->ds_dbMinSoldPercent = result->ddr_dbSoldPercent;
-        if (stat->ds_dbMaxSoldPercent < result->ddr_dbSoldPercent)
-            stat->ds_dbMaxSoldPercent = result->ddr_dbSoldPercent;
+        if (stat->tdd_dbMinSoldPercent > result->td_dbSoldPercent)
+            stat->tdd_dbMinSoldPercent = result->td_dbSoldPercent;
+        if (stat->tdd_dbMaxSoldPercent < result->td_dbSoldPercent)
+            stat->tdd_dbMaxSoldPercent = result->td_dbSoldPercent;
 
-        if (stat->ds_dbMinLambBuyPercent > result->ddr_dbLambBuyPercent)
-            stat->ds_dbMinLambBuyPercent = result->ddr_dbLambBuyPercent;
-        if (stat->ds_dbMaxLambBuyPercent < result->ddr_dbLambBuyPercent)
-            stat->ds_dbMaxLambBuyPercent = result->ddr_dbLambBuyPercent;
+        if (stat->tdd_dbMinLambBuyPercent > result->td_dbLambBuyPercent)
+            stat->tdd_dbMinLambBuyPercent = result->td_dbLambBuyPercent;
+        if (stat->tdd_dbMaxLambBuyPercent < result->td_dbLambBuyPercent)
+            stat->tdd_dbMaxLambBuyPercent = result->td_dbLambBuyPercent;
 
-        if (stat->ds_dbMinLambSoldPercent > result->ddr_dbLambSoldPercent)
-            stat->ds_dbMinLambSoldPercent = result->ddr_dbLambSoldPercent;
-        if (stat->ds_dbMaxLambSoldPercent < result->ddr_dbLambSoldPercent)
-            stat->ds_dbMaxLambSoldPercent = result->ddr_dbLambSoldPercent;
+        if (stat->tdd_dbMinLambSoldPercent > result->td_dbLambSoldPercent)
+            stat->tdd_dbMinLambSoldPercent = result->td_dbLambSoldPercent;
+        if (stat->tdd_dbMaxLambSoldPercent < result->td_dbLambSoldPercent)
+            stat->tdd_dbMaxLambSoldPercent = result->td_dbLambSoldPercent;
 
-        if (result->ddr_dbBuyInAmPercent == 0)
-            stat->ds_bBuyInAm = FALSE;
+        if (result->td_dbBuyInAmPercent == 0)
+            stat->tdd_bBuyInAm = FALSE;
 
-//        if (bWithCloseHighLimit || ! result->ddr_bCloseHighLimit)
+//        if (bWithCloseHighLimit || ! result->td_bCloseHighLimit)
         {
-            stat->ds_u64AllBuy += result->ddr_u64Buy + result->ddr_u64CloseHighLimitSold;
-            stat->ds_u64AllSold += result->ddr_u64Sold + result->ddr_u64CloseLowLimitBuy;
-            stat->ds_u64AllLambBuy += result->ddr_u64LambBuy + result->ddr_u64CloseHighLimitLambSold;
-            stat->ds_u64AllLambSold += result->ddr_u64LambSold + result->ddr_u64CloseLowLimitLambBuy;
+            stat->tdd_u64AllBuy += result->td_u64Buy + result->td_u64CloseHighLimitSold;
+            stat->tdd_u64AllSold += result->td_u64Sold + result->td_u64CloseLowLimitBuy;
+            stat->tdd_u64AllLambBuy += result->td_u64LambBuy + result->td_u64CloseHighLimitLambSold;
+            stat->tdd_u64AllLambSold += result->td_u64LambSold + result->td_u64CloseLowLimitLambBuy;
 
-            stat->ds_dbAveBuyPercent += result->ddr_dbBuyPercent + result->ddr_dbCloseHighLimitSoldPercent;
-            stat->ds_dbAveSoldPercent += result->ddr_dbSoldPercent + result->ddr_dbCloseLowLimitBuyPercent;
-            stat->ds_dbAveLambBuyPercent += result->ddr_dbLambBuyPercent + result->ddr_dbCloseHighLimitLambSoldPercent;
-            stat->ds_dbAveLambSoldPercent += result->ddr_dbLambSoldPercent + result->ddr_dbCloseLowLimitLambBuyPercent;
+            stat->tdd_dbAveBuyPercent += result->td_dbBuyPercent + result->td_dbCloseHighLimitSoldPercent;
+            stat->tdd_dbAveSoldPercent += result->td_dbSoldPercent + result->td_dbCloseLowLimitBuyPercent;
+            stat->tdd_dbAveLambBuyPercent += result->td_dbLambBuyPercent + result->td_dbCloseHighLimitLambSoldPercent;
+            stat->tdd_dbAveLambSoldPercent += result->td_dbLambSoldPercent + result->td_dbCloseLowLimitLambBuyPercent;
 
             count ++;
         }
@@ -245,62 +245,62 @@ static void _dsVolFromDayResult(
 
     if (count != 0)
     {
-        stat->ds_u64AveBuy = stat->ds_u64AllBuy / count;
-        stat->ds_u64AveSold = stat->ds_u64AllSold / count;
-        stat->ds_u64AveLambBuy = stat->ds_u64AllLambBuy / count;
-        stat->ds_u64AveLambSold = stat->ds_u64AllLambSold / count;
+        stat->tdd_u64AveBuy = stat->tdd_u64AllBuy / count;
+        stat->tdd_u64AveSold = stat->tdd_u64AllSold / count;
+        stat->tdd_u64AveLambBuy = stat->tdd_u64AllLambBuy / count;
+        stat->tdd_u64AveLambSold = stat->tdd_u64AllLambSold / count;
 
-        stat->ds_dbAveBuyPercent /= count;
-        stat->ds_dbAveSoldPercent /= count;
-        stat->ds_dbAveLambBuyPercent /= count;
-        stat->ds_dbAveLambSoldPercent /= count;
+        stat->tdd_dbAveBuyPercent /= count;
+        stat->tdd_dbAveSoldPercent /= count;
+        stat->tdd_dbAveLambBuyPercent /= count;
+        stat->tdd_dbAveLambSoldPercent /= count;
     }
 }
 
 static void _dsAmountFromDayResult(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num, boolean_t bWithCloseHighLimit)
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat,
+    tx_ds_t * buffer, olint_t num, boolean_t bWithCloseHighLimit)
 {
-    da_day_summary_t * summary;
-	da_day_result_t * result;
+    tx_ds_t * summary;
+	tx_dr_t * result;
     olint_t i, count;
 
     summary = buffer;
-	result = summary->dds_ddrResult;
+	result = summary->td_ptdResult;
     count = 0;
-    stat->ds_u64MinBuyA = result->ddr_u64BuyA;
-    stat->ds_u64MinSoldA = result->ddr_u64SoldA;
-    stat->ds_u64MinLambBuyA = result->ddr_u64LambBuyA;
-    stat->ds_u64MinLambSoldA = result->ddr_u64LambSoldA;
+    stat->tdd_u64MinBuyA = result->td_u64BuyA;
+    stat->tdd_u64MinSoldA = result->td_u64SoldA;
+    stat->tdd_u64MinLambBuyA = result->td_u64LambBuyA;
+    stat->tdd_u64MinLambSoldA = result->td_u64LambSoldA;
     for (i = 0; i < num; i ++)
     {
-		result = summary->dds_ddrResult;
-        if (stat->ds_u64MinBuyA > result->ddr_u64BuyA)
-            stat->ds_u64MinBuyA = result->ddr_u64BuyA;
-        if (stat->ds_u64MaxBuyA < result->ddr_u64BuyA)
-            stat->ds_u64MaxBuyA = result->ddr_u64BuyA;
+		result = summary->td_ptdResult;
+        if (stat->tdd_u64MinBuyA > result->td_u64BuyA)
+            stat->tdd_u64MinBuyA = result->td_u64BuyA;
+        if (stat->tdd_u64MaxBuyA < result->td_u64BuyA)
+            stat->tdd_u64MaxBuyA = result->td_u64BuyA;
 
-        if (stat->ds_u64MinSoldA > result->ddr_u64SoldA)
-            stat->ds_u64MinSoldA = result->ddr_u64SoldA;
-        if (stat->ds_u64MaxSoldA < result->ddr_u64SoldA)
-            stat->ds_u64MaxSoldA = result->ddr_u64SoldA;
+        if (stat->tdd_u64MinSoldA > result->td_u64SoldA)
+            stat->tdd_u64MinSoldA = result->td_u64SoldA;
+        if (stat->tdd_u64MaxSoldA < result->td_u64SoldA)
+            stat->tdd_u64MaxSoldA = result->td_u64SoldA;
 
-        if (stat->ds_u64MinLambBuyA > result->ddr_u64LambBuyA)
-            stat->ds_u64MinLambBuyA = result->ddr_u64LambBuyA;
-        if (stat->ds_u64MaxLambBuyA < result->ddr_u64LambBuyA)
-            stat->ds_u64MaxLambBuyA = result->ddr_u64LambBuyA;
+        if (stat->tdd_u64MinLambBuyA > result->td_u64LambBuyA)
+            stat->tdd_u64MinLambBuyA = result->td_u64LambBuyA;
+        if (stat->tdd_u64MaxLambBuyA < result->td_u64LambBuyA)
+            stat->tdd_u64MaxLambBuyA = result->td_u64LambBuyA;
 
-        if (stat->ds_u64MinLambSoldA > result->ddr_u64LambSoldA)
-            stat->ds_u64MinLambSoldA = result->ddr_u64LambSoldA;
-        if (stat->ds_u64MaxLambSoldA < result->ddr_u64LambSoldA)
-            stat->ds_u64MaxLambSoldA = result->ddr_u64LambSoldA;
+        if (stat->tdd_u64MinLambSoldA > result->td_u64LambSoldA)
+            stat->tdd_u64MinLambSoldA = result->td_u64LambSoldA;
+        if (stat->tdd_u64MaxLambSoldA < result->td_u64LambSoldA)
+            stat->tdd_u64MaxLambSoldA = result->td_u64LambSoldA;
 
-//        if (bWithCloseHighLimit || ! result->ddr_bCloseHighLimit)
+//        if (bWithCloseHighLimit || ! result->td_bCloseHighLimit)
         {
-            stat->ds_u64AllBuyA += result->ddr_u64BuyA + result->ddr_u64CloseHighLimitSoldA;
-            stat->ds_u64AllSoldA += result->ddr_u64SoldA + result->ddr_u64CloseLowLimitBuyA;
-            stat->ds_u64AllLambBuyA += result->ddr_u64LambBuyA + result->ddr_u64CloseHighLimitLambSoldA;
-            stat->ds_u64AllLambSoldA += result->ddr_u64LambSoldA + result->ddr_u64CloseLowLimitLambBuyA;
+            stat->tdd_u64AllBuyA += result->td_u64BuyA + result->td_u64CloseHighLimitSoldA;
+            stat->tdd_u64AllSoldA += result->td_u64SoldA + result->td_u64CloseLowLimitBuyA;
+            stat->tdd_u64AllLambBuyA += result->td_u64LambBuyA + result->td_u64CloseHighLimitLambSoldA;
+            stat->tdd_u64AllLambSoldA += result->td_u64LambSoldA + result->td_u64CloseLowLimitLambBuyA;
 
             count ++;
         }
@@ -310,38 +310,38 @@ static void _dsAmountFromDayResult(
 
     if (count != 0)
     {
-        stat->ds_u64AveBuyA = stat->ds_u64AllBuyA / count;
-        stat->ds_u64AveSoldA = stat->ds_u64AllSoldA / count;
-        stat->ds_u64AveLambBuyA = stat->ds_u64AllLambBuyA / count;
-        stat->ds_u64AveLambSoldA = stat->ds_u64AllLambSoldA / count;
+        stat->tdd_u64AveBuyA = stat->tdd_u64AllBuyA / count;
+        stat->tdd_u64AveSoldA = stat->tdd_u64AllSoldA / count;
+        stat->tdd_u64AveLambBuyA = stat->tdd_u64AllLambBuyA / count;
+        stat->tdd_u64AveLambSoldA = stat->tdd_u64AllLambSoldA / count;
     }
 }
 
 static void _dsOtherFromDayResult(
-    data_stat_param_t * pdsp, data_stat_t * stat,
-    da_day_summary_t * buffer, olint_t num)
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat,
+    tx_ds_t * buffer, olint_t num)
 {
-    da_day_summary_t * summary;
-	da_day_result_t * result;
+    tx_ds_t * summary;
+	tx_dr_t * result;
     olint_t i;
 
     summary = buffer;
-	result = summary->dds_ddrResult;
-    ol_strcpy(stat->ds_strLastTimeLowPrice, result->ddr_strLastTimeLowPrice);
-    stat->ds_dbMaxLastXInc = result->ddr_dbLastXInc;
+	result = summary->td_ptdResult;
+    ol_strcpy(stat->tdd_strLastTimeLowPrice, result->td_strLastTimeLowPrice);
+    stat->tdd_dbMaxLastXInc = result->td_dbLastXInc;
     for (i = 0; i < num; i ++)
     {
-		result = summary->dds_ddrResult;
-        if (stat->ds_dbMaxUpperShadowRatio < summary->dds_dbUpperShadowRatio)
-            stat->ds_dbMaxUpperShadowRatio = summary->dds_dbUpperShadowRatio;
-        if (stat->ds_dbMaxLowerShadowRatio < summary->dds_dbLowerShadowRatio)
-            stat->ds_dbMaxLowerShadowRatio = summary->dds_dbLowerShadowRatio;
+		result = summary->td_ptdResult;
+        if (stat->tdd_dbMaxUpperShadowRatio < summary->td_dbUpperShadowRatio)
+            stat->tdd_dbMaxUpperShadowRatio = summary->td_dbUpperShadowRatio;
+        if (stat->tdd_dbMaxLowerShadowRatio < summary->td_dbLowerShadowRatio)
+            stat->tdd_dbMaxLowerShadowRatio = summary->td_dbLowerShadowRatio;
 
-        if (stat->ds_dbMaxLastXInc < result->ddr_dbLastXInc)
+        if (stat->tdd_dbMaxLastXInc < result->td_dbLastXInc)
         {
-            stat->ds_dbMaxLastXInc = result->ddr_dbLastXInc;
-            ol_strcpy(stat->ds_strLastTimeLowPrice, result->ddr_strLastTimeLowPrice);
-            ol_strcpy(stat->ds_strLastTimeLowPriceDate, result->ddr_strDate);
+            stat->tdd_dbMaxLastXInc = result->td_dbLastXInc;
+            ol_strcpy(stat->tdd_strLastTimeLowPrice, result->td_strLastTimeLowPrice);
+            ol_strcpy(stat->tdd_strLastTimeLowPriceDate, result->td_strDate);
         }
 
         summary ++;
@@ -351,35 +351,36 @@ static void _dsOtherFromDayResult(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 dataStatFromDaySummary(
-    data_stat_param_t * pdsp, data_stat_t * stat, da_day_summary_t * buffer, olint_t num)
+u32 tx_datastat_statDaySummary(
+    tx_datastat_daysummary_param_t * ptddp, tx_datastat_daysummary_t * stat,
+    tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    da_day_summary_t * summary = buffer, * end = buffer + num - 1;
+    tx_ds_t * summary = buffer, * end = buffer + num - 1;
 
-    assert(pdsp != NULL);
-    assert((pdsp->dsp_pstrName != NULL) && (pdsp->dsp_nDayForTrend != 0));
+    assert(ptddp != NULL);
+    assert((ptddp->tddp_pstrName != NULL) && (ptddp->tddp_nDayForTrend != 0));
 
     memset(stat, 0, sizeof(*stat));
 
     if (num < 2)
         return JF_ERR_INVALID_DATA;
 
-    ol_strncpy(stat->ds_strName, pdsp->dsp_pstrName, 15);
-    stat->ds_nNumOfDay = num;
-    ol_strcpy(stat->ds_strStartDate, summary->dds_strDate);
-    ol_strcpy(stat->ds_strEndDate, end->dds_strDate);
+    ol_strncpy(stat->tdd_strName, ptddp->tddp_pstrName, 15);
+    stat->tdd_nNumOfDay = num;
+    ol_strcpy(stat->tdd_strStartDate, summary->td_strDate);
+    ol_strcpy(stat->tdd_strEndDate, end->td_strDate);
 
-    _dsPriceFromDayResult(pdsp, stat, buffer, num);
-    _dsVolFromDayResult(pdsp, stat, buffer, num, ! pdsp->dsp_bWithoutCloseHighLimit);
-    _dsAmountFromDayResult(pdsp, stat, buffer, num, ! pdsp->dsp_bWithoutCloseHighLimit);
-    _dsOtherFromDayResult(pdsp, stat, buffer, num);
+    _dsPriceFromDayResult(ptddp, stat, buffer, num);
+    _dsVolFromDayResult(ptddp, stat, buffer, num, ! ptddp->tddp_bWithoutCloseHighLimit);
+    _dsAmountFromDayResult(ptddp, stat, buffer, num, ! ptddp->tddp_bWithoutCloseHighLimit);
+    _dsOtherFromDayResult(ptddp, stat, buffer, num);
 
     return u32Ret;
 }
 
 /*WARNING: data is changed when sorting*/
-u32 descStatFromData(desc_stat_t * stat, oldouble_t * pdbdata, olint_t num)
+u32 tx_datastat_descData(tx_datastat_desc_t * stat, oldouble_t * pdbdata, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, m, n;
@@ -394,66 +395,66 @@ u32 descStatFromData(desc_stat_t * stat, oldouble_t * pdbdata, olint_t num)
 
     qsort(data, num, sizeof(oldouble_t), _compareData);
 
-    stat->ds_nCount = num;
+    stat->tdd_nCount = num;
 
     for (i = 0; i < num; i++)
     {
-        stat->ds_dbAll += data[i];
+        stat->tdd_dbAll += data[i];
 //        ol_printf(" %.3f", data[i]);
     }
-    stat->ds_dbMean = stat->ds_dbAll / num;
+    stat->tdd_dbMean = stat->tdd_dbAll / num;
 
     for (i = 0; i < num; i++)
     {
-        diff = data[i] - stat->ds_dbMean;
+        diff = data[i] - stat->tdd_dbMean;
 
-        stat->ds_dbVariance += diff * diff;
+        stat->tdd_dbVariance += diff * diff;
     }
-    stat->ds_dbVariance /= num - 1;
-    stat->ds_dbStDev = sqrt(stat->ds_dbVariance);
-    stat->ds_dbSEMean = stat->ds_dbStDev / sqrt(stat->ds_nCount);
+    stat->tdd_dbVariance /= num - 1;
+    stat->tdd_dbStDev = sqrt(stat->tdd_dbVariance);
+    stat->tdd_dbSEMean = stat->tdd_dbStDev / sqrt(stat->tdd_nCount);
 
-    stat->ds_dbMin = data[0];
-    stat->ds_dbMax = data[num - 1];
+    stat->tdd_dbMin = data[0];
+    stat->tdd_dbMax = data[num - 1];
 
     if (num % 2)
-        stat->ds_dbMedian = data[num / 2];
+        stat->tdd_dbMedian = data[num / 2];
     else
-        stat->ds_dbMedian = (data[num / 2 - 1] + data[num / 2]) / 2;
+        stat->tdd_dbMedian = (data[num / 2 - 1] + data[num / 2]) / 2;
 
     m = num / 2;
     if (m % 2)
-        stat->ds_dbQ1 = data[m / 2];
+        stat->tdd_dbQ1 = data[m / 2];
     else
-        stat->ds_dbQ1 = (data[m / 2 - 1] + data[m / 2]) / 2;
+        stat->tdd_dbQ1 = (data[m / 2 - 1] + data[m / 2]) / 2;
 
     if (m % 2)
-        stat->ds_dbQ3 = data[m + m / 2];
+        stat->tdd_dbQ3 = data[m + m / 2];
     else
-        stat->ds_dbQ3 = (data[m + m / 2 - 1] + data[m + m / 2]) / 2;
+        stat->tdd_dbQ3 = (data[m + m / 2 - 1] + data[m + m / 2]) / 2;
 
     m = n = 0;
     for (i = 0; i < num; i++)
     {
-        if ((data[i] >= stat->ds_dbMean - stat->ds_dbStDev) &&
-            (data[i] <= stat->ds_dbMean + stat->ds_dbStDev))
+        if ((data[i] >= stat->tdd_dbMean - stat->tdd_dbStDev) &&
+            (data[i] <= stat->tdd_dbMean + stat->tdd_dbStDev))
             n ++;
-        if ((data[i] >= stat->ds_dbMean - 2 * stat->ds_dbStDev) &&
-            (data[i] <= stat->ds_dbMean + 2 * stat->ds_dbStDev))
+        if ((data[i] >= stat->tdd_dbMean - 2 * stat->tdd_dbStDev) &&
+            (data[i] <= stat->tdd_dbMean + 2 * stat->tdd_dbStDev))
             m ++;
     }
 
-    stat->ds_dbStDev1Percent = n;
-    stat->ds_dbStDev1Percent /= num;
-    stat->ds_dbStDev2Percent = m;
-    stat->ds_dbStDev2Percent /= num;
+    stat->tdd_dbStDev1Percent = n;
+    stat->tdd_dbStDev1Percent /= num;
+    stat->tdd_dbStDev2Percent = m;
+    stat->tdd_dbStDev2Percent /= num;
 
     jf_mem_free((void **)&data);
 
     return u32Ret;
 }
 
-void getDoubleFrequency(
+void tx_datastat_getDoubleFrequency(
     oldouble_t * pdbValue, olint_t num, olint_t numofarea, olint_t * freq, oldouble_t * area)
 {
     oldouble_t dbHigh, dbLow;
@@ -490,8 +491,8 @@ void getDoubleFrequency(
     }
 }
 
-u32 getCorrelation2(
-    oldouble_t * pdba, desc_stat_t * pdsa, oldouble_t * pdbb, desc_stat_t * pdsb,
+u32 tx_datastat_getCorrelation2(
+    oldouble_t * pdba, tx_datastat_desc_t * ptdda, oldouble_t * pdbb, tx_datastat_desc_t * ptddb,
     olint_t num, oldouble_t * pdbr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -500,27 +501,27 @@ u32 getCorrelation2(
 
     for (i = 0; i < num; i ++)
     {
-        dbr += (pdba[i] - pdsa->ds_dbMean) * (pdbb[i] - pdsb->ds_dbMean);
+        dbr += (pdba[i] - ptdda->tdd_dbMean) * (pdbb[i] - ptddb->tdd_dbMean);
     }
 
-    dbr /= (pdsa->ds_dbStDev * pdsb->ds_dbStDev) * (num - 1);
+    dbr /= (ptdda->tdd_dbStDev * ptddb->tdd_dbStDev) * (num - 1);
     *pdbr = dbr;
 
     return u32Ret;
 }
 
-u32 getCorrelation(
+u32 tx_datastat_getCorrelation(
     oldouble_t * pdba, oldouble_t * pdbb, olint_t num, oldouble_t * pdbr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    desc_stat_t dsa, dsb;
+    tx_datastat_desc_t tdda, tddb;
 
-    u32Ret = descStatFromData(&dsa, pdba, num);
+    u32Ret = tx_datastat_descData(&tdda, pdba, num);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = descStatFromData(&dsb, pdbb, num);
+        u32Ret = tx_datastat_descData(&tddb, pdbb, num);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = getCorrelation2(pdba, &dsa, pdbb, &dsb, num, pdbr);
+        u32Ret = tx_datastat_getCorrelation2(pdba, &tdda, pdbb, &tddb, num, pdbr);
 
     return u32Ret;
 }

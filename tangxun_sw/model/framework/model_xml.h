@@ -8,8 +8,8 @@
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_XML_FILE_H
-#define TANGXUN_DAMODEL_XML_FILE_H
+#ifndef TANGXUN_TXMODEL_XML_FILE_H
+#define TANGXUN_TXMODEL_XML_FILE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -25,13 +25,13 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-boolean_t isDaModelXmlFile(const olchar_t * pstrName);
+boolean_t isTxModelXmlFile(const olchar_t * pstrName);
 
-u32 handleDaModelXmlFile(
+u32 handleTxModelXmlFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, jf_listhead_t * pjl);
 
 
-#endif /*TANGXUN_DAMODEL_XML_FILE_H*/
+#endif /*TANGXUN_TXMODEL_XML_FILE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

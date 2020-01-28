@@ -25,8 +25,11 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 daRuleIndiMacdDiffUpBreakDea(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+u32 txRuleIndiMacdDiffUpBreakDea(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
+
+u32 txRuleIndiMacdPositiveDiffDea(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
 
 #endif /*TANGXUN_RULE_INDI_MACD_H*/
 

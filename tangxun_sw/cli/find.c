@@ -27,7 +27,6 @@
 #include "tx_daysummary.h"
 #include "tx_datastat.h"
 #include "tx_stock.h"
-#include "tx_statarbitrage.h"
 #include "tx_env.h"
 #include "tx_model.h"
 #include "tx_persistency.h"
@@ -67,10 +66,10 @@ find [-a] [-p date~date] [-l] [-m] [-c] [-h] [-v]");
 }
 
 static boolean_t _isSuspendedStock(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, olint_t num)
 {
     boolean_t bRet = TRUE;
-    da_day_summary_t * last = buffer + num - 1;
+    tx_ds_t * last = buffer + num - 1;
     olint_t dw, cdays;
     olint_t lyear, lmonth, lday, ldays;
 
@@ -81,7 +80,7 @@ static boolean_t _isSuspendedStock(
     else if (dw == 0) /*Sunday*/
         cdays -= 2;
 
-    jf_date_getDate2FromString(last->dds_strDate, &lyear, &lmonth, &lday);
+    jf_date_getDate2FromString(last->td_strDate, &lyear, &lmonth, &lday);
     ldays = jf_date_convertDateToDaysFrom1970(lyear, lmonth, lday);
 
     if (ldays == cdays)
@@ -98,26 +97,26 @@ static boolean_t _isSuspendedStock(
 }
 
 static u32 _throwStockIntoModel(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, olint_t num)
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_model_t * model = NULL;
-    trade_pool_stock_t tps;
-    da_day_summary_t * end;
+    tx_trade_pool_stock_t ttps;
+    tx_ds_t * end;
 
     end = buffer + num - 1;
-    jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->dds_strDate);
+    jf_logger_logInfoMsg("throw stock into model, total: %d, last day: %s", num, end->td_strDate);
 
     model = tx_model_getFirstModel();
     while (model != NULL)
     {
-        u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &tps, buffer, num);
+        u32Ret = model->tm_fnCanBeTraded(model, stockinfo, &ttps, buffer, num);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
-            ol_strcpy(tps.tps_strModel, model->tm_strName);
-            u32Ret = getPoolStockInTradePersistency(&tps);
+            ol_bzero(&ttps, sizeof(tx_trade_pool_stock_t));
+            ol_strcpy(ttps.ttps_strStock, stockinfo->tsi_strCode);
+            ol_strcpy(ttps.ttps_strModel, model->tm_strName);
+            u32Ret = tx_persistency_getPoolStock(&ttps);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 jf_logger_logInfoMsg("%s is already in pool", stockinfo->tsi_strCode);
@@ -131,12 +130,12 @@ static u32 _throwStockIntoModel(
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_bzero(&tps, sizeof(trade_pool_stock_t));
-            ol_strcpy(tps.tps_strStock, stockinfo->tsi_strCode);
-            ol_strcpy(tps.tps_strAddDate, end->dds_strDate);
-            ol_strcpy(tps.tps_strModel, model->tm_strName);
+            ol_bzero(&ttps, sizeof(tx_trade_pool_stock_t));
+            ol_strcpy(ttps.ttps_strStock, stockinfo->tsi_strCode);
+            ol_strcpy(ttps.ttps_strAddDate, end->td_strDate);
+            ol_strcpy(ttps.ttps_strModel, model->tm_strName);
 
-            u32Ret = insertPoolStockIntoTradePersistency(&tps);
+            u32Ret = tx_persistency_insertPoolStock(&ttps);
         }
 
         model = tx_model_getNextModel(model);
@@ -147,12 +146,12 @@ static u32 _throwStockIntoModel(
 
 static u32 _findStocks(
     cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
-    da_day_summary_t * buffer, olint_t num)
+    tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = num;
 
-    u32Ret = readTradeDaySummaryWithFRoR(pstrDataDir, buffer, &total);
+    u32Ret = tx_ds_readDsWithFRoR(pstrDataDir, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (! pcfp->cfp_bAllStocks && _isSuspendedStock(stockinfo, buffer, total))
@@ -179,14 +178,14 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olint_t total = 400; //MAX_NUM_OF_DAY_SUMMARY;
-    da_day_summary_t * buffer = NULL;
+    tx_ds_t * buffer = NULL;
     tx_stock_info_t * stockinfo;
 
     _cleanTradeStockFromPool();
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(tx_ds_t) * total);
 
-    stockinfo = getFirstStockInfo();
+    stockinfo = tx_stock_getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -201,7 +200,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            stockinfo = getNextStockInfo(stockinfo);
+            stockinfo = tx_stock_getNextStockInfo(stockinfo);
         }
     }
 
@@ -212,7 +211,7 @@ static u32 _startFindForStockList(cli_find_param_t * pcfp, tx_cli_master_t * ptc
 
 static u32 _findStockInPeriod(
     cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
-    da_day_summary_t * buffer, olint_t num)
+    tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pdate;
@@ -242,7 +241,7 @@ static u32 _findStockInPeriod(
         }
         jf_date_getStringDate2(strDate, syear, smonth, sday);
 //        jf_clieng_outputLine("%s", pcfp->cfp_pstrPeriod);
-        total = daySummaryEndDataCount(buffer, num, strDate);
+        total = tx_ds_countDsWithEndData(buffer, num, strDate);
         if (total == 0)
         {
             sdays ++;
@@ -259,12 +258,12 @@ static u32 _findStockInPeriod(
 
 static u32 _startFindStockInPeriod(
     cli_find_param_t * pcfp, olchar_t * pstrDataDir, tx_stock_info_t * stockinfo,
-    da_day_summary_t * buffer, olint_t num)
+    tx_ds_t * buffer, olint_t num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = num;
 
-    u32Ret = readTradeDaySummaryWithFRoR(pstrDataDir, buffer, &total);
+    u32Ret = tx_ds_readDsWithFRoR(pstrDataDir, buffer, &total);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _findStockInPeriod(pcfp, pstrDataDir, stockinfo, buffer, total);
@@ -280,21 +279,21 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     olint_t total = 800; //MAX_NUM_OF_DAY_SUMMARY;
-    da_day_summary_t * buffer = NULL;
+    tx_ds_t * buffer = NULL;
     tx_stock_info_t * stockinfo;
 
     if (strlen(pcfp->cfp_pstrPeriod) != 21)
         return JF_ERR_INVALID_PARAM;
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(tx_ds_t) * total);
 
-    stockinfo = getFirstStockInfo();
+    stockinfo = tx_stock_getFirstStockInfo();
     while ((stockinfo != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
 #if 0
         if (ol_strcmp(stockinfo->tsi_strCode, "sh600073") != 0)
         {
-            stockinfo = getNextStockInfo(stockinfo);
+            stockinfo = tx_stock_getNextStockInfo(stockinfo);
             continue;
         }
 #endif
@@ -310,7 +309,7 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            stockinfo = getNextStockInfo(stockinfo);
+            stockinfo = tx_stock_getNextStockInfo(stockinfo);
         }
     }
 
@@ -321,20 +320,20 @@ static u32 _startFindForStockListInPeriod(cli_find_param_t * pcfp, tx_cli_master
 
 static olint_t _compareTpPoolStockByModel(const void * a, const void * b)
 {
-    trade_pool_stock_t * ra, * rb;
+    tx_trade_pool_stock_t * ra, * rb;
     olint_t ret;
 
-    ra = (trade_pool_stock_t *)a;
-    rb = (trade_pool_stock_t *)b;
+    ra = (tx_trade_pool_stock_t *)a;
+    rb = (tx_trade_pool_stock_t *)b;
 
-    ret = ol_strcmp(ra->tps_strModel, rb->tps_strModel);
+    ret = ol_strcmp(ra->ttps_strModel, rb->ttps_strModel);
     if (ret == 0)
-        ret = ol_strcmp(ra->tps_strAddDate, rb->tps_strAddDate);
+        ret = ol_strcmp(ra->ttps_strAddDate, rb->ttps_strAddDate);
 
     return ret;
 }
 
-static void _printStockPoolBrief(olint_t id, trade_pool_stock_t * info)
+static void _printStockPoolBrief(olint_t id, tx_trade_pool_stock_t * info)
 {
     jf_clieng_caption_t * pcc = &ls_ccStockPoolBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -348,22 +347,22 @@ static void _printStockPoolBrief(olint_t id, trade_pool_stock_t * info)
     pcc++;
 
     /*Stock*/
-    ol_sprintf(strField, "%s", info->tps_strStock);
+    ol_sprintf(strField, "%s", info->ttps_strStock);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*Model*/
-    ol_sprintf(strField, "%s", info->tps_strModel);
+    ol_sprintf(strField, "%s", info->ttps_strModel);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*ModelParam*/
-    ol_snprintf(strField, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->tps_strModelParam);
+    ol_snprintf(strField, JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1, "%s", info->ttps_strModelParam);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
     /*AddDate*/
-    ol_sprintf(strField, "%s", info->tps_strAddDate);
+    ol_sprintf(strField, "%s", info->ttps_strAddDate);
     jf_clieng_appendBriefColumn(pcc, strInfo, strField);
     pcc++;
 
@@ -374,22 +373,22 @@ static u32 _listStocksInPool(cli_find_param_t * pcfp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t index = 0, count = 0;
-    trade_pool_stock_t * stockinpool = NULL, * pStock = NULL;
+    tx_trade_pool_stock_t * stockinpool = NULL, * pStock = NULL;
 
-    count = getNumOfPoolStockInTradePersistency();
+    count = tx_persistency_getNumOfPoolStock();
     jf_clieng_outputLine("Total %u stocks in pool.", count);
 
     if (count == 0)
         return u32Ret;
 
     jf_jiukun_allocMemory(
-        (void **)&stockinpool, count * sizeof(trade_pool_stock_t));
+        (void **)&stockinpool, count * sizeof(tx_trade_pool_stock_t));
 
-    u32Ret = getAllPoolStockInTradePersistency(stockinpool, &count);
+    u32Ret = tx_persistency_getAllPoolStock(stockinpool, &count);
     if ((u32Ret == JF_ERR_NO_ERROR) && (count > 0))
     {
         if (pcfp->cfp_u8Action == CLI_ACTION_FIND_LIST_POOL_BY_MODEL)
-            qsort(stockinpool, count, sizeof(trade_pool_stock_t), _compareTpPoolStockByModel);
+            qsort(stockinpool, count, sizeof(tx_trade_pool_stock_t), _compareTpPoolStockByModel);
 
         if (pcfp->cfp_bVerbose)
         {

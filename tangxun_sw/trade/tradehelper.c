@@ -49,19 +49,19 @@ static boolean_t _isHoliday(olint_t year, olint_t mon, olint_t day)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 setStockFirstTradeDate(const char * strStockPath)
+u32 tx_trade_setStockFirstTradeDate(const char * strStockPath)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t total = 10;
-    da_day_summary_t * buffer = NULL;
+    tx_ds_t * buffer = NULL;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
     tx_stock_info_t * stockinfo;
 
     jf_logger_logInfoMsg("set stock first trade date, %s", strStockPath);
 
-    jf_jiukun_allocMemory((void **)&buffer, sizeof(da_day_summary_t) * total);
+    jf_jiukun_allocMemory((void **)&buffer, sizeof(tx_ds_t) * total);
 
-    stockinfo = getFirstStockInfo();
+    stockinfo = tx_stock_getFirstStockInfo();
     while (stockinfo != NULL)
     {
         ol_snprintf(
@@ -71,16 +71,16 @@ u32 setStockFirstTradeDate(const char * strStockPath)
 
         total = 10;
 
-        u32Ret = readTradeDaySummaryFromDate(strFullname, NULL, buffer, &total);
+        u32Ret = tx_ds_readDsFromDate(strFullname, NULL, buffer, &total);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_strcpy(stockinfo->tsi_strFirstTradeDate, buffer->dds_strDate);
+            ol_strcpy(stockinfo->tsi_strFirstTradeDate, buffer->td_strDate);
             jf_logger_logDebugMsg(
                 "set stock first trade date, stock: %s, firstdate: %s",
                 stockinfo->tsi_strCode, stockinfo->tsi_strFirstTradeDate);
         }
 
-        stockinfo = getNextStockInfo(stockinfo);
+        stockinfo = tx_stock_getNextStockInfo(stockinfo);
     }
 
     jf_jiukun_freeMemory((void **)&buffer);
@@ -88,7 +88,7 @@ u32 setStockFirstTradeDate(const char * strStockPath)
     return u32Ret;
 }
 
-boolean_t isAfterStockFirstTradeDate(
+boolean_t tx_trade_isAfterStockFirstTradeDate(
     const tx_stock_info_t * stockinfo, const olchar_t * pstrDate)
 {
     boolean_t bRet = TRUE;
@@ -99,7 +99,7 @@ boolean_t isAfterStockFirstTradeDate(
     return bRet;
 }
 
-boolean_t isHoliday(olint_t days)
+boolean_t tx_trade_isHoliday(olint_t days)
 {
     boolean_t bRet = FALSE;
     olint_t year, month, day;
@@ -111,7 +111,7 @@ boolean_t isHoliday(olint_t days)
     return bRet;
 }
 
-u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
+u32 tx_trade_getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;

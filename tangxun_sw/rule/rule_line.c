@@ -28,29 +28,29 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _isNearPressureLine(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total,
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total,
     tx_rule_pressure_line_param_t * ptrplp)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * highest = ptrplp->trplp_pddsUpperLeft;
+    tx_ds_t * highest = ptrplp->trplp_ptdUpperLeft;
     oldouble_t dbPrice;
-    da_day_summary_t * end = buffer + total - 1;
+    tx_ds_t * end = buffer + total - 1;
 
-    if (highest->dds_dbClosingPrice < ptrplp->trplp_pddsUpperRight->dds_dbClosingPrice)
-        highest = ptrplp->trplp_pddsUpperRight;
+    if (highest->td_dbClosingPrice < ptrplp->trplp_ptdUpperRight->td_dbClosingPrice)
+        highest = ptrplp->trplp_ptdUpperRight;
 
-    dbPrice = highest->dds_dbClosingPrice * (1 - ptrplp->trplp_dbRatio);
-    if (ptrplp->trplp_u8Condition == PRESSURE_LINE_CONDITION_NEAR)
+    dbPrice = highest->td_dbClosingPrice * (1 - ptrplp->trplp_dbRatio);
+    if (ptrplp->trplp_u8Condition == TX_RULE_PRESSURE_LINE_CONDITION_NEAR)
     {
-        if (end->dds_dbClosingPrice > dbPrice)
+        if (end->td_dbClosingPrice > dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
             ptrplp->trplp_dbPrice = dbPrice;
         }
     }
-    else if (ptrplp->trplp_u8Condition == PRESSURE_LINE_CONDITION_FAR)
+    else if (ptrplp->trplp_u8Condition == TX_RULE_PRESSURE_LINE_CONDITION_FAR)
     {
-        if (end->dds_dbClosingPrice < dbPrice)
+        if (end->td_dbClosingPrice < dbPrice)
         {
             u32Ret = JF_ERR_NO_ERROR;
             ptrplp->trplp_dbPrice = dbPrice;
@@ -62,11 +62,11 @@ static u32 _isNearPressureLine(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRulePressureLine(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRulePressureLine(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    tx_rule_pressure_line_param_t * ptrplp = (tx_rule_pressure_line_param_t *)ptrp;
+    tx_rule_pressure_line_param_t * ptrplp = pParam;
 
     u32Ret = _isNearPressureLine(stockinfo, buffer, total, ptrplp);
         

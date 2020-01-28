@@ -8,8 +8,8 @@
  *  @note
  */
 
-#ifndef TANGXUN_DAMODEL_COMMON_H
-#define TANGXUN_DAMODEL_COMMON_H
+#ifndef TANGXUN_TXMODEL_COMMON_H
+#define TANGXUN_TXMODEL_COMMON_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -26,13 +26,13 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 destroyDaModel(tx_model_t ** pptm);
+u32 destroyTxModel(tx_model_t ** pptm);
 
-u32 createDaModel(tx_model_t ** pptm);
+u32 createTxModel(tx_model_t ** pptm);
 
-u32 checkDaModelField(tx_model_t * ptm);
+u32 checkTxModelField(tx_model_t * ptm);
 
-#endif /*TANGXUN_DAMODEL_COMMON_H*/
+#endif /*TANGXUN_TXMODEL_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

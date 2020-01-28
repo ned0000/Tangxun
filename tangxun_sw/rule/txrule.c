@@ -1,7 +1,7 @@
 /**
- *  @file darule.c
+ *  @file txrule.c
  *
- *  @brief Base rule library.
+ *  @brief Basic rule library.
  *
  *  @author Min Zhang
  *
@@ -20,6 +20,8 @@
 #include "jf_hashtable.h"
 
 #include "tx_rule.h"
+#include "tx_err.h"
+
 #include "rule_rectangle.h"
 #include "rule_limit.h"
 #include "rule_st.h"
@@ -32,39 +34,42 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Maximum rules in hash table.
+ */
+#define MAX_RULE_IN_HASH_TABLE     (100)
+
 static tx_rule_t ls_trRules[] =
 {
-/* limite */
-    {"highLimitOfLastDay", daRuleHighLimitOfLastDay},
-    {"lowLimitOfLastDay", daRuleLowLimitOfLastDay},
-    {"minHighLimitDay", daRuleMinHighLimitDay},
-    {"noHighHighLimitDay", daRuleNoHighHighLimitDay},
+/* limit */
+    {TX_RULE_ID_HIGH_LIMIT_OF_LAST_DAY, 0, 0, "highLimitOfLastDay", txRuleHighLimitOfLastDay},
+    {TX_RULE_ID_LOW_LIMIT_OF_LAST_DAY, 0, 0, "lowLimitOfLastDay", txRuleLowLimitOfLastDay},
+    {TX_RULE_ID_MIN_HIGH_LIMIT_DAY, 0, 0, "minHighLimitDay", txRuleMinHighLimitDay},
+    {TX_RULE_ID_NO_HIGH_HIGH_LIMIT_DAY, 0, 0, "noHighHighLimitDay", txRuleNoHighHighLimitDay},
 /* bottom */
-    {"inBottomArea", daRuleInBottomArea},
+    {TX_RULE_ID_IN_BOTTOM_AREA, 0, 0, "inBottomArea", txRuleInBottomArea},
 /* st */
-    {"notStRelated", daRuleNotStRelated},
-    {"St", daRuleSt},
-    {"StDelisting", daRuleStDelisting},
+    {TX_RULE_ID_NOT_ST_RELATED, 0, 0, "notStRelated", txRuleNotStRelated},
+    {TX_RULE_ID_ST, 0, 0, "St", txRuleSt},
+    {TX_RULE_ID_ST_DELISTING, 0, 0, "StDelisting", txRuleStDelisting},
 /* misc */
-    {"minNumOfDaySummary", daRuleMinNumOfDaySummary},
+    {TX_RULE_ID_MIN_NUM_OF_DAY_SUMMARY, 0, 0, "minNumOfDaySummary", txRuleMinNumOfDaySummary},
 /* rectangle */
-    {"rectangle", daRuleRectangle},
+    {TX_RULE_ID_RECTANGLE, 0, 0, "rectangle", txRuleRectangle},
 /* price */
-    {"nDaysUpInMDays", daRuleNDaysUpInMDays},
-    {"minRampingDay", daRuleMinRampingDay},
-    {"needStopLoss", daRuleNeedStopLoss},
-    {"priceVolatility", daRulePriceVolatility},
+    {TX_RULE_ID_N_DAYS_UP_IN_M_DAYS, 0, 0, "nDaysUpInMDays", txRuleNDaysUpInMDays},
+    {TX_RULE_ID_MIN_RAMPING_DAY, 0, 0, "minRampingDay", txRuleMinRampingDay},
+    {TX_RULE_ID_NEED_STOP_LOSS, 0, 0, "needStopLoss", txRuleNeedStopLoss},
+    {TX_RULE_ID_PRICE_VOLATILITY, 0, 0, "priceVolatility", txRulePriceVolatility},
 /* vol */
-    {"minAbnormalVolRatioDay", daRuleMinAbnormalVolRatioDay},
+    {TX_RULE_ID_MIN_ABNORMAL_VOL_RATIO_DAY, 0, 0, "minAbnormalVolRatioDay", txRuleMinAbnormalVolRatioDay},
 /* indi macd */
-    {"indiMacdDiffUpBreakDea", daRuleIndiMacdDiffUpBreakDea},
+    {TX_RULE_ID_INDI_MACD_DIFF_UP_BREAK_DEA, 0, 0, "indiMacdDiffUpBreakDea", txRuleIndiMacdDiffUpBreakDea},
+    {TX_RULE_ID_INDI_MACD_POSITIVE_DIFF_DEA, 0, 0, "indiMacdPositiveDiffDea", txRuleIndiMacdPositiveDiffDea},
 /* line */
-    {"pressureLine", daRulePressureLine},
+    {TX_RULE_ID_PRESSURE_LINE, 0, 0, "pressureLine", txRulePressureLine},
 };
 
 static u32 ls_u32NumOfRules = sizeof(ls_trRules) / sizeof(tx_rule_t);
-
-#define MAX_DA_RULE_IN_TABLE     (100)
 
 static jf_hashtable_t * ls_pjhDaRuleTable = NULL;
 
@@ -110,7 +115,7 @@ u32 tx_rule_getAllRules(tx_rule_t ** ppRule)
     return u32Ret;
 }
 
-u32 tx_rule_getRule(char * name, tx_rule_t ** ppRule)
+u32 tx_rule_getRuleByName(const olchar_t * name, tx_rule_t ** ppRule)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -118,7 +123,20 @@ u32 tx_rule_getRule(char * name, tx_rule_t ** ppRule)
         u32Ret = JF_ERR_NOT_INITIALIZED;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_hashtable_getEntry(ls_pjhDaRuleTable, name, (void **)ppRule);
+        u32Ret = jf_hashtable_getEntry(ls_pjhDaRuleTable, (void *)name, (void **)ppRule);
+
+    return u32Ret;
+}
+
+u32 tx_rule_getRuleById(const u16 u16Id, tx_rule_t ** ppRule)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (u16Id >= TX_RULE_ID_MAX)
+        u32Ret = TX_ERR_INVALID_RULE_ID;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppRule = &ls_trRules[u16Id];
 
     return u32Ret;    
 }
@@ -146,8 +164,10 @@ u32 tx_rule_init(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtable_create_param_t jhcp;
 
+    JF_LOGGER_INFO("init rule");
+
     ol_bzero(&jhcp, sizeof(jhcp));
-    jhcp.jhcp_u32MinSize = MAX_DA_RULE_IN_TABLE;
+    jhcp.jhcp_u32MinSize = MAX_RULE_IN_HASH_TABLE;
     jhcp.jhcp_fnCmpKeys = _fnDaRuleCmpKeys;
     jhcp.jhcp_fnHashKey = jf_hashtable_hashPJW;
     jhcp.jhcp_fnGetKeyFromEntry = _fnDaRuleGetKeyFromEntry;
@@ -164,6 +184,8 @@ u32 tx_rule_init(void)
 u32 tx_rule_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+
+    JF_LOGGER_INFO("fini rule");
 
     if (ls_pjhDaRuleTable != NULL)
         jf_hashtable_destroy(&ls_pjhDaRuleTable);

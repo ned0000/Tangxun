@@ -23,13 +23,12 @@
 #include "jf_clieng.h"
 
 #include "tx_model.h"
+#include "tx_err.h"
+
 #include "model_manager.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** The directory includes library which contain model 
- */
-#define MODEL_LIB_DIR "../lib/model"
 
 static JF_LISTHEAD(ls_jlModel);
 
@@ -37,7 +36,7 @@ static JF_LISTHEAD(ls_jlModel);
 
 static u32 _findModelByName(const olchar_t * name, tx_model_t ** model)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Ret = TX_ERR_MODEL_NOT_FOUND;
     jf_listhead_t * pos;
     tx_model_t * ptm;
 
@@ -49,30 +48,28 @@ static u32 _findModelByName(const olchar_t * name, tx_model_t ** model)
         if (ol_strncasecmp(ptm->tm_strName, name, ol_strlen(ptm->tm_strName)) == 0)
         {
             *model = ptm;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
     }
-
-    if (*model == NULL)
-        u32Ret = JF_ERR_NOT_FOUND;
 
     return u32Ret;
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 tx_model_initModelFramework(void)
+u32 tx_model_initFramework(const olchar_t * pstrModelDir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("init da model framework");
+    JF_LOGGER_INFO("init framework");
 
-    u32Ret = addDaModel(&ls_jlModel, MODEL_LIB_DIR);
+    u32Ret = addDaModel(&ls_jlModel, pstrModelDir);
 
     return u32Ret;
 }
 
-u32 tx_model_finiModelFramework(void)
+u32 tx_model_finiFramework(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 

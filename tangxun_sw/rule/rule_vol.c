@@ -29,21 +29,20 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleMinAbnormalVolRatioDay(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleMinAbnormalVolRatioDay(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    tx_rule_min_abnormal_vol_ratio_day_param_t * param =
-        (tx_rule_min_abnormal_vol_ratio_day_param_t *)ptrp;
+    tx_rule_min_abnormal_vol_ratio_day_param_t * param = pParam;
     u32 count = 0;
-    da_day_summary_t * start, * end;
+    tx_ds_t * start, * end;
 
     start = buffer;
     end = buffer + total - 1;
 
     while (start <= end)
     {
-        if (start->dds_dbVolumeRatio >= param->trmavrdp_dbRatio)
+        if (start->td_dbVolumeRatio >= param->trmavrdp_dbRatio)
             count ++;
         start ++;
     }

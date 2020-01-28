@@ -31,7 +31,7 @@
 
 #include "tx_env.h"
 #include "tx_stock.h"
-#include "tx_statarbitrage.h"
+#include "tx_statarbi.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -39,55 +39,55 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-oldouble_t getCorrelationWithIndex(tx_stock_info_t * info)
+oldouble_t tx_statarbi_getCorrelationWithIndex(tx_stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strStocks[32];
-    sa_stock_info_t * sastock = NULL;
+    tx_statarbi_stock_t * sastock = NULL;
     olint_t nDaySummary = 60;
 
     ol_strcpy(strStocks, info->tsi_strCode);
     ol_strcat(strStocks, ",");
-    if (isShStockExchange(info->tsi_strCode))
+    if (tx_stock_isShStockExchange(info->tsi_strCode))
         ol_strcat(strStocks, TX_STOCK_SH_COMPOSITE_INDEX);
     else
         ol_strcat(strStocks, TX_STOCK_SZ_COMPOSITIONAL_INDEX);
 
-    u32Ret = newSaStockInfo(
+    u32Ret = tx_statarbi_newStockInfo(
 		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        dbret = getSaStockInfoCorrelation(sastock, nDaySummary);
+        dbret = tx_statarbi_getCorrelation(sastock, nDaySummary);
     }
 
     if (sastock != NULL)
-        freeSaStockInfo(&sastock);
+        tx_statarbi_freeStockInfo(&sastock);
 
     return dbret;
 }
 
-oldouble_t getCorrelationWithSmeIndex(tx_stock_info_t * info)
+oldouble_t tx_statarbi_getCorrelationWithSmeIndex(tx_stock_info_t * info)
 {
     oldouble_t dbret = -9999.99;
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strStocks[32];
-    sa_stock_info_t * sastock = NULL;
+    tx_statarbi_stock_t * sastock = NULL;
     olint_t nDaySummary = 60;
 
     ol_strcpy(strStocks, info->tsi_strCode);
     ol_strcat(strStocks, ",");
     ol_strcat(strStocks, TX_STOCK_SME_COMPOSITIONAL_INDEX);
 
-    u32Ret = newSaStockInfo(
+    u32Ret = tx_statarbi_newStockInfo(
 		tx_env_getVar(TX_ENV_VAR_DATA_PATH), strStocks, &sastock, nDaySummary * 2);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        dbret = getSaStockInfoCorrelation(sastock, nDaySummary);
+        dbret = tx_statarbi_getCorrelation(sastock, nDaySummary);
     }
 
     if (sastock != NULL)
-        freeSaStockInfo(&sastock);
+        tx_statarbi_freeStockInfo(&sastock);
 
     return dbret;
 }

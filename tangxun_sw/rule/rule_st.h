@@ -25,14 +25,14 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 daRuleNotStRelated(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+u32 txRuleNotStRelated(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
 
-u32 daRuleSt(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+u32 txRuleSt(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
 
-u32 daRuleStDelisting(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+u32 txRuleStDelisting(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
 
 #endif /*TANGXUN_RULE_ST_H*/
 

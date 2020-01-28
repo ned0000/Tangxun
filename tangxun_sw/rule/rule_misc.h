@@ -25,8 +25,8 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 daRuleMinNumOfDaySummary(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp);
+u32 txRuleMinNumOfDaySummary(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam);
 
 #endif /*TANGXUN_RULE_MISC_H*/
 

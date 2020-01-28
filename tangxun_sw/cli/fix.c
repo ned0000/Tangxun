@@ -56,8 +56,8 @@ u32 processFix(void * pMaster, void * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_fix_param_t * pcfp = (cli_fix_param_t *)pParam;
     tx_cli_master_t * pdm = (tx_cli_master_t *)pMaster;
-    fix_param_t fixp;
-    fix_result_t fixresult;
+    tx_fixdata_param_t fixp;
+    tx_fixdata_result_t fixresult;
 
     if (pcfp->cfp_u8Action == CLI_ACTION_SHOW_HELP)
     {
@@ -66,14 +66,14 @@ u32 processFix(void * pMaster, void * pParam)
     else if (pcfp->cfp_u8Action == CLI_ACTION_FIX_FILE)
     {
         memset(&fixp, 0, sizeof(fixp));
-        fixp.fp_bOverwrite = pcfp->cfp_bOverwrite;
+        fixp.tfp_bOverwrite = pcfp->cfp_bOverwrite;
 
-        u32Ret = fixDataFile(pcfp->cfp_pstrData, &fixp, &fixresult);
+        u32Ret = tx_fixdata_fixDataFile(pcfp->cfp_pstrData, &fixp, &fixresult);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            if (fixresult.fr_nDeletedLine != 0)
+            if (fixresult.tfr_nDeletedLine != 0)
                 jf_clieng_outputLine(
-                    "Delete %d lines from data file", fixresult.fr_nDeletedLine);
+                    "Delete %d lines from data file", fixresult.tfr_nDeletedLine);
         }
         else
         {

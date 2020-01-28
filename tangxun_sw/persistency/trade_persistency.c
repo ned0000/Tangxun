@@ -31,7 +31,7 @@ static tp_manager_t ls_tmTpManager;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-u32 initTradePersistency(void)
+u32 tx_persistency_init(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -65,7 +65,7 @@ u32 initTradePersistency(void)
     return u32Ret;
 }
 
-u32 finiTradePersistency(void)
+u32 tx_persistency_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -78,7 +78,7 @@ u32 finiTradePersistency(void)
 }
 
 
-u32 startTradePersistencyTransaction(void)
+u32 tx_persistency_startTransaction(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -89,7 +89,7 @@ u32 startTradePersistencyTransaction(void)
 }
 
 
-u32 commitTradePersistencyTransaction(void)
+u32 tx_persistency_commitTransaction(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -100,7 +100,7 @@ u32 commitTradePersistencyTransaction(void)
 }
 
 
-u32 rollbackTradePersistencyTransaction(void)
+u32 tx_persistency_rollbackTransaction(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -110,7 +110,7 @@ u32 rollbackTradePersistencyTransaction(void)
     return u32Ret;
 }
 
-u32 replacePoolStockIntoTradePersistency(trade_pool_stock_t * pStock)
+u32 tx_persistency_replacePoolStock(tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -120,19 +120,19 @@ u32 replacePoolStockIntoTradePersistency(trade_pool_stock_t * pStock)
     return u32Ret;
 }
 
-u32 insertPoolStockIntoTradePersistency(trade_pool_stock_t * pStock)
+u32 tx_persistency_insertPoolStock(tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
 
-    jf_logger_logInfoMsg("insert pool stock, %s, %s", pStock->tps_strStock, pStock->tps_strModel);
+    jf_logger_logInfoMsg("insert pool stock, %s, %s", pStock->ttps_strStock, pStock->ttps_strModel);
 
     u32Ret = ptm->tm_fnInsertPoolStock(ptm, pStock);
 
     return u32Ret;
 }
 
-u32 updatePoolStockInTradePersistency(trade_pool_stock_t * pStock)
+u32 tx_persistency_updatePoolStock(tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -142,7 +142,7 @@ u32 updatePoolStockInTradePersistency(trade_pool_stock_t * pStock)
     return u32Ret;
 }
 
-u32 removePoolStockFromTradePersistency(trade_pool_stock_t * pStock)
+u32 tx_persistency_removePoolStock(tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -152,7 +152,7 @@ u32 removePoolStockFromTradePersistency(trade_pool_stock_t * pStock)
     return u32Ret;
 }
 
-u32 getAllPoolStockInTradePersistency(trade_pool_stock_t * pStock, olint_t * pnNum)
+u32 tx_persistency_getAllPoolStock(tx_trade_pool_stock_t * pStock, olint_t * pnNum)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -170,7 +170,7 @@ u32 getAllPoolStockInTradePersistency(trade_pool_stock_t * pStock, olint_t * pnN
     return u32Ret;
 }
 
-u32 getPoolStockInTradePersistency(trade_pool_stock_t * pStock)
+u32 tx_persistency_getPoolStock(tx_trade_pool_stock_t * pStock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -180,7 +180,7 @@ u32 getPoolStockInTradePersistency(trade_pool_stock_t * pStock)
     return u32Ret;
 }
 
-olint_t getNumOfPoolStockInTradePersistency(void)
+olint_t tx_persistency_getNumOfPoolStock(void)
 {
     tp_manager_t * ptm = &ls_tmTpManager;
     olint_t ret = ptm->tm_fnGetNumOfPoolStock(ptm);
@@ -188,7 +188,7 @@ olint_t getNumOfPoolStockInTradePersistency(void)
     return ret;
 }
 
-olint_t getNumOfTradingRecordInTradePersistency(void)
+olint_t tx_persistency_getNumOfTradingRecord(void)
 {
     tp_manager_t * ptm = &ls_tmTpManager;
     olint_t ret = ptm->tm_fnGetNumOfTradingRecord(ptm);
@@ -196,7 +196,7 @@ olint_t getNumOfTradingRecordInTradePersistency(void)
     return ret;
 }
 
-u32 getAllTradingRecordInTradePersistency(trade_trading_record_t * pRecord, olint_t * pnNum)
+u32 tx_persistency_getAllTradingRecord(tx_trade_trading_record_t * pRecord, olint_t * pnNum)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -206,7 +206,7 @@ u32 getAllTradingRecordInTradePersistency(trade_trading_record_t * pRecord, olin
     return u32Ret;
 }
 
-u32 insertTradingRecordIntoTradePersistency(trade_trading_record_t * pRecord)
+u32 tx_persistency_insertTradingRecord(tx_trade_trading_record_t * pRecord)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;
@@ -216,7 +216,7 @@ u32 insertTradingRecordIntoTradePersistency(trade_trading_record_t * pRecord)
     return u32Ret;
 }
 
-u32 clearDataInTradePersistency(void)
+u32 tx_persistency_clearData(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tp_manager_t * ptm = &ls_tmTpManager;

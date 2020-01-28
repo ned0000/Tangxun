@@ -32,37 +32,37 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 daRuleHighLimitOfLastDay(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleHighLimitOfLastDay(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * last = buffer + total - 1;
+    tx_ds_t * last = buffer + total - 1;
 
-    if (last->dds_bCloseHighLimit)
+    if (last->td_bCloseHighLimit)
         u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
 
-u32 daRuleLowLimitOfLastDay(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleLowLimitOfLastDay(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * last = buffer + total - 1;
+    tx_ds_t * last = buffer + total - 1;
 
-    if (last->dds_bCloseLowLimit)
+    if (last->td_bCloseLowLimit)
         u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
 
-u32 daRuleMinHighLimitDay(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleMinHighLimitDay(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    tx_rule_min_high_limit_day_param_t * param = (tx_rule_min_high_limit_day_param_t *)ptrp;
+    tx_rule_min_high_limit_day_param_t * param = pParam;
     u32 highcount = 0, closecount = 0;
-    da_day_summary_t * start, * end;
+    tx_ds_t * start, * end;
 
     start = buffer;
     end = buffer + total - 1;
@@ -71,12 +71,12 @@ u32 daRuleMinHighLimitDay(
     {
         if (param->trmhldp_bHighHighLimit)
         {
-            if (start->dds_bHighHighLimit)
+            if (start->td_bHighHighLimit)
                 highcount ++;
         }
         if (param->trmhldp_bCloseHighLimit)
         {
-            if (start->dds_bCloseHighLimit)
+            if (start->td_bCloseHighLimit)
                 closecount ++;
         }
 
@@ -98,18 +98,18 @@ u32 daRuleMinHighLimitDay(
     return JF_ERR_NO_ERROR;
 }
 
-u32 daRuleNoHighHighLimitDay(
-    tx_stock_info_t * stockinfo, da_day_summary_t * buffer, int total, tx_rule_param_t * ptrp)
+u32 txRuleNoHighHighLimitDay(
+    tx_stock_info_t * stockinfo, tx_ds_t * buffer, int total, void * pParam)
 {
     u32 u32Ret = JF_ERR_NOT_MATCH;
-    da_day_summary_t * start, * end;
+    tx_ds_t * start, * end;
 
     start = buffer;
     end = buffer + total - 1;
 
     while (start <= end)
     {
-        if (start->dds_bHighHighLimit)
+        if (start->td_bHighHighLimit)
             return u32Ret;
 
         start ++;

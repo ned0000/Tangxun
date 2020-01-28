@@ -26,6 +26,8 @@
 #include "jf_date.h"
 
 #include "tx_stock.h"
+#include "tx_config.h"
+
 #include "datransd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -34,6 +36,7 @@ static boolean_t ls_bForeground = FALSE;
 
 static const olchar_t * ls_pstrProgramName = "datransd";
 static const olchar_t * ls_pstrVersion = "1.0.0";
+
 
 /* --- private routine section ------------------------------------------------------------------ */
 static void _printDatransdUsage(void)
@@ -121,6 +124,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t ehpParam;
     datransd_param_t dp;
     olchar_t strExecutable[100];
+    tx_stock_init_param_t tsipParam;
 
     jf_file_getFileName(strExecutable, 100, argv[0]);
     if (jf_process_isAlreadyRunning(strExecutable))
@@ -160,7 +164,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_jiukun_init(&jjip);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = initStockList();
+        {
+            ol_bzero(&tsipParam, sizeof(tsipParam));
+            tsipParam.tsip_pstrStockListFile = TX_CONFIG_STOCK_LIST_FILE;
+
+            u32Ret = tx_stock_init(&tsipParam);
+        }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -183,7 +192,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             destroyDatransd(&ls_pgDatransd);
         }
 
-        finiStockList();
+        tx_stock_fini();
         jf_jiukun_fini();
 
         jf_process_finiSocket();

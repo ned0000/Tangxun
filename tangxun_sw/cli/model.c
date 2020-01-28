@@ -26,7 +26,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static jf_clieng_caption_t ls_jccDaModelBrief[] =
+static jf_clieng_caption_t ls_jccTxModelBrief[] =
 {
     {"Id", 3},
     {"Name", 9},
@@ -40,7 +40,7 @@ static u32 _modelHelp(tx_cli_master_t * ptcm)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputRawLine2("\
-Model\n\
+Model command.\n\
 model [-m model-name] [-v] [-h]");
     jf_clieng_outputRawLine2("\
   -m: specify the model name to show model information.");
@@ -52,9 +52,9 @@ model [-m model-name] [-v] [-h]");
     return u32Ret;
 }
 
-static void _printOneDaModelBrief(int modelid, tx_model_t * model)
+static void _printOneTxModelBrief(int modelid, tx_model_t * model)
 {
-    jf_clieng_caption_t * pcc = &ls_jccDaModelBrief[0];
+    jf_clieng_caption_t * pcc = &ls_jccTxModelBrief[0];
     olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
@@ -75,7 +75,7 @@ static void _printOneDaModelBrief(int modelid, tx_model_t * model)
     jf_clieng_outputLine(strInfo);
 }
 
-static u32 _printAllDaModelBrief(cli_model_param_t * pcmp)
+static u32 _printAllTxModelBrief(cli_model_param_t * pcmp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     int modelid = 1;
@@ -84,13 +84,12 @@ static u32 _printAllDaModelBrief(cli_model_param_t * pcmp)
     jf_clieng_printDivider();
 
     jf_clieng_printHeader(
-        ls_jccDaModelBrief,
-        sizeof(ls_jccDaModelBrief) / sizeof(jf_clieng_caption_t));
+        ls_jccTxModelBrief, sizeof(ls_jccTxModelBrief) / sizeof(jf_clieng_caption_t));
 
     ptm = tx_model_getFirstModel();
     while (ptm != NULL)
     {
-        _printOneDaModelBrief(modelid, ptm);
+        _printOneTxModelBrief(modelid, ptm);
         modelid ++;
 
         ptm = tx_model_getNextModel(ptm);
@@ -100,7 +99,7 @@ static u32 _printAllDaModelBrief(cli_model_param_t * pcmp)
     return u32Ret;
 }
 
-static u32 _printAllDaModel(cli_model_param_t * pcmp)
+static u32 _printAllTxModel(cli_model_param_t * pcmp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -110,13 +109,13 @@ static u32 _printAllDaModel(cli_model_param_t * pcmp)
     }
     else
     {
-        _printAllDaModelBrief(pcmp);
+        _printAllTxModelBrief(pcmp);
     }
 
     return u32Ret;
 }
 
-static u32 _printDaModel(cli_model_param_t * pcmp)
+static u32 _printTxModel(cli_model_param_t * pcmp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     tx_model_t * ptm;
@@ -127,9 +126,9 @@ static u32 _printDaModel(cli_model_param_t * pcmp)
         jf_clieng_printDivider();
 
         jf_clieng_printHeader(
-            ls_jccDaModelBrief, sizeof(ls_jccDaModelBrief) / sizeof(jf_clieng_caption_t));
+            ls_jccTxModelBrief, sizeof(ls_jccTxModelBrief) / sizeof(jf_clieng_caption_t));
 
-        _printOneDaModelBrief(1, ptm);
+        _printOneTxModelBrief(1, ptm);
     }
 
     return u32Ret;
@@ -147,11 +146,11 @@ u32 processModel(void * pMaster, void * pParam)
         u32Ret = _modelHelp(ptcm);
     else if (pcmp->cmp_u8Action == CLI_ACTION_MODEL_LIST_ALL)
     {
-        u32Ret = _printAllDaModel(pcmp);
+        u32Ret = _printAllTxModel(pcmp);
     }
     else if (pcmp->cmp_u8Action == CLI_ACTION_MODEL_LIST)
     {
-        u32Ret = _printDaModel(pcmp);
+        u32Ret = _printTxModel(pcmp);
     }
     else
         u32Ret = JF_ERR_MISSING_PARAM;

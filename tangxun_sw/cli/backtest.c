@@ -24,7 +24,6 @@
 #include "jf_time.h"
 
 #include "tx_daysummary.h"
-#include "tx_statarbitrage.h"
 #include "tx_env.h"
 #include "tx_model.h"
 #include "tx_persistency.h"
@@ -54,12 +53,12 @@ static u32 _backtestHelp(tx_cli_master_t * ptcm)
 Backtest model.\n\
 backtest [-m model] [-s] [-h] [-v]");
     jf_clieng_outputRawLine2("\
-  -s: use stock-by-stock method.\n\
+  -s: backtesting the model from stock.\n\
   -m: backtest specified model.");
     jf_clieng_outputRawLine2("\
   -v: verbose.\n\
   -h: print help information.\n\
-  By default, all models are backtested with day by day method.");
+  By default, the model is backtested from trading day.");
 
     return u32Ret;
 }
@@ -121,30 +120,8 @@ static u32 _printBacktestingResult(tx_backtesting_result_t * ptbr)
 static u32 _startBacktestAll(cli_backtest_param_t * pcbp, tx_cli_master_t * ptcm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    tx_backtesting_param_t tbp;
-    tx_backtesting_result_t tbr;
 
-    ol_snprintf(
-        strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
-    strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
-
-    bzero(&tbp, sizeof(tx_backtesting_param_t));
-    tbp.tbp_bAllModel = TRUE;
-    tbp.tbp_pstrStockPath = strFullname;
-    tbp.tbp_dbInitialFund = 100000;
-    tbp.tbp_u8Method = TX_BACKTESTING_METHOD_DAY_BY_DAY;
-    if (pcbp->cbp_bStockByStock)
-        tbp.tbp_u8Method = TX_BACKTESTING_METHOD_STOCK_BY_STOCK;
-
-    bzero(&tbr, sizeof(tx_backtesting_result_t));
-
-    u32Ret = backtestingModel(&tbp, &tbr);
-
-//    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = _printBacktestingResult(&tbr);
-    }
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }
@@ -153,7 +130,8 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * pt
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN];
-    tx_backtesting_param_t tbp;
+    tx_backtesting_eval_param_t tbep;
+    tx_backtesting_init_param_t tbip;
     tx_backtesting_result_t tbr;
 
     if (pcbp->cbp_pstrModel == NULL)
@@ -163,22 +141,32 @@ static u32 _startBacktestModel(cli_backtest_param_t * pcbp, tx_cli_master_t * pt
         strFullname, JF_LIMIT_MAX_PATH_LEN - 1, "%s", tx_env_getVar(TX_ENV_VAR_DATA_PATH));
     strFullname[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
-    ol_bzero(&tbp, sizeof(tx_backtesting_param_t));
-    tbp.tbp_bAllModel = FALSE;
-    tbp.tbp_pstrModel = pcbp->cbp_pstrModel;
-    tbp.tbp_pstrStockPath = strFullname;
-    tbp.tbp_dbInitialFund = 100000;
-    tbp.tbp_u8Method = TX_BACKTESTING_METHOD_DAY_BY_DAY;
-    if (pcbp->cbp_bStockByStock)
-        tbp.tbp_u8Method = TX_BACKTESTING_METHOD_STOCK_BY_STOCK;
+    ol_bzero(&tbip, sizeof(tbip));
+    tbip.tbip_pstrStockPath = strFullname;
 
-    ol_bzero(&tbr, sizeof(tx_backtesting_result_t));
-
-    u32Ret = backtestingModel(&tbp, &tbr);
+    u32Ret = tx_backtesting_init(&tbip);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _printBacktestingResult(&tbr);
+        ol_bzero(&tbep, sizeof(tbep));
+        tbep.tbep_pstrStockPath = strFullname;
+        tbep.tbep_dbInitialFund = 100000;
+
+        ol_bzero(&tbr, sizeof(tx_backtesting_result_t));
+
+        if (pcbp->cbp_bStockByStock)
+        {
+            u32Ret = tx_backtesting_evalModelFromStock(pcbp->cbp_pstrModel, &tbep, &tbr);
+        }
+        else
+        {
+            u32Ret = tx_backtesting_evalModelFromDay(pcbp->cbp_pstrModel, &tbep, &tbr);
+        }
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _printBacktestingResult(&tbr);
+
+        tx_backtesting_fini();
     }
 
     return u32Ret;
@@ -216,7 +204,7 @@ u32 setDefaultParamBacktest(void * pMaster, void * pParam)
 
     memset(pcbp, 0, sizeof(cli_backtest_param_t));
 
-    pcbp->cbp_u8Action = CLI_ACTION_BACKTEST_ALL;
+    pcbp->cbp_u8Action = CLI_ACTION_BACKTEST_MODEL;
 
     return u32Ret;
 }
@@ -230,8 +218,8 @@ u32 parseBacktest(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 
     optind = 0;  /* initialize the opt index */
 
-    while (((nOpt = getopt(argc, argv,
-        "sm:hv?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "sm:hv?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
