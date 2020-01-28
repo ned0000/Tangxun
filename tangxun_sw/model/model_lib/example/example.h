@@ -1,16 +1,15 @@
 /**
- *  @file roi.h
+ *  @file tangxun_sw/model/model_lib/example/example.h
  *
- *  @brief Roi header file.
+ *  @brief Example model header file.
  *
  *  @author Min Zhang
  *
  *  @note
- *  
  */
 
-#ifndef TANGXUN_MODEL_ROI_H
-#define TANGXUN_MODEL_ROI_H
+#ifndef TANGXUN_MODEL_EXAMPLE_H
+#define TANGXUN_MODEL_EXAMPLE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
@@ -23,17 +22,17 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-typedef struct tx_model_roi_data
+typedef struct tx_model_example_data
 {
-    u32 tmrd_u32Reserved[8];
+    u32 tmed_u32Reserved[8];
 
-} tx_model_roi_data_t;
+} tx_model_example_data_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
 u32 tx_model_fillModel(tx_model_t * ptm);
 
-#endif /*TANGXUN_MODEL_ROI_H*/
+#endif /*TANGXUN_MODEL_EXAMPLE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

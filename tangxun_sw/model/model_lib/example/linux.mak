@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for model roi.
+#  @brief The Makefile for model example.
 #
 #  @author Min Zhang
 #
@@ -12,10 +12,10 @@
 #---------------------------------------------------------------------------------------------------
 
 # Name of the library, MUST be start with "tx_model_"
-SONAME = tx_model_roi
+SONAME = tx_model_example
 
 # Source files
-SOURCES = roi.c
+SOURCES = example.c
 
 # Jiutai source files
 JIUTAI_SRCS =

@@ -1,12 +1,11 @@
 /**
- *  @file roi.c
+ *  @file tangxun_sw/model/model_lib/example/example.c
  *
- *  @brief The roi model
+ *  @brief The example model.
  *
  *  @author Min Zhang
  *
  *  @note
- *  
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
@@ -22,34 +21,34 @@
 #include "tx_rule.h"
 #include "tx_trade.h"
 
-#include "roi.h"
+#include "example.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define ROI_SETTING_NAME_LEFT_UPPER        "left_upper"
-#define ROI_SETTING_NAME_LEFT_LOWER        "left_lower"
-#define ROI_SETTING_NAME_RIGHT_UPPER       "right_upper"
-#define ROI_SETTING_NAME_RIGHT_LOWER       "right_lower"
+#define EXAMPLE_SETTING_NAME_LEFT_UPPER        "left_upper"
+#define EXAMPLE_SETTING_NAME_LEFT_LOWER        "left_lower"
+#define EXAMPLE_SETTING_NAME_RIGHT_UPPER       "right_upper"
+#define EXAMPLE_SETTING_NAME_RIGHT_LOWER       "right_lower"
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _initTxModelRoi(tx_model_t * ptm)
+static u32 _initTxModelExample(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    tx_model_roi_data_t * ptmrd = NULL;
+    tx_model_example_data_t * ptmed = NULL;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&ptmrd, sizeof(*ptmrd));
+    u32Ret = jf_jiukun_allocMemory((void **)&ptmed, sizeof(*ptmed));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_bzero(ptmrd, sizeof(*ptmrd));
+        ol_bzero(ptmed, sizeof(*ptmed));
 
-        ptm->tm_pData = ptmrd;
+        ptm->tm_pData = ptmed;
     }
     
     return u32Ret;
 }
 
-static u32 _finiTxModelRoi(tx_model_t * ptm)
+static u32 _finiTxModelExample(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -59,7 +58,7 @@ static u32 _finiTxModelRoi(tx_model_t * ptm)
     return u32Ret;
 }
 
-static u32 _canBeTradedInRoi(
+static u32 _canBeTradedInExample(
     struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
     tx_ds_t * buffer, int total)
 {
@@ -151,13 +150,13 @@ static u32 _canBeTradedInRoi(
         snprintf(
             pttps->ttps_strModelParam, TX_TRADE_MAX_MODEL_PARAM_LEN,
             "%s=%s,%s=%s,%s=%s,%s=%s",
-            ROI_SETTING_NAME_LEFT_UPPER,
+            EXAMPLE_SETTING_NAME_LEFT_UPPER,
             trrp.trrp_ptdRectangle[TX_RULE_RECTANGLE_LEFT_UPPER]->td_strDate,
-            ROI_SETTING_NAME_LEFT_LOWER,
+            EXAMPLE_SETTING_NAME_LEFT_LOWER,
             trrp.trrp_ptdRectangle[TX_RULE_RECTANGLE_LEFT_LOWER]->td_strDate,
-            ROI_SETTING_NAME_RIGHT_UPPER,
+            EXAMPLE_SETTING_NAME_RIGHT_UPPER,
             trrp.trrp_ptdRectangle[TX_RULE_RECTANGLE_RIGHT_UPPER]->td_strDate,
-            ROI_SETTING_NAME_RIGHT_LOWER,
+            EXAMPLE_SETTING_NAME_RIGHT_LOWER,
             trrp.trrp_ptdRectangle[TX_RULE_RECTANGLE_RIGHT_LOWER]->td_strDate);
 
         JF_LOGGER_INFO("setting string: %s", pttps->ttps_strModelParam);
@@ -166,7 +165,7 @@ static u32 _canBeTradedInRoi(
     return u32Ret;
 }
 
-static u32 _tradeTryBuyInRoi(
+static u32 _tradeTryBuyInExample(
     struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
     tx_model_trade_data_t * ptmtd, tx_ds_t * buffer, int total)
 {
@@ -201,7 +200,7 @@ static u32 _tradeTryBuyInRoi(
     return u32Ret;
 }
 
-static u32 _getRoiRectanglePoint(
+static u32 _getExampleRectanglePoint(
     tx_trade_pool_stock_t * pttps, tx_ds_t * buffer, int total,
     tx_ds_t ** ppLeftUpper, tx_ds_t ** ppLeftLower,
     tx_ds_t ** ppRightUpper, tx_ds_t ** ppRightLower)
@@ -218,7 +217,7 @@ static u32 _getRoiRectanglePoint(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_getSettingsString(
-            pstrArray, sArray, ROI_SETTING_NAME_LEFT_UPPER, "\0",
+            pstrArray, sArray, EXAMPLE_SETTING_NAME_LEFT_UPPER, "\0",
             strDate, sizeof(strDate));
     }
 
@@ -230,7 +229,7 @@ static u32 _getRoiRectanglePoint(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_getSettingsString(
-            pstrArray, sArray, ROI_SETTING_NAME_LEFT_LOWER, "\0",
+            pstrArray, sArray, EXAMPLE_SETTING_NAME_LEFT_LOWER, "\0",
             strDate, sizeof(strDate));
     }
 
@@ -242,7 +241,7 @@ static u32 _getRoiRectanglePoint(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_getSettingsString(
-            pstrArray, sArray, ROI_SETTING_NAME_RIGHT_UPPER, "\0",
+            pstrArray, sArray, EXAMPLE_SETTING_NAME_RIGHT_UPPER, "\0",
             strDate, sizeof(strDate));
     }
 
@@ -254,7 +253,7 @@ static u32 _getRoiRectanglePoint(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_getSettingsString(
-            pstrArray, sArray, ROI_SETTING_NAME_RIGHT_LOWER, "\0",
+            pstrArray, sArray, EXAMPLE_SETTING_NAME_RIGHT_LOWER, "\0",
             strDate, sizeof(strDate));
     }
 
@@ -266,7 +265,7 @@ static u32 _getRoiRectanglePoint(
     return u32Ret;
 }
 
-static u32 _tradeTrySellInRoi(
+static u32 _tradeTrySellInExample(
     struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
     tx_model_trade_data_t * ptmtd, tx_ds_t * buffer, int total)
 {
@@ -288,7 +287,7 @@ static u32 _tradeTrySellInRoi(
     }
 
     /*Is the bought price is near pressure line.*/
-    u32Ret = _getRoiRectanglePoint(
+    u32Ret = _getExampleRectanglePoint(
         pttps, buffer, total, &pLeftUpper, &pLeftLower, &pRightUpper, &pRightLower);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -353,7 +352,7 @@ static u32 _tradeTrySellInRoi(
     return u32Ret;
 }
 
-static u32 _tradeInRoi(
+static u32 _tradeInExample(
     struct tx_model * ptm, tx_stock_info_t * stockinfo, tx_trade_pool_stock_t * pttps,
     tx_model_trade_data_t * ptmtd, tx_ds_t * buffer, int total)
 {
@@ -362,12 +361,12 @@ static u32 _tradeInRoi(
     if (tx_trade_isPoolStockOpNone(pttps))
     {
         /*Try to buy.*/
-        u32Ret = _tradeTryBuyInRoi(ptm, stockinfo, pttps, ptmtd, buffer, total);
+        u32Ret = _tradeTryBuyInExample(ptm, stockinfo, pttps, ptmtd, buffer, total);
     }
     else if (tx_trade_isPoolStockOpBuy(pttps))
     {
         /*Try to sell.*/
-        u32Ret = _tradeTrySellInRoi(ptm, stockinfo, pttps, ptmtd, buffer, total);
+        u32Ret = _tradeTrySellInExample(ptm, stockinfo, pttps, ptmtd, buffer, total);
     }
 
     return u32Ret;
@@ -379,12 +378,12 @@ u32 tx_model_fillModel(tx_model_t * ptm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_strcpy(ptm->tm_strName, "ROI");
-    ol_strcpy(ptm->tm_strLongName, "rectangle_over_index");
-    ptm->tm_fnInitModel = _initTxModelRoi;
-    ptm->tm_fnFiniModel = _finiTxModelRoi;
-    ptm->tm_fnCanBeTraded = _canBeTradedInRoi;
-    ptm->tm_fnTrade = _tradeInRoi;
+    ol_strcpy(ptm->tm_strName, "Example");
+    ol_strcpy(ptm->tm_strLongName, "Example");
+    ptm->tm_fnInitModel = _initTxModelExample;
+    ptm->tm_fnFiniModel = _finiTxModelExample;
+    ptm->tm_fnCanBeTraded = _canBeTradedInExample;
+    ptm->tm_fnTrade = _tradeInExample;
 
     return u32Ret;
 }
