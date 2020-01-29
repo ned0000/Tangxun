@@ -106,21 +106,6 @@ typedef enum tx_indi_id
     TX_INDI_ID_MAX,
 } tx_indi_id_t;
 
-#if 0
-typedef struct tx_indi_adxr
-{
-    oldouble_t tia_dbDx;
-	oldouble_t tia_dbAdx;
-	oldouble_t tia_dbAdxr;
-	oldouble_t tia_dbAdxrTrend;
-    /**K chart pattern.*/
-#define KCP_UNKNOWN              (0)
-#define KCP_TREND                (1)
-#define KCP_ANTI_TREND           (2)
-    olint_t tia_nKcp;
-} tx_indi_adxr_t;
-#endif
-
 /*directional movement index
  *DMP: Directional Movement Plus
  *DMM: Directional Movement Minus
@@ -157,10 +142,10 @@ typedef struct tx_indi_dmi
 typedef struct tx_indi_macd_param
 {
 #define TX_INDI_DEF_MACD_SHORT_DAYS    (12)
-#define TX_INDI_DEF_MACD_LONG_DAYS     (26)
-#define TX_INDI_DEF_MACD_M_DAYS        (9)
 	olint_t timp_nMacdShortDays;
+#define TX_INDI_DEF_MACD_LONG_DAYS     (26)
 	olint_t timp_nMacdLongDays;
+#define TX_INDI_DEF_MACD_M_DAYS        (9)
     olint_t timp_nMacdMDays;
 } tx_indi_macd_param_t;
 
@@ -276,9 +261,6 @@ typedef struct tx_indi_obv
 {
 	oldouble_t tio_dbObv;
 } tx_indi_obv_t;
-
-#define TX_INDI_OPTIMIZE_DAY_SUMMARY  40  /*2 months*/
-#define TX_INDI_TOTAL_OPTIMIZE_DAY_SUMMARY  (100 + TX_INDI_OPTIMIZE_DAY_SUMMARY) 
 
 typedef union
 {

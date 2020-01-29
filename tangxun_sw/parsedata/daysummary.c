@@ -1032,8 +1032,7 @@ u32 tx_ds_readDsFromDateWithFRoR(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = tx_ds_readDsFromDate(
-        pstrDataDir, pstrStartDate, buffer, numofresult);
+    u32Ret = tx_ds_readDsFromDate(pstrDataDir, pstrStartDate, buffer, numofresult);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("read td from date %s, total %d days", pstrStartDate, *numofresult);

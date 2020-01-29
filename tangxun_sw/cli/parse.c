@@ -163,7 +163,7 @@ parse [Trade summary file options] [Quotation file options] [Trade detail file o
 Common options.\n\
 parse [-l count] [-d yyyy-mm-dd] [-v] [-h] \n\
   -l: read last N days.\n\
-  -d: the start date.\n\
+  -d: specify the date.\n\
   -h: print the usage.\n\
   -v: verbose.");
     jf_clieng_outputRawLine2("\

@@ -181,18 +181,26 @@ u32 processBacktest(void * pMaster, void * pParam)
     tx_cli_master_t * ptcm = (tx_cli_master_t *)pMaster;
 
     if (pcbp->cbp_u8Action == CLI_ACTION_SHOW_HELP)
+    {
         u32Ret = _backtestHelp(ptcm);
+    }
     else if (tx_env_isNullVarDataPath())
     {
         jf_clieng_outputLine("Data path is not set.");
         u32Ret = JF_ERR_NOT_READY;
     }
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_ALL)
+    {
         u32Ret = _startBacktestAll(pcbp, ptcm);
+    }
     else if (pcbp->cbp_u8Action == CLI_ACTION_BACKTEST_MODEL)
+    {
         u32Ret = _startBacktestModel(pcbp, ptcm);
+    }
     else
+    {
         u32Ret = JF_ERR_MISSING_PARAM;
+    }
 
     return u32Ret;
 }

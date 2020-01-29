@@ -29,7 +29,11 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define MAX_INDI_DAY_SUMMARY (TX_INDI_TOTAL_OPTIMIZE_DAY_SUMMARY + 8 * TX_INDI_OPTIMIZE_DAY_SUMMARY)
+#define CLI_INDI_OPTIMIZE_DAY_SUMMARY  (40)  /*2 months*/
+
+#define CLI_INDI_TOTAL_OPTIMIZE_DAY_SUMMARY  (100 + CLI_INDI_OPTIMIZE_DAY_SUMMARY) 
+
+#define MAX_INDI_DAY_SUMMARY (CLI_INDI_TOTAL_OPTIMIZE_DAY_SUMMARY)
 
 static jf_clieng_caption_t ls_jccTxIndiBrief[] =
 {
